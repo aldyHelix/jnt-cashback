@@ -1,0 +1,10 @@
+{
+    "name": "delivery",
+    "namespace": "Modules\\Delivery\\",
+    "providers": [
+        "Modules\\Delivery\\Providers\\DeliveryServiceProvider",
+        "Modules\\Delivery\\Providers\\EventServiceProvider",
+        "Modules\\Delivery\\Providers\\RouteServiceProvider"
+    ],
+    "status": "enabled"
+}

@@ -1,0 +1,10 @@
+{
+    "name": "cashbackpickup",
+    "namespace": "Modules\\CashbackPickup\\",
+    "providers": [
+        "Modules\\CashbackPickup\\Providers\\CashbackPickupServiceProvider",
+        "Modules\\CashbackPickup\\Providers\\EventServiceProvider",
+        "Modules\\CashbackPickup\\Providers\\RouteServiceProvider"
+    ],
+    "status": "enabled"
+}

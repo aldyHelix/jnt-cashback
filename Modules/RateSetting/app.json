@@ -1,0 +1,10 @@
+{
+    "name": "ratesetting",
+    "namespace": "Modules\\RateSetting\\",
+    "providers": [
+        "Modules\\RateSetting\\Providers\\RateSettingServiceProvider",
+        "Modules\\RateSetting\\Providers\\EventServiceProvider",
+        "Modules\\RateSetting\\Providers\\RouteServiceProvider"
+    ],
+    "status": "enabled"
+}

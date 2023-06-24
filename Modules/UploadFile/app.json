@@ -1,0 +1,10 @@
+{
+    "name": "uploadfile",
+    "namespace": "Modules\\UploadFile\\",
+    "providers": [
+        "Modules\\UploadFile\\Providers\\UploadFileServiceProvider",
+        "Modules\\UploadFile\\Providers\\EventServiceProvider",
+        "Modules\\UploadFile\\Providers\\RouteServiceProvider"
+    ],
+    "status": "enabled"
+}
