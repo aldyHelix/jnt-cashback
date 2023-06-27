@@ -188,9 +188,10 @@ return [
             'maxProcesses' => 1,
             'maxTime' => 0,
             'maxJobs' => 0,
-            'memory' => 128,
-            'tries' => 1,
-            'timeout' => 60,
+            'memory' => 5128,
+            'tries' => 10,
+            'timeout' => 60 * 60,
+            'tryAfter' => 9000,
             'nice' => 0,
         ],
     ],
@@ -206,7 +207,7 @@ return [
 
         'local' => [
             'supervisor-1' => [
-                'maxProcesses' => 3,
+                'maxProcesses' => 10,
             ],
         ],
     ],
