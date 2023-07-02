@@ -1,0 +1,10 @@
+{
+    "name": "period",
+    "namespace": "Modules\\Period\\",
+    "providers": [
+        "Modules\\Period\\Providers\\PeriodServiceProvider",
+        "Modules\\Period\\Providers\\EventServiceProvider",
+        "Modules\\Period\\Providers\\RouteServiceProvider"
+    ],
+    "status": "enabled"
+}

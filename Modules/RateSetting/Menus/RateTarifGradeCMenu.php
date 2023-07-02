@@ -5,9 +5,8 @@ namespace Modules\RateSetting\Menus;
 use Ladmin\Engine\Contracts\MenuDivider;
 use Ladmin\Engine\Menus\Gate;
 use Ladmin\Engine\Supports\BaseMenu;
-use Modules\CollectionPoint\Menus\CollectionPointMenu;
 
-class MasterMenu extends BaseMenu
+class RateTarifGradeCMenu extends BaseMenu
 {
 
     /**
@@ -15,14 +14,14 @@ class MasterMenu extends BaseMenu
      *
      * @var string
      */
-    protected $gate = 'master.index';
+    protected $gate = 'rate.grade.c.index';
 
     /**
      * Name of menu
      *
      * @var string
      */
-    protected $name = 'Master data';
+    protected $name = 'Rate Tarif Grade C';
 
     /**
      * Font icons
@@ -36,7 +35,7 @@ class MasterMenu extends BaseMenu
      *
      * @var string
      */
-    protected $description = 'User can access master data';
+    protected $description = 'User can access Rate Tarif Grading C';
 
     /**
      * Inspecting The Request Path / Route active
@@ -44,7 +43,7 @@ class MasterMenu extends BaseMenu
      *
      * @var string
      */
-    protected $isActive = '';
+    protected $isActive = 'grade-c*';
 
     /**
      * Menu ID
@@ -61,7 +60,7 @@ class MasterMenu extends BaseMenu
      */
     protected function route()
     {
-        return null;
+        return ['ladmin.ratesetting.grade-c.index'];
     }
 
     /**
@@ -73,6 +72,9 @@ class MasterMenu extends BaseMenu
     {
         return [
             // new Gate(gate: 'gate.menu.uniq', title: 'Gate Title', description: 'Description of gate'),
+            new Gate(gate: 'ladmin.grade-c.create', title: 'Create New Grade C', description: 'User can create new Grade C data'),
+            new Gate(gate: 'ladmin.grade-c.update', title: 'Update Grade C', description: 'User can update Grade C'),
+            new Gate(gate: 'ladmin.grade-c.delete', title: 'Delete Grade C', description: 'User can update Grade C'),
         ];
     }
 
@@ -85,11 +87,6 @@ class MasterMenu extends BaseMenu
     {
         return [
             // OtherMenu::class
-            CollectionPointMenu::class,
-            RateTarifGradeAMenu::class,
-            RateTarifGradeBMenu::class,
-            RateTarifGradeCMenu::class,
-            RateTarifDeliveryFeeMenu::class
         ];
     }
 }

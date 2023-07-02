@@ -5,9 +5,8 @@ namespace Modules\RateSetting\Menus;
 use Ladmin\Engine\Contracts\MenuDivider;
 use Ladmin\Engine\Menus\Gate;
 use Ladmin\Engine\Supports\BaseMenu;
-use Modules\CollectionPoint\Menus\CollectionPointMenu;
 
-class MasterMenu extends BaseMenu
+class RateTarifDeliveryFeeMenu extends BaseMenu
 {
 
     /**
@@ -15,14 +14,14 @@ class MasterMenu extends BaseMenu
      *
      * @var string
      */
-    protected $gate = 'master.index';
+    protected $gate = 'rate.delivery.index';
 
     /**
      * Name of menu
      *
      * @var string
      */
-    protected $name = 'Master data';
+    protected $name = 'Delivery Fee';
 
     /**
      * Font icons
@@ -36,7 +35,7 @@ class MasterMenu extends BaseMenu
      *
      * @var string
      */
-    protected $description = 'User can access master data';
+    protected $description = 'User can access delivery fee';
 
     /**
      * Inspecting The Request Path / Route active
@@ -44,14 +43,14 @@ class MasterMenu extends BaseMenu
      *
      * @var string
      */
-    protected $isActive = '';
+    protected $isActive = 'delivery*';
 
     /**
      * Menu ID
      *
      * @var string
      */
-    protected $id = '';
+    protected $id = 'delivery*';
 
     /**
      * Route name
@@ -61,7 +60,7 @@ class MasterMenu extends BaseMenu
      */
     protected function route()
     {
-        return null;
+        return ['ladmin.ratesetting.delivery.index'];
     }
 
     /**
@@ -73,6 +72,9 @@ class MasterMenu extends BaseMenu
     {
         return [
             // new Gate(gate: 'gate.menu.uniq', title: 'Gate Title', description: 'Description of gate'),
+            new Gate(gate: 'rate.delivery.create', title: 'Create New Delivery Fee', description: 'User can create new delivery fee'),
+            new Gate(gate: 'rate.delivery.update', title: 'Update Delivery fee', description: 'User can update delivery fee'),
+            new Gate(gate: 'rate.delivery.destroy', title: 'Delete Delivery', description: 'User can delete delivery fee'),
         ];
     }
 
@@ -85,11 +87,6 @@ class MasterMenu extends BaseMenu
     {
         return [
             // OtherMenu::class
-            CollectionPointMenu::class,
-            RateTarifGradeAMenu::class,
-            RateTarifGradeBMenu::class,
-            RateTarifGradeCMenu::class,
-            RateTarifDeliveryFeeMenu::class
         ];
     }
 }

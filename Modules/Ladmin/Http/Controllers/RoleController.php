@@ -21,7 +21,7 @@ class RoleController extends Controller
 
         return RoleDatatables::view();
     }
-    
+
     /**
      * Store a newly created resource in storage.
      *
@@ -44,11 +44,11 @@ class RoleController extends Controller
     public function show($id)
     {
         ladmin()->allows(['role.assign']);
-        
+
         $data['role'] = LadminRole::findOrFail($id);
         return ladmin()->view('permission.show', $data);
     }
-    
+
     /**
      * Update the specified resource in storage.
      *

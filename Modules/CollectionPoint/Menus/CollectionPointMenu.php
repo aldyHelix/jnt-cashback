@@ -1,13 +1,12 @@
 <?php
 
-namespace Modules\RateSetting\Menus;
+namespace Modules\CollectionPoint\Menus;
 
 use Ladmin\Engine\Contracts\MenuDivider;
 use Ladmin\Engine\Menus\Gate;
 use Ladmin\Engine\Supports\BaseMenu;
-use Modules\CollectionPoint\Menus\CollectionPointMenu;
 
-class MasterMenu extends BaseMenu
+class CollectionPointMenu extends BaseMenu
 {
 
     /**
@@ -15,28 +14,28 @@ class MasterMenu extends BaseMenu
      *
      * @var string
      */
-    protected $gate = 'master.index';
+    protected $gate = 'ladmin.collectionpoint.index';
 
     /**
      * Name of menu
      *
      * @var string
      */
-    protected $name = 'Master data';
+    protected $name = 'Master CP';
 
     /**
      * Font icons
      *
      * @var string
      */
-    protected $icon = 'fa fa-regular fa-square-check'; // fontawesome
+    protected $icon = 'fa fa-map-pin'; // fontawesome
 
     /**
      * Menu description
      *
      * @var string
      */
-    protected $description = 'User can access master data';
+    protected $description = 'User can master data collection point';
 
     /**
      * Inspecting The Request Path / Route active
@@ -44,7 +43,7 @@ class MasterMenu extends BaseMenu
      *
      * @var string
      */
-    protected $isActive = '';
+    protected $isActive = 'collectionpoint*';
 
     /**
      * Menu ID
@@ -61,7 +60,7 @@ class MasterMenu extends BaseMenu
      */
     protected function route()
     {
-        return null;
+        return ['ladmin.collectionpoint.index'];
     }
 
     /**
@@ -73,6 +72,9 @@ class MasterMenu extends BaseMenu
     {
         return [
             // new Gate(gate: 'gate.menu.uniq', title: 'Gate Title', description: 'Description of gate'),
+            new Gate(gate: 'ladmin.collectionpoint.create', title: 'Create New Collection Point', description: 'User can create new collection point data'),
+            new Gate(gate: 'ladmin.collectionpoint.update', title: 'Update Collection Point', description: 'User can update collection point'),
+            new Gate(gate: 'ladmin.collectionpoint.delete', title: 'Delete Collection Point', description: 'User can update collection point'),
         ];
     }
 
@@ -85,11 +87,6 @@ class MasterMenu extends BaseMenu
     {
         return [
             // OtherMenu::class
-            CollectionPointMenu::class,
-            RateTarifGradeAMenu::class,
-            RateTarifGradeBMenu::class,
-            RateTarifGradeCMenu::class,
-            RateTarifDeliveryFeeMenu::class
         ];
     }
 }

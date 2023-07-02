@@ -1,12 +1,12 @@
 <?php
 
-namespace Modules\CollectionPoint\Menus;
+namespace Modules\RateSetting\Menus;
 
 use Ladmin\Engine\Contracts\MenuDivider;
 use Ladmin\Engine\Menus\Gate;
 use Ladmin\Engine\Supports\BaseMenu;
 
-class CollectinPointMenu extends BaseMenu
+class RateTarifGradeBMenu extends BaseMenu
 {
 
     /**
@@ -14,17 +14,17 @@ class CollectinPointMenu extends BaseMenu
      *
      * @var string
      */
-    protected $gate = 'menu.gate.index';
+    protected $gate = 'rate.grade.b.index';
 
     /**
      * Name of menu
      *
      * @var string
      */
-    protected $name = 'Menu Name';
+    protected $name = 'Rate Tarif Grade B';
 
     /**
-     * Font icons 
+     * Font icons
      *
      * @var string
      */
@@ -35,7 +35,7 @@ class CollectinPointMenu extends BaseMenu
      *
      * @var string
      */
-    protected $description = 'User can access module name';
+    protected $description = 'User can access Rate Tarif Grading B';
 
     /**
      * Inspecting The Request Path / Route active
@@ -43,7 +43,7 @@ class CollectinPointMenu extends BaseMenu
      *
      * @var string
      */
-    protected $isActive = '';
+    protected $isActive = 'grade-b*';
 
     /**
      * Menu ID
@@ -60,7 +60,7 @@ class CollectinPointMenu extends BaseMenu
      */
     protected function route()
     {
-        return null;
+        return ['ladmin.ratesetting.grade-b.index'];
     }
 
     /**
@@ -72,6 +72,9 @@ class CollectinPointMenu extends BaseMenu
     {
         return [
             // new Gate(gate: 'gate.menu.uniq', title: 'Gate Title', description: 'Description of gate'),
+            new Gate(gate: 'ladmin.grade-b.create', title: 'Create New Grade B', description: 'User can create new Grade B data'),
+            new Gate(gate: 'ladmin.grade-b.update', title: 'Update Grade B', description: 'User can update Grade B'),
+            new Gate(gate: 'ladmin.grade-b.delete', title: 'Delete Grade B', description: 'User can update Grade B'),
         ];
     }
 
