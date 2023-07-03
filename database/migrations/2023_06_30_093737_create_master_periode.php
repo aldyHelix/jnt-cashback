@@ -16,6 +16,15 @@ return new class extends Migration
             $table->string('code')->nullable();
             $table->string('month')->nullable();
             $table->string('year')->nullable();
+            $table->bigInteger('processed_row')->default(0);
+            $table->bigInteger('count_row')->default(0);
+            $table->string('processed_by')->default(NULL)->nullable();
+            $table->string('status')->nullable()->comment();
+            $table->tinyInteger('is_processing_done')->default(0);
+            $table->tinyInteger('is_pivot_processing_done')->default(0);
+            $table->tinyInteger('is_locked')->default(0);
+            $table->timestamp('start_processed_at')->nullable();
+            $table->timestamp('done_processed_at')->nullable();
             $table->timestamps();
         });
     }

@@ -1,5 +1,6 @@
 <?php
 
+use Modules\CashbackPickup\Menus\CashbackMenu;
 use Modules\Ladmin\Menus\Account;
 use Modules\Ladmin\Menus\Access;
 use Modules\Ladmin\Menus\System;
@@ -14,6 +15,8 @@ return [
     UploadMenu::class,
 
     MasterMenu::class,
+
+    CashbackMenu::class,
 
     Account::class,
 

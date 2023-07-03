@@ -6,7 +6,7 @@ use Ladmin\Engine\Contracts\MenuDivider;
 use Ladmin\Engine\Menus\Gate;
 use Ladmin\Engine\Supports\BaseMenu;
 
-class CashbackMenu extends BaseMenu
+class Grading1Menu extends BaseMenu
 {
 
     /**
@@ -14,14 +14,14 @@ class CashbackMenu extends BaseMenu
      *
      * @var string
      */
-    protected $gate = 'cashback.pickup.index';
+    protected $gate = 'cashback.pickup.grading1.index';
 
     /**
      * Name of menu
      *
      * @var string
      */
-    protected $name = 'Cashback Pickup';
+    protected $name = 'Grading 1';
 
     /**
      * Font icons
@@ -35,7 +35,7 @@ class CashbackMenu extends BaseMenu
      *
      * @var string
      */
-    protected $description = 'User can access Cashback Pickup';
+    protected $description = 'User can access Cashback Pickup Grading 1';
 
     /**
      * Inspecting The Request Path / Route active
@@ -43,7 +43,7 @@ class CashbackMenu extends BaseMenu
      *
      * @var string
      */
-    protected $isActive = 'grading*';
+    protected $isActive = 'grading1*';
 
     /**
      * Menu ID
@@ -60,7 +60,7 @@ class CashbackMenu extends BaseMenu
      */
     protected function route()
     {
-        return null;
+        return ['ladmin.cashbackpickup.index', ['grade' => 1]];
     }
 
     /**
@@ -84,9 +84,6 @@ class CashbackMenu extends BaseMenu
     {
         return [
             // OtherMenu::class
-            Grading1Menu::class,
-            Grading2Menu::class,
-            Grading3Menu::class,
         ];
     }
 }
