@@ -21,7 +21,7 @@ class UploadFileDatatables extends Datatables
      */
     public function __construct()
     {
-        $this->query = UploadFile::query();
+        $this->query = UploadFile::query()->orderBy('created_at', 'DESC');
     }
 
     /**
@@ -43,14 +43,22 @@ class UploadFileDatatables extends Datatables
     {
         return $this->eloquent($this->query)
             ->addColumn('action', function ($row) {
-                return Blade::render('<a href="">Button</a>');
+                return $this->actionButton($row);
             })
-            ->addColumn('create_at', function ($row) {
-                return date('d m Y h:i', strtotime($row->created_at));
+            ->editColumn('created_at', function ($row) {
+                return $row->created_at->format('d-m-Y h:i');
+                // date('d m Y h:i', strtotime($row->created_at));
+            })
+            ->editColumn('type_file', function($row) {
+                return intval($row->type_file) ? 'TTD' : 'Cashback';
             })
             ->addColumn('period', function ($row) {
                 return $row->month_period.'-'.$row->year_period;
             });
+    }
+
+    public function actionButton($row){
+        return view('uploadfile::_partial.table-action', $row);
     }
 
     /**

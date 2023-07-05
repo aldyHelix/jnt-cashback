@@ -103,43 +103,42 @@ class UploadController extends Controller
                 ]);
             }
 
-            $jobs = [];
-            $replacements = [
-               [',', '.'],
-               [';', ','],
+            $batch  = Bus::batch([])
+             ->then(function (Batch $batch) use ($uploaded_file, $existing_periode, $count_csv) {
+                 $uploaded_file->update([
+                     'processed_row'=> $uploaded_file->processed_row + $count_csv,
+                     'processing_status'=> 'FINISHED'
+                 ]);
+                 $done = $existing_periode->update([
+                     'processed_row' => $existing_periode->count_row + $count_csv,
+                     'status' => 'FINISHED',
+                 ]);
+             })
+             ->catch(function (Batch $batch, Throwable $e) use ($uploaded_file, $existing_periode, $count_csv) {
+                 // First batch job failure detected...
+                 $uploaded_file->update(['processing_status'=> 'FAILED']);
+                 $existing_periode->update([
+                     'status' => 'FAILED',
+                 ]);
+             })
+             ->finally(function (Batch $batch) use ($uploaded_file, $existing_periode, $count_csv) {
+                 $status = 'FINISHED '.$batch->progress().'%';
+                 if($batch->failedJobs > 0) {
+                    $status = 'NOT FULLY IMPORTED ('.$batch->progress().'% PROCESSED)';
+                 }
 
-               ['?SHOPEE COD', ',SHOPEE COD'],
-               ['?SHOPEE', ',SHOPEE'],
-               ['?LAZADA', ',LAZADA'],
-               ['?MAGELLAN COD', ',MAGELLAN COD'],
-               ['?TOKOPEDIA', ',TOKOPEDIA'],
-               ['?E3', ',E3'],
-               ['?1', ',1'],
-               ['?AKULAKUOB', ',AKULAKUOB'],
-               ['?APP', ',APP'],
-               ['?APP Sprinter', ',APP Sprinter'],
-               ['?BITESHIP', ',BITESHIP'],
-               ['?BLIBLIAPI', ',BLIBLIAPI'],
-               ['?BRTTRIMENTARI', ',BRTTRIMENTARI'],
-               ['?BUKAEXPRESS', ',BUKAEXPRESS'],
-               ['?BUKALAPAK', ',BUKALAPAK'],
-               ['?BUKASEND', ',BUKASEND'],
-               ['?CLODEOHQ', ',CLODEOHQ'],
-               ['?DOCTORSHIP', ',DOCTORSHIP'],
-               ['?DONATELLOINDO', ',DONATELLOINDO'],
-               ['?EVERMOSAPI', ',EVERMOSAPI'],
-               ['?GRAMEDIA', ',GRAMEDIA'],
-               ['?LAZADA COD', ',LAZADA COD'],
-               ['?MAGELLAN', ',MAGELLAN'],
-               ['?MAGELLAN COD', ',MAGELLAN COD'],
-               ['?MAULAGI', ',MAULAGI'],
-               ['?MENGANTAR', ',MENGANTAR'],
-               ['?ORDIVO', ',ORDIVO'],
-               ['?PLUNGO', ',PLUNGO'],
-               ['?TRIES', ',TRIES'],
-               ['?VIP', ',VIP'],
-               ['?WEBSITE', ',WEBSITE'],
-            ];
+                 $uploaded_file->update([
+                     'processing_status'=> $status,
+                 ]);
+
+                 $existing_periode->update([
+                     'status' => $status,
+                 ]);
+                 // The batch has finished executing...
+             })
+             ->name($queue_name);
+            //  ->allowFailures()
+
 
             foreach($chunks as $key => $chunk) {
                 // $chunk = $this->data;
@@ -148,44 +147,44 @@ class UploadController extends Controller
                 /**
                  * cleansing csv
                  */
-                // $chunk = str_replace(',', '.', $chunk);
-                // $chunk = str_replace(';', ',', $chunk);
+                $chunk = str_replace(',', '.', $chunk);
+                $chunk = str_replace(';', ',', $chunk);
 
-                // $chunk = str_replace('?SHOPEE COD', ',SHOPEE COD', $chunk);
-                // $chunk = str_replace('?SHOPEE', ',SHOPEE', $chunk);
-                // $chunk = str_replace('?LAZADA', ',LAZADA', $chunk);
-                // $chunk = str_replace('?MAGELLAN COD', ',MAGELLAN COD', $chunk);
-                // $chunk = str_replace('?TOKOPEDIA', ',TOKOPEDIA', $chunk);
-                // $chunk = str_replace('?E3', ',E3', $chunk);
-                // $chunk = str_replace('?1', ',1', $chunk);
-                // $chunk = str_replace('?AKULAKUOB', ',AKULAKUOB', $chunk);
-                // $chunk = str_replace('?APP', ',APP', $chunk);
-                // $chunk = str_replace('?APP Sprinter', ',APP Sprinter', $chunk);
-                // $chunk = str_replace('?BITESHIP', ',BITESHIP', $chunk);
-                // $chunk = str_replace('?BLIBLIAPI', ',BLIBLIAPI', $chunk);
-                // $chunk = str_replace('?BRTTRIMENTARI', ',BRTTRIMENTARI', $chunk);
-                // $chunk = str_replace('?BUKAEXPRESS', ',BUKAEXPRESS', $chunk);
-                // $chunk = str_replace('?BUKALAPAK', ',BUKALAPAK', $chunk);
-                // $chunk = str_replace('?BUKASEND', ',BUKASEND', $chunk);
-                // $chunk = str_replace('?CLODEOHQ', ',CLODEOHQ', $chunk);
-                // $chunk = str_replace('?DOCTORSHIP', ',DOCTORSHIP', $chunk);
-                // $chunk = str_replace('?DONATELLOINDO', ',DONATELLOINDO', $chunk);
-                // $chunk = str_replace('?EVERMOSAPI', ',EVERMOSAPI', $chunk);
-                // $chunk = str_replace('?GRAMEDIA', ',GRAMEDIA', $chunk);
-                // $chunk = str_replace('?LAZADA COD', ',LAZADA COD', $chunk);
-                // $chunk = str_replace('?MAGELLAN', ',MAGELLAN', $chunk);
-                // $chunk = str_replace('?MAGELLAN COD', ',MAGELLAN COD', $chunk);
-                // $chunk = str_replace('?MAULAGI', ',MAULAGI', $chunk);
-                // $chunk = str_replace('?MENGANTAR', ',MENGANTAR', $chunk);
-                // $chunk = str_replace('?ORDIVO', ',ORDIVO', $chunk);
-                // $chunk = str_replace('?PLUNGO', ',PLUNGO', $chunk);
-                // $chunk = str_replace('?TRIES', ',TRIES', $chunk);
-                // $chunk = str_replace('?VIP', ',VIP', $chunk);
-                // $chunk = str_replace('?WEBSITE', ',WEBSITE', $chunk);
+                $chunk = str_replace('?SHOPEE COD', ',SHOPEE COD', $chunk);
+                $chunk = str_replace('?SHOPEE', ',SHOPEE', $chunk);
+                $chunk = str_replace('?LAZADA', ',LAZADA', $chunk);
+                $chunk = str_replace('?MAGELLAN COD', ',MAGELLAN COD', $chunk);
+                $chunk = str_replace('?TOKOPEDIA', ',TOKOPEDIA', $chunk);
+                $chunk = str_replace('?E3', ',E3', $chunk);
+                $chunk = str_replace('?1', ',1', $chunk);
+                $chunk = str_replace('?AKULAKUOB', ',AKULAKUOB', $chunk);
+                $chunk = str_replace('?APP', ',APP', $chunk);
+                $chunk = str_replace('?APP Sprinter', ',APP Sprinter', $chunk);
+                $chunk = str_replace('?BITESHIP', ',BITESHIP', $chunk);
+                $chunk = str_replace('?BLIBLIAPI', ',BLIBLIAPI', $chunk);
+                $chunk = str_replace('?BRTTRIMENTARI', ',BRTTRIMENTARI', $chunk);
+                $chunk = str_replace('?BUKAEXPRESS', ',BUKAEXPRESS', $chunk);
+                $chunk = str_replace('?BUKALAPAK', ',BUKALAPAK', $chunk);
+                $chunk = str_replace('?BUKASEND', ',BUKASEND', $chunk);
+                $chunk = str_replace('?CLODEOHQ', ',CLODEOHQ', $chunk);
+                $chunk = str_replace('?DOCTORSHIP', ',DOCTORSHIP', $chunk);
+                $chunk = str_replace('?DONATELLOINDO', ',DONATELLOINDO', $chunk);
+                $chunk = str_replace('?EVERMOSAPI', ',EVERMOSAPI', $chunk);
+                $chunk = str_replace('?GRAMEDIA', ',GRAMEDIA', $chunk);
+                $chunk = str_replace('?LAZADA COD', ',LAZADA COD', $chunk);
+                $chunk = str_replace('?MAGELLAN', ',MAGELLAN', $chunk);
+                $chunk = str_replace('?MAGELLAN COD', ',MAGELLAN COD', $chunk);
+                $chunk = str_replace('?MAULAGI', ',MAULAGI', $chunk);
+                $chunk = str_replace('?MENGANTAR', ',MENGANTAR', $chunk);
+                $chunk = str_replace('?ORDIVO', ',ORDIVO', $chunk);
+                $chunk = str_replace('?PLUNGO', ',PLUNGO', $chunk);
+                $chunk = str_replace('?TRIES', ',TRIES', $chunk);
+                $chunk = str_replace('?VIP', ',VIP', $chunk);
+                $chunk = str_replace('?WEBSITE', ',WEBSITE', $chunk);
 
-                foreach ($replacements as $replacement) {
-                    $chunk = str_replace($replacement[0], $replacement[1], $chunk);
-                }
+                // foreach ($replacements as $replacement) {
+                //     $chunk = str_replace($replacement[0], $replacement[1], $chunk);
+                // }
 
                 $chunk = str_replace("\xE2\x80\x8B", "", $chunk);
                 // Zero-width non-breakabke space
@@ -211,44 +210,9 @@ class UploadController extends Controller
                     unset($result[0]);
                 }
 
-                $job = new ProcessCSVData($result, $schema_name, $uploaded_file, $raw_before, $timeout, $key);
-                $jobs[] = $job;
+                $batch->add( new ProcessCSVData($result, $schema_name, $uploaded_file, $raw_before, $timeout, $key));
             }
-
-                                                /**
-             * END DEBUG */
-
-             $batch  = Bus::batch($jobs)
-             ->then(function (Batch $batch) use ($uploaded_file, $existing_periode, $count_csv) {
-                 $uploaded_file->update([
-                     'processed_row'=> $uploaded_file->processed_row + $count_csv,
-                     'processing_status'=> 'FINISHED'
-                 ]);
-                 $done = $existing_periode->update([
-                     'processed_row' => $existing_periode->count_row + $count_csv,
-                     'status' => 'FINISHED',
-                 ]);
-             })
-             ->catch(function (Batch $batch, Throwable $e) use ($uploaded_file, $existing_periode, $count_csv) {
-                 // First batch job failure detected...
-                 $uploaded_file->update(['processing_status'=> 'FAILED']);
-                 $existing_periode->update([
-                     'status' => 'FAILED',
-                 ]);
-             })
-             ->finally(function (Batch $batch) use ($uploaded_file, $existing_periode, $count_csv) {
-                 $uploaded_file->update([
-                     'processing_status'=> 'FINISHED '.$batch->progress().'%',
-                 ]);
-                 $existing_periode->update([
-                     'processed_row' => $existing_periode->count_row + $count_csv,
-                     'status' => 'FINISHED '.$batch->progress().'%',
-                 ]);
-                 // The batch has finished executing...
-             })
-             ->name($queue_name)
-            //  ->allowFailures()
-             ->dispatch();
+            $batch->dispatch($uploaded_file);
         }
 
         return redirect()->back();

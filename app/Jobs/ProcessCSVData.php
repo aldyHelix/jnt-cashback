@@ -31,7 +31,7 @@ class ProcessCSVData implements ShouldQueue
      *
      * @var int
      */
-    public $timeout = 60;
+    // public $timeout = 60;
     public $backoff = 1;
     public $tries = 1;
     public $key;
@@ -70,6 +70,8 @@ class ProcessCSVData implements ShouldQueue
         // try {
 
             $uploaded_file = UploadFile::where('id', $this->uploaded_file->id)->first();
+            $periode = Periode::where('code', $this->schema_name)->first();
+
             $uploaded_file->update(['processing_status'=> 'ON PROCESSING']);
 
             $data_insert = [];
@@ -162,7 +164,15 @@ class ProcessCSVData implements ShouldQueue
                     $data_insert[] = $item;
                 }
             }
+            $countData = count($data_insert);
+
             $insert = DB::table($this->schema_name.'.data_mart')->insert($data_insert);
+
+            $uploaded_file->update(['processed_row' => $countData]);
+            $periode->update([
+                'processed_row' => $periode->processed_row + $countData,
+            ]);
+
             $this->release();
         // } catch (\Exception $e) {
         //     dump($e);
