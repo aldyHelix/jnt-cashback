@@ -9,9 +9,9 @@ class UploadFile extends Model
 {
     use HasFactory;
 
-    protected $table = 'file_upload';
+    public $table = 'file_upload';
 
-    protected $fillable = [
+    public $fillable = [
         'file_name',
         'month_period',
         'year_period',

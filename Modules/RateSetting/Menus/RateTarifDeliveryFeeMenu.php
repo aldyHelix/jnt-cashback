@@ -14,7 +14,7 @@ class RateTarifDeliveryFeeMenu extends BaseMenu
      *
      * @var string
      */
-    protected $gate = 'rate.delivery.index';
+    protected $gate = 'ladmin.ratesetting.deliferyfee.index';
 
     /**
      * Name of menu
@@ -28,7 +28,7 @@ class RateTarifDeliveryFeeMenu extends BaseMenu
      *
      * @var string
      */
-    protected $icon = 'fa fa-regular fa-square-check'; // fontawesome
+    protected $icon = 'fa fa-regular  fa-usd'; // fontawesome
 
     /**
      * Menu description
@@ -43,14 +43,14 @@ class RateTarifDeliveryFeeMenu extends BaseMenu
      *
      * @var string
      */
-    protected $isActive = 'delivery*';
+    protected $isActive = 'deliferyfee*';
 
     /**
      * Menu ID
      *
      * @var string
      */
-    protected $id = 'delivery*';
+    protected $id = '';
 
     /**
      * Route name
@@ -72,9 +72,9 @@ class RateTarifDeliveryFeeMenu extends BaseMenu
     {
         return [
             // new Gate(gate: 'gate.menu.uniq', title: 'Gate Title', description: 'Description of gate'),
-            new Gate(gate: 'rate.delivery.create', title: 'Create New Delivery Fee', description: 'User can create new delivery fee'),
-            new Gate(gate: 'rate.delivery.update', title: 'Update Delivery fee', description: 'User can update delivery fee'),
-            new Gate(gate: 'rate.delivery.destroy', title: 'Delete Delivery', description: 'User can delete delivery fee'),
+            new Gate(gate: 'ladmin.ratesetting.deliferyfee.create', title: 'Create New Delivery Fee', description: 'User can create new delivery fee'),
+            new Gate(gate: 'ladmin.ratesetting.deliferyfee.update', title: 'Update Delivery fee', description: 'User can update delivery fee'),
+            new Gate(gate: 'ladmin.ratesetting.deliferyfee.destory', title: 'Delete Delivery', description: 'User can delete delivery fee'),
         ];
     }
 

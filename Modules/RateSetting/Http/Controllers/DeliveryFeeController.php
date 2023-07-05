@@ -12,7 +12,7 @@ class DeliveryFeeController extends Controller
 {
      //
      public function index() {
-        ladmin()->allows(['rate.delivery.index']);
+        ladmin()->allows(['ladmin.ratesetting.deliferyfee.index']);
 
         if( request()->has('datatables') ) {
             return DeliveryFeeDatatables::renderData();
@@ -22,21 +22,21 @@ class DeliveryFeeController extends Controller
     }
 
     public function create() {
-        ladmin()->allows(['rate.delivery.create']);
+        ladmin()->allows(['ladmin.ratesetting.deliferyfee.create']);
         $data['data'] = new DeliveryFee();
 
         return view('ratesetting::create-delivery', $data);
     }
 
     public function edit($id) {
-        ladmin()->allows(['rate.delivery.update']);
+        ladmin()->allows(['ladmin.ratesetting.deliferyfee.update']);
         $data['data'] = DeliveryFee::findOrFail($id);
 
         return view('ratesetting::edit-delivery', $data);
     }
 
     public function store(DeliveryFeeRequest $request) {
-        ladmin()->allows(['rate.delivery.create']);
+        ladmin()->allows(['ladmin.ratesetting.deliferyfee.create']);
 
         return $request->createDeliveryFee();
     }
@@ -50,7 +50,7 @@ class DeliveryFeeController extends Controller
     }
 
     public function delete($id) {
-        ladmin()->allows(['rate.delivery.destroy']);
+        ladmin()->allows(['ladmin.ratesetting.deliferyfee.destroy']);
 
         $deliveryFee = DeliveryFee::findOrFail($id);
 

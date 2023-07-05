@@ -14,7 +14,7 @@ class RateTarifGradeCMenu extends BaseMenu
      *
      * @var string
      */
-    protected $gate = 'rate.grade.c.index';
+    protected $gate = 'ladmin.ratesetting.grade.c.index';
 
     /**
      * Name of menu
@@ -28,7 +28,7 @@ class RateTarifGradeCMenu extends BaseMenu
      *
      * @var string
      */
-    protected $icon = 'fa fa-regular fa-square-check'; // fontawesome
+    protected $icon = 'fa fa-percent'; // fontawesome
 
     /**
      * Menu description
@@ -43,7 +43,7 @@ class RateTarifGradeCMenu extends BaseMenu
      *
      * @var string
      */
-    protected $isActive = 'grade-c*';
+    protected $isActive = 'grade.a*';
 
     /**
      * Menu ID
@@ -72,9 +72,9 @@ class RateTarifGradeCMenu extends BaseMenu
     {
         return [
             // new Gate(gate: 'gate.menu.uniq', title: 'Gate Title', description: 'Description of gate'),
-            new Gate(gate: 'ladmin.grade-c.create', title: 'Create New Grade C', description: 'User can create new Grade C data'),
-            new Gate(gate: 'ladmin.grade-c.update', title: 'Update Grade C', description: 'User can update Grade C'),
-            new Gate(gate: 'ladmin.grade-c.delete', title: 'Delete Grade C', description: 'User can update Grade C'),
+            new Gate(gate: 'ladmin.ratesetting.grade.c.create', title: 'Create New Grade C', description: 'User can create new Grade C data'),
+            new Gate(gate: 'ladmin.ratesetting.grade.c.update', title: 'Update Grade C', description: 'User can update Grade C'),
+            new Gate(gate: 'ladmin.ratesetting.grade.a.destroy', title: 'Delete Grade C', description: 'User can update Grade C'),
         ];
     }
 

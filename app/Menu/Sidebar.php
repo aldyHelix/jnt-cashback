@@ -1,6 +1,7 @@
 <?php
 
 use Modules\CashbackPickup\Menus\CashbackMenu;
+use Modules\Delivery\Menus\DeliveryMenu;
 use Modules\Ladmin\Menus\Account;
 use Modules\Ladmin\Menus\Access;
 use Modules\Ladmin\Menus\System;
@@ -17,6 +18,8 @@ return [
     MasterMenu::class,
 
     CashbackMenu::class,
+
+    DeliveryMenu::class,
 
     Account::class,
 

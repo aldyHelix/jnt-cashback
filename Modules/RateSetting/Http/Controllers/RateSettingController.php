@@ -13,7 +13,7 @@ class RateSettingController extends Controller
 {
     //
     public function indexGradeA() {
-        ladmin()->allows(['rate.grade.a.index']);
+        ladmin()->allows(['ladmin.ratesetting.grade.a.index']);
 
         if( request()->has('datatables') ) {
             return RateSettingGradeADatatables::renderData();
@@ -24,7 +24,7 @@ class RateSettingController extends Controller
     }
 
     public function indexGradeB() {
-        ladmin()->allows(['rate.grade.b.index']);
+        ladmin()->allows(['ladmin.ratesetting.grade.b.index']);
 
         if( request()->has('datatables') ) {
             return RateSettingGradeBDatatables::renderData();
@@ -35,7 +35,7 @@ class RateSettingController extends Controller
     }
 
     public function indexGradeC() {
-        ladmin()->allows(['rate.grade.c.index']);
+        ladmin()->allows(['ladmin.ratesetting.grade.b.index']);
 
         if( request()->has('datatables') ) {
             return RateSettingGradeCDatatables::renderData();
@@ -46,7 +46,7 @@ class RateSettingController extends Controller
     }
 
     public function create($grade) {
-        ladmin()->allows(['ladmin.grade-'.strtolower($grade).'.create']);
+        ladmin()->allows(['ladmin.ratesetting.grade.'.strtolower($grade).'.create']);
         $data['data'] = new RateSetting();
         $data['grade'] = $grade;
 
@@ -54,20 +54,20 @@ class RateSettingController extends Controller
     }
 
     public function edit($grade ,$id) {
-        ladmin()->allows(['ladmin.grade-'.strtolower($grade).'.update']);
+        ladmin()->allows(['ladmin.ratesetting.grade.'.strtolower($grade).'.update']);
         $data['data'] = RateSetting::findOrFail($id);
 
         return view('ratesetting::edit', $data);
     }
 
     public function store(RateSettingRequest $request) {
-        ladmin()->allows(['ladmin.grade-'.strtolower($request->grade).'.create']);
+        ladmin()->allows(['ladmin.ratesetting.grade.'.strtolower($request->grade).'.create']);
 
         return $request->createRateSetting();
     }
 
     public function update(RateSettingRequest $request, $id) {
-        ladmin()->allows(['ladmin.grade-'.strtolower($request->grade).'.update']);
+        ladmin()->allows(['ladmin.ratesetting.grade.'.strtolower($request->grade).'.update']);
 
         return $request->updateRateSetting(
             RateSetting::findOrFail($id)
@@ -75,7 +75,7 @@ class RateSettingController extends Controller
     }
 
     public function destroy($grade, $id) {
-        ladmin()->allows(['ladmin.grade-'.strtolower($grade).'.delete']);
+        ladmin()->allows(['ladmin.ratesetting.grade.'.strtolower($grade).'.delete']);
 
         $cp = RateSetting::findOrFail($id);
 

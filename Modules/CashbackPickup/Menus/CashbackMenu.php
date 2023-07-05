@@ -14,7 +14,7 @@ class CashbackMenu extends BaseMenu
      *
      * @var string
      */
-    protected $gate = 'cashback.pickup.index';
+    protected $gate = 'ladmin.cashbackpickup.index';
 
     /**
      * Name of menu
@@ -28,7 +28,7 @@ class CashbackMenu extends BaseMenu
      *
      * @var string
      */
-    protected $icon = 'fa fa-regular fa-square-check'; // fontawesome
+    protected $icon = 'fa fa-history'; // fontawesome
 
     /**
      * Menu description

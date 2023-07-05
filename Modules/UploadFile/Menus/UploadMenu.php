@@ -14,7 +14,7 @@ class UploadMenu extends BaseMenu
      *
      * @var string
      */
-    protected $gate = 'ladmin.uploadfile.welcome';
+    protected $gate = 'ladmin.uploadfile.index';
 
     /**
      * Name of menu

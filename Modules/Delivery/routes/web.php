@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Modules\Delivery\Http\Controllers\DeliveryController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,9 +17,14 @@ use Illuminate\Support\Facades\Route;
 ladmin()->route(function() {
 
     Route::group(['prefix' => 'delivery', 'as' => 'delivery.'], function () {
-        
+
         // Access module in authentication access
-        
+
+        Route::get('/', [DeliveryController::class, 'index'])->name('index');
+        Route::get('/detail/{code}', [DeliveryController::class, 'viewDetail'])->name('detail');
+        Route::get('/process/{code}/{id}', [DeliveryController::class, 'process'])->name('process');
+        Route::get('/lock/{code}/{id}', [DeliveryController::class, 'lock'])->name('lock');
+
     });
 
 });

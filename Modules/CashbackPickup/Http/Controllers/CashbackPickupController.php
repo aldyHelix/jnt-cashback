@@ -16,7 +16,7 @@ class CashbackPickupController extends Controller
         $data['grade'] = $grade;
         switch ($grade) {
             case 1:
-                ladmin()->allows(['cashback.pickup.index','cashback.pickup.grading1.index']);
+                ladmin()->allows(['ladmin.cashbackpickup.index','ladmin.cashbackpickup.grading.1.index']);
 
                 if( request()->has('datatables') ) {
                     return Grading1Datatables::renderData();
@@ -24,7 +24,7 @@ class CashbackPickupController extends Controller
 
                 break;
             case 2:
-                ladmin()->allows(['cashback.pickup.index','cashback.pickup.grading2.index']);
+                ladmin()->allows(['ladmin.cashbackpickup.index','ladmin.cashbackpickup.grading.2.index']);
 
                 if( request()->has('datatables') ) {
                     return Grading2Datatables::renderData();
@@ -33,7 +33,7 @@ class CashbackPickupController extends Controller
                 break;
 
             case 3:
-                ladmin()->allows(['cashback.pickup.index','cashback.pickup.grading3.index']);
+                ladmin()->allows(['ladmin.cashbackpickup.index','ladmin.cashbackpickup.grading.3.index']);
 
                 if( request()->has('datatables') ) {
                     return Grading3Datatables::renderData();
@@ -41,7 +41,7 @@ class CashbackPickupController extends Controller
 
                 break;
             default:
-                ladmin()->allows(['cashback.pickup.index','cashback.pickup.grading1.index']);
+                ladmin()->allows(['ladmin.cashbackpickup.index','ladmin.cashbackpickup.grading.1.index']);
 
                 if( request()->has('datatables') ) {
                     return Grading1Datatables::renderData();

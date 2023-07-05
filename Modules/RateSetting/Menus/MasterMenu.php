@@ -29,7 +29,7 @@ class MasterMenu extends BaseMenu
      *
      * @var string
      */
-    protected $icon = 'fa fa-regular fa-square-check'; // fontawesome
+    protected $icon = 'fa fa-book'; // fontawesome
 
     /**
      * Menu description

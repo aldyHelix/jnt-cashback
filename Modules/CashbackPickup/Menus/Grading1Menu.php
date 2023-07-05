@@ -14,7 +14,7 @@ class Grading1Menu extends BaseMenu
      *
      * @var string
      */
-    protected $gate = 'cashback.pickup.grading1.index';
+    protected $gate = 'ladmin.cashbackpickup.grading.1.index';
 
     /**
      * Name of menu
@@ -28,7 +28,7 @@ class Grading1Menu extends BaseMenu
      *
      * @var string
      */
-    protected $icon = 'fa fa-regular fa-square-check'; // fontawesome
+    protected $icon = 'fa fa-bar-chart'; // fontawesome
 
     /**
      * Menu description
@@ -72,6 +72,10 @@ class Grading1Menu extends BaseMenu
     {
         return [
             // new Gate(gate: 'gate.menu.uniq', title: 'Gate Title', description: 'Description of gate'),
+            new Gate(gate: 'ladmin.cashbackpickup.grading.1.denda', title: 'Create New Denda', description: 'User can create new data denda period'),
+            new Gate(gate: 'ladmin.cashbackpickup.grading.1.view', title: 'View Summary', description: 'User can view summary'),
+            new Gate(gate: 'ladmin.cashbackpickup.grading.1.process', title: 'Process Grading Report', description: 'User can process grading report'),
+            new Gate(gate: 'ladmin.cashbackpickup.grading.1.lock', title: 'Process lock grading', description: 'User can lock grading'),
         ];
     }
 
