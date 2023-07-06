@@ -4,8 +4,11 @@
 
 <x-ladmin-modal id="modal-denda-role-{{ $id }}" class="text-start">
     <x-slot name="title">Setting Denda Grading {{ $grading }}</x-slot>
-    <form action="{{ route('ladmin.collectionpoint.destroy', $id) }}" method="POST">
-        <x-slot name="body">
+    <x-slot name="body">
+    <form action="{{ route('ladmin.cashbackpickup.denda') }}" method="POST">
+        @csrf
+            <input type="hidden" name="periode_id" value="{{$id}}">
+            <input type="hidden" name="grading_type" value="{{$grading}}">
             <div class="row d-flex align-items-center">
                 <label for="sprinter_pickup" class="form-label col-lg-3">Sprinter Pickup <span class="text-danger">*</span></label>
                 <x-ladmin-input id="sprinter_pickup" type="text" class="mb-3 col" required name="sprinter_pickup"
@@ -75,13 +78,11 @@
             <div class="row d-flex align-items-center">
                 <label for="denda_lainnya" class="form-label col-lg-3">Denda Lainnya <span class="text-danger">*</span></label>
                 <x-ladmin-input id="denda_lainnya" type="text" class="mb-3 col" required name="denda_lainnya"
-                    value="{{ old('denda_lainnya', $denda->denda_lainnya) }}" placeholder="Denda Lainnya" />
+                value="{{ old('denda_lainnya', $denda->denda_lainnya) }}" placeholder="Denda Lainnya" />
             </div>
-        </x-slot>
-        <x-slot name="footer">
-            @csrf
+
             <x-ladmin-button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</x-ladmin-button>
             <x-ladmin-button type="submit" class="text-white" color="primary">Simpan</x-ladmin-button>
+            </form>
         </x-slot>
-    </form>
 </x-ladmin-modal>

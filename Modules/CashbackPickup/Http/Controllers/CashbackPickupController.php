@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use Modules\CashbackPickup\Datatables\Grading1Datatables;
 use Modules\CashbackPickup\Datatables\Grading2Datatables;
 use Modules\CashbackPickup\Datatables\Grading3Datatables;
+use Modules\CashbackPickup\Http\Requests\DendaRequest;
 
 class CashbackPickupController extends Controller
 {
@@ -55,6 +56,14 @@ class CashbackPickupController extends Controller
 
     public function viewDetail($code ,$grade) {
         return view('cashbackpickup::summary-grading');
+    }
+
+    public function saveDenda(DendaRequest $request) {
+        $exist = Denda::where(['id' => $request->id, 'grading_type' => $request->grading_type])->first();
+        if ($exist) {
+            return $request->updateDenda($exist);
+        }
+        return $request->createDenda();
     }
 
     public function process() {
