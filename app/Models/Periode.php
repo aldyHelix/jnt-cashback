@@ -15,6 +15,7 @@ class Periode extends Model
         'code',
         'month',
         'year',
+        'inserted_row',
         'processed_row',
         'count_row',
         'processed_by',

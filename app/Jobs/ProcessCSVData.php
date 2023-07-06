@@ -3,6 +3,7 @@
 namespace App\Jobs;
 
 use App\Models\Periode;
+use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Bus\Batchable;
 use Illuminate\Contracts\Queue\ShouldBeUnique;
@@ -26,6 +27,7 @@ class ProcessCSVData implements ShouldQueue
     public $data;
     public $uploaded_file;
     public $raw_before;
+    public $period_id;
     /**
      * The number of times the job may be attempted.
      *
@@ -40,7 +42,7 @@ class ProcessCSVData implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($data, $schema_name, $uploaded_file, $raw_before, $timeout, $key)
+    public function __construct($data, $schema_name, $uploaded_file, $raw_before, $timeout, $key, $period_id)
     {
         $this->data = $data;
         $this->schema_name = $schema_name;
@@ -48,6 +50,7 @@ class ProcessCSVData implements ShouldQueue
         $this->raw_before = $raw_before;
         $this->timeout = $timeout;
         $this->key = $key;
+        $this->period_id = $period_id;
     }
 
     /**
@@ -67,14 +70,15 @@ class ProcessCSVData implements ShouldQueue
      */
     public function handle()
     {
-        // try {
+        try {
 
             $uploaded_file = UploadFile::where('id', $this->uploaded_file->id)->first();
-            $periode = Periode::where('code', $this->schema_name)->first();
+            $periode = Periode::where('id', $this->period_id)->first();
 
             $uploaded_file->update(['processing_status'=> 'ON PROCESSING']);
 
             $data_insert = [];
+            $inserted = 0;
             $countData = 0;
             $header = [
                 'no_waybill',
@@ -162,20 +166,23 @@ class ProcessCSVData implements ShouldQueue
                     }
 
                     $data_insert[] = $item;
+                    $inserted++;
                 }
             }
             $countData = count($data_insert);
 
+
             $insert = DB::table($this->schema_name.'.data_mart')->insert($data_insert);
 
-            $uploaded_file->update(['processed_row' => $countData]);
             $periode->update([
-                'processed_row' => $periode->processed_row + $countData,
+                'inserted_row' => $periode->inserted_row + $inserted,
             ]);
 
+            $uploaded_file->update(['processed_row' => $uploaded_file->processed_row + $countData]);
+
             $this->release();
-        // } catch (\Exception $e) {
-        //     dump($e);
-        // }
+        } catch (\Exception $e) {
+            dump($e);
+        }
     }
 }

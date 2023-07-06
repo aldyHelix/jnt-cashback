@@ -90,27 +90,29 @@ class UploadController extends Controller
             $existing_periode = Periode::where('code', $schema_name)->first();
 
             if(!$existing_periode) {
-                $$existing_periode = Periode::create([
+                $existing_periode = Periode::create([
                     'code' => $schema_name,
                     'month' => $request->month_period,
                     'year' => $request->year_period,
-                    'count_row' => count($csv)-1,
+                    'count_row' => $count_csv,
                     'status' => 'ON QUEUE',
                 ]);
+
+                $period_id = $existing_periode->id;
             } else {
                 $existing_periode->update([
                     'count_row' => $existing_periode->count_row + $count_csv
                 ]);
+                $period_id = $existing_periode->id;
             }
 
             $batch  = Bus::batch([])
              ->then(function (Batch $batch) use ($uploaded_file, $existing_periode, $count_csv) {
                  $uploaded_file->update([
-                     'processed_row'=> $uploaded_file->processed_row + $count_csv,
                      'processing_status'=> 'FINISHED'
                  ]);
                  $done = $existing_periode->update([
-                     'processed_row' => $existing_periode->count_row + $count_csv,
+                     'count_row' => $existing_periode->count_row + $count_csv,
                      'status' => 'FINISHED',
                  ]);
              })
@@ -210,7 +212,12 @@ class UploadController extends Controller
                     unset($result[0]);
                 }
 
-                $batch->add( new ProcessCSVData($result, $schema_name, $uploaded_file, $raw_before, $timeout, $key));
+                $batch->add([new ProcessCSVData($result, $schema_name, $uploaded_file, $raw_before, $timeout, $key, $period_id)]);
+
+                $existing_periode = Periode::where('code', $schema_name)->first();
+                $existing_periode->update([
+                    'processed_row'=> $existing_periode->processed_row + count($result),
+                ]);
             }
             $batch->dispatch($uploaded_file);
         }
