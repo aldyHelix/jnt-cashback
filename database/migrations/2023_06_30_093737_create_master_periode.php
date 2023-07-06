@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('code')->nullable();
             $table->string('month')->nullable();
             $table->string('year')->nullable();
+            $table->bigInteger('inserted_row')->default(0);
             $table->bigInteger('processed_row')->default(0);
             $table->bigInteger('count_row')->default(0);
             $table->string('processed_by')->default(NULL)->nullable();

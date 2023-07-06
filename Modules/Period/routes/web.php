@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
+use Modules\Period\Http\Controllers\PeriodeController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,9 +17,13 @@ use Illuminate\Support\Facades\Route;
 ladmin()->route(function() {
 
     Route::group(['prefix' => 'period', 'as' => 'period.'], function () {
-        
+
         // Access module in authentication access
-        
+        Route::get('/', [PeriodeController::class, 'index'])->name('index');
+        Route::post('/store', [PeriodeController::class, 'store'])->name('store');
+        Route::get('/edit/{id}', [PeriodeController::class, 'edit'])->name('edit');
+        Route::put('/update/{id}', [PeriodeController::class, 'update'])->name('update');
+        Route::delete('/delete/{id}', [PeriodeController::class, 'destroy'])->name('destroy');
     });
 
 });
