@@ -1,6 +1,6 @@
 <x-ladmin-auth-layout>
     <x-slot name="title">Master Data Setting Tarif Grade {{ $grade_type}}</x-slot>
-    @can(['ladmin.grade-c.create'])
+    @can(['ladmin.ratesetting.grade.c.create'])
     <x-slot name="button">
         <a href="{{ route('ladmin.ratesetting.grade.create', 'C',ladmin()->back()) }}" class="btn btn-primary">&plus; Add New</a>
     </x-slot>

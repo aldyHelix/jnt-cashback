@@ -2,11 +2,11 @@
     $back = route('ladmin.ratesetting.grade-'.strtolower($grading_type).'.index');
 @endphp
 
-@can(['ladmin.grade-'.strtolower($grading_type).'.update'])
+@can(['ladmin.ratesetting.grade.'.strtolower($grading_type).'.update'])
     <a href="{{ route('ladmin.ratesetting.grade.edit', [$grading_type , $id, 'back' => $back]) }}" class="btn btn-sm btn-outline-primary">View</a>
 @endcan
 
-@can(['ladmin.grade-'.strtolower($grading_type).'.delete'])
+@can(['ladmin.ratesetting.grade.'.strtolower($grading_type).'.delete'])
 <a href="" data-bs-toggle="modal" class="btn btn-sm btn-outline-danger" data-bs-target="#modal-delete-rate-{{ $id }}">
     Delete
 </a>

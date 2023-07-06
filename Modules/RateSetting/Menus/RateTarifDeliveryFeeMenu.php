@@ -43,7 +43,7 @@ class RateTarifDeliveryFeeMenu extends BaseMenu
      *
      * @var string
      */
-    protected $isActive = 'deliferyfee*';
+    protected $isActive = 'ratesetting/deliveryfee*';
 
     /**
      * Menu ID

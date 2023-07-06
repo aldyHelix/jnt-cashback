@@ -1,6 +1,6 @@
 <x-ladmin-auth-layout>
     <x-slot name="title">Master Data Tarif Delivery Fee </x-slot>
-    @can(['rate.delivery.create'])
+    @can(['ladmin.ratesetting.deliferyfee.create'])
     <x-slot name="button">
         <a href="{{ route('ladmin.ratesetting.delivery.create',ladmin()->back()) }}" class="btn btn-primary">&plus; Add New</a>
     </x-slot>

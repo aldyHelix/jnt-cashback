@@ -43,7 +43,7 @@ class RateTarifGradeAMenu extends BaseMenu
      *
      * @var string
      */
-    protected $isActive = 'grade.a*';
+    protected $isActive = 'ratesetting/grade-a*';
 
     /**
      * Menu ID

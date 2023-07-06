@@ -14,7 +14,7 @@ class Grading2Menu extends BaseMenu
      *
      * @var string
      */
-    protected $gate = 'ladmin.cashbackpickup.grading.1.index';
+    protected $gate = 'ladmin.cashbackpickup.grading.2.index';
 
     /**
      * Name of menu
@@ -43,7 +43,7 @@ class Grading2Menu extends BaseMenu
      *
      * @var string
      */
-    protected $isActive = 'grading2*';
+    protected $isActive = 'cashbackpickup/2*';
 
     /**
      * Menu ID

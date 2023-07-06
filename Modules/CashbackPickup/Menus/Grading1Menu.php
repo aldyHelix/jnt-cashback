@@ -43,7 +43,7 @@ class Grading1Menu extends BaseMenu
      *
      * @var string
      */
-    protected $isActive = 'grading1*';
+    protected $isActive = 'cashbackpickup/1*';
 
     /**
      * Menu ID

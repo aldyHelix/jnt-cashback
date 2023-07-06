@@ -2,11 +2,11 @@
     $back = route('ladmin.ratesetting.delivery.index');
 @endphp
 
-@can(['rate.delivery.update'])
+@can(['ladmin.ratesetting.deliferyfee.update'])
     <a href="{{ route('ladmin.ratesetting.delivery.edit', [ $id, 'back' => $back]) }}" class="btn btn-sm btn-outline-primary">View</a>
 @endcan
 
-@can(['rate.delivery.destroy'])
+@can(['ladmin.ratesetting.deliferyfee.destory'])
 <a href="" data-bs-toggle="modal" class="btn btn-sm btn-outline-danger" data-bs-target="#modal-delete-rate-{{ $id }}">
     Delete
 </a>
