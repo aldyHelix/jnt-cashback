@@ -63,4 +63,6 @@ If you discover a security vulnerability within Laravel, please send an e-mail t
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+1. `docker build -t  jnt-cashback .`
+2.  `docker run -p 8000:80 --name jnt-cashback-container jnt-cashback
+3.  ngrok http --host-header=rewrite https://jnt-cashback.localtest:443

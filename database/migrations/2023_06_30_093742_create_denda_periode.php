@@ -14,8 +14,8 @@ return new class extends Migration
         Schema::create('denda_periode', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('periode_id');
-            $table->char('grading_type');
-            $table->string('sprinter_pickup');
+            $table->unsignedInteger('sprinter_pickup'); //CP ID
+            $table->char('grading_type', 1);
             $table->bigInteger('transit_fee');
             $table->bigInteger('denda_void');
             $table->bigInteger('denda_dfod');

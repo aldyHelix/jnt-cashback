@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Route;
 
 class RouteServiceProvider extends ServiceProvider
 {
-    
+
     /**
      * Define your route model bindings, pattern filters, etc.
      *
@@ -21,7 +21,7 @@ class RouteServiceProvider extends ServiceProvider
         $this->routes(function () {
             Route::middleware('web')
                 ->namespace($this->namespace)
-                ->group(module_path('ratesetting', 'routes/web.php'));
+                ->group(module_path('RateSetting', 'routes/web.php'));
         });
     }
 

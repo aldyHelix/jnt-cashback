@@ -7,6 +7,7 @@ use App\Models\Periode;
 use App\Models\User;
 use Hexters\Ladmin\Datatables;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\DB;
 
 class PeriodDatatables extends Datatables
 {
@@ -47,6 +48,9 @@ class PeriodDatatables extends Datatables
         return $this->eloquent($this->query)
             ->addColumn('period', function($row) {
                 return $row->month.'/'.$row->year;
+            })
+            ->editColumn('inserted_row', function($row){
+                return DB::table($row->code.'.data_mart')->count();
             })
             ->editColumn('processed_by', function($row) {
                 $user = ladmin()->admin()->where('id', $row->processed_by)->first();
