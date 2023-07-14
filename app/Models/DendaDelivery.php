@@ -5,15 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
-class Denda extends Model
+class DendaDelivery extends Model
 {
     use HasFactory;
 
-    public $table = 'denda_grading_periode';
+    public $table = 'denda_delivery_periode';
 
     protected $fillable = [
         'periode_id',
-        'grading_type',
         'sprinter_pickup',
         'transit_fee',
         'denda_void',
