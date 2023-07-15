@@ -170,6 +170,7 @@ return [
         App\Providers\RouteServiceProvider::class,
         Maatwebsite\Excel\ExcelServiceProvider::class,
         Barryvdh\Debugbar\ServiceProvider::class,
+        browner12\helpers\HelperServiceProvider::class,
     ])->toArray(),
 
     /*

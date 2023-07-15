@@ -21,6 +21,7 @@ ladmin()->route(function() {
         // Access module in authentication access
         Route::get('/', [PeriodeController::class, 'index'])->name('index');
         Route::post('/store', [PeriodeController::class, 'store'])->name('store');
+        Route::get('/detail/{code}', [PeriodeController::class, 'viewDetail'])->name('detail');
         Route::get('/edit/{id}', [PeriodeController::class, 'edit'])->name('edit');
         Route::put('/update/{id}', [PeriodeController::class, 'update'])->name('update');
         Route::delete('/delete/{id}', [PeriodeController::class, 'destroy'])->name('destroy');
