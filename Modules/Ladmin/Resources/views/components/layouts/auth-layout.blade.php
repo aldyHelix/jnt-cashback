@@ -10,6 +10,7 @@
     <title>{{ $metaTitle }}</title>
     <link href="{{ asset('favicon.ico') }}" rel="icon" type="image/x-icon">
 
+    <link rel="stylesheet" href="/webfonts/css/all.css">
     @stack('before-styles')
     @vite('Modules/Ladmin/Resources/sass/ladmin.scss')
     {{ $styles ?? null }}
@@ -131,7 +132,7 @@
     </form>
 
     @stack('before-scripts')
-    @vite('Modules/Ladmin/Resources/js/ladmin.js')
+    @vite(['resources/scss/app.scss', 'resources/js/app.js', 'Modules/Ladmin/Resources/js/ladmin.js'])
     {{ $scripts ?? null }}
     @stack('after-scripts')
 </body>
