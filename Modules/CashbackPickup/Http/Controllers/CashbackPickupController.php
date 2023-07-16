@@ -60,19 +60,19 @@ class CashbackPickupController extends Controller
     public function viewDetail($code ,$grade) {
         $data['periode'] = Periode::where('code', $code)->first();
         $data['denda'] = Denda::where(['periode_id'=> $data['periode']->id, 'grading_type'=> $grade])->get();
-        $data['all_summary'] = PivotTable::getPivotAllCountSumCPDP($code);
-        $data['reguler_summary'] = PivotTable::getPivotRegulerCountSumCPDP($code);
-        $data['dfod_summary'] = PivotTable::getPivotDfodCountSumCPDP($code);
-        $data['super_summary'] = PivotTable::getPivotSuperCountSumCPDP($code);
+        $data['cp_dp_all_count_sum'] = PivotTable::getPivotAllCountSumCPDP($code);
+        $data['cp_dp_reguler_count_sum'] = PivotTable::getPivotRegulerCountSumCPDP($code);
+        $data['cp_dp_dfod_count_sum'] = PivotTable::getPivotDfodCountSumCPDP($code);
+        $data['cp_dp_super_count_sum'] = PivotTable::getPivotSuperCountSumCPDP($code);
         $data['total'] = [
-            'all_summary_total_count' => $data['all_summary']->sum('count'),
-            'all_summary_total_sum' => $data['all_summary']->sum('sum'),
-            'reguler_summary_total_count' => $data['reguler_summary']->sum('count'),
-            'reguler_summary_total_sum' => $data['reguler_summary']->sum('sum'),
-            'super_summary_total_count' => $data['super_summary']->sum('count'),
-            'super_summary_total_sum' => $data['super_summary']->sum('sum'),
-            'dfod_summary_total_count' => $data['dfod_summary']->sum('count'),
-            'dfod_summary_total_sum' => $data['dfod_summary']->sum('sum'),
+            'cp_dp_all_count_sum_total_count' => $data['cp_dp_all_count_sum']->sum('count'),
+            'cp_dp_all_count_sum_total_sum' => $data['cp_dp_all_count_sum']->sum('sum'),
+            'cp_dp_reguler_count_sum_total_count' => $data['cp_dp_reguler_count_sum']->sum('count'),
+            'cp_dp_reguler_count_sum_total_sum' => $data['cp_dp_reguler_count_sum']->sum('sum'),
+            'cp_dp_super_count_sum_total_count' => $data['cp_dp_super_count_sum']->sum('count'),
+            'cp_dp_super_count_sum_total_sum' => $data['cp_dp_super_count_sum']->sum('sum'),
+            'cp_dp_dfod_count_sum_total_count' => $data['cp_dp_dfod_count_sum']->sum('count'),
+            'cp_dp_dfod_count_sum_total_sum' => $data['cp_dp_dfod_count_sum']->sum('sum'),
         ];
         return view('cashbackpickup::summary-grading', $data);
     }

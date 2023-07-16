@@ -30,7 +30,7 @@
                               </tr>
                             </thead>
                             <tbody>
-                                @foreach ($all_summary as $item)
+                                @foreach ($cp_dp_all_count_sum as $item)
                                     <tr>
                                         <td style="text-align: left">{{$item->drop_point_outgoing}}</td>
                                         <td>{{$item->count}}</td>
@@ -39,8 +39,8 @@
                                 @endforeach
                                 <tr class="font-weight-bold border">
                                     <td style="text-align: left">Total</td>
-                                    <td>{{ $total['all_summary_total_count'] }}</td>
-                                    <td>{{ $total['all_summary_total_sum'] }}</td>
+                                    <td>{{ $total['cp_dp_all_count_sum_total_count'] }}</td>
+                                    <td>{{ $total['cp_dp_all_count_sum_total_sum'] }}</td>
                                 </tr>
                             </tbody>
                           </table>
@@ -56,7 +56,7 @@
                               </tr>
                             </thead>
                             <tbody>
-                                @foreach ($reguler_summary as $item)
+                                @foreach ($cp_dp_reguler_count_sum as $item)
                                     <tr>
                                         <td style="text-align: left">{{$item->drop_point_outgoing}}</td>
                                         <td>{{$item->count}}</td>
@@ -65,8 +65,8 @@
                                 @endforeach
                                 <tr class="font-weight-bold border">
                                     <td style="text-align: left">Total</td>
-                                    <td>{{ $total['reguler_summary_total_count'] }}</td>
-                                    <td>{{ $total['reguler_summary_total_sum'] }}</td>
+                                    <td>{{ $total['cp_dp_reguler_count_sum_total_count'] }}</td>
+                                    <td>{{ $total['cp_dp_reguler_count_sum_total_sum'] }}</td>
                                 </tr>
                             </tbody>
                           </table>
@@ -82,7 +82,7 @@
                               </tr>
                             </thead>
                             <tbody>
-                                @foreach ($dfod_summary as $item)
+                                @foreach ($cp_dp_dfod_count_sum as $item)
                                     <tr>
                                         <td style="text-align: left">{{$item->drop_point_outgoing}}</td>
                                         <td>{{$item->count}}</td>
@@ -91,8 +91,8 @@
                                 @endforeach
                                 <tr class="font-weight-bold border">
                                     <td style="text-align: left">Total</td>
-                                    <td>{{ $total['dfod_summary_total_count'] }}</td>
-                                    <td>{{ $total['dfod_summary_total_sum'] }}</td>
+                                    <td>{{ $total['cp_dp_dfod_count_sum_total_count'] }}</td>
+                                    <td>{{ $total['cp_dp_dfod_count_sum_total_sum'] }}</td>
                                 </tr>
                             </tbody>
                           </table>
@@ -108,7 +108,7 @@
                               </tr>
                             </thead>
                             <tbody>
-                                @foreach ($super_summary as $item)
+                                @foreach ($cp_dp_super_count_sum as $item)
                                     <tr>
                                         <td style="text-align: left">{{$item->drop_point_outgoing}}</td>
                                         <td>{{$item->count}}</td>
@@ -117,8 +117,8 @@
                                 @endforeach
                                 <tr class="font-weight-bold border">
                                     <td style="text-align: left">Total</td>
-                                    <td>{{ $total['super_summary_total_count'] }}</td>
-                                    <td>{{ $total['super_summary_total_sum'] }}</td>
+                                    <td>{{ $total['cp_dp_super_count_sum_total_count'] }}</td>
+                                    <td>{{ $total['cp_dp_super_count_sum_total_sum'] }}</td>
                                 </tr>
                             </tbody>
                           </table>

@@ -10,7 +10,7 @@ class Pivot {
         if(!Schema::hasTable($schema.'.data_mart')) {
             return false;
         }
-        return DB::table($schema.'.all_count_sum_cp_dp')
+        return DB::table($schema.'.cp_dp_all_count_sum')
             ->get();
     }
 
@@ -18,7 +18,7 @@ class Pivot {
         if(!Schema::hasTable($schema.'.data_mart')) {
             return false;
         }
-        return DB::table($schema.'.reguler_count_sum_cp_dp')
+        return DB::table($schema.'.cp_dp_reguler_count_sum')
             ->get();
     }
 
@@ -26,42 +26,42 @@ class Pivot {
         if(!Schema::hasTable($schema.'.data_mart')) {
             return false;
         }
-        return DB::table($schema.'.super_count_sum_cp_dp')
+        return DB::table($schema.'.cp_dp_super_count_sum')
             ->get();
     }
     public function getPivotDfodCountSumCPDP($schema){
         if(!Schema::hasTable($schema.'.data_mart')) {
             return false;
         }
-        return DB::table($schema.'.dfod_count_sum_cp_dp')
+        return DB::table($schema.'.cp_dp_dfod_count_sum')
             ->get();
     }
     public function getPivotMPCountWaybill($schema){
         if(!Schema::hasTable($schema.'.data_mart')) {
             return false;
         }
-        return DB::table($schema.'.mp_count_waybill_cp_dp')
+        return DB::table($schema.'.cp_dp_mp_count_waybill')
             ->get();
     }
     public function getPivotMPSumBiayaKirim($schema){
         if(!Schema::hasTable($schema.'.data_mart')) {
             return false;
         }
-        return DB::table($schema.'.mp_sum_biaya_kirim')
+        return DB::table($schema.'.cp_dp_mp_sum_biaya_kirim')
             ->get();
     }
     public function getPivotMPReturCountWaybill($schema){
         if(!Schema::hasTable($schema.'.data_mart')) {
             return false;
         }
-        return DB::table($schema.'.mp_count_no_waybill')
+        return DB::table($schema.'.cp_dp_mp_retur_count_waybill')
             ->get();
     }
     public function getPivotMPReturSumBiayaKirim($schema){
         if(!Schema::hasTable($schema.'.data_mart')) {
             return false;
         }
-        return DB::table($schema.'.mp_retur_sum_biaya_kirim')
+        return DB::table($schema.'.cp_dp_mp_retur_sum_biaya_kirim')
             ->get();
     }
 }
