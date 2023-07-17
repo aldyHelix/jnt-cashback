@@ -11,11 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('denda_grading_periode', function (Blueprint $table) {
+        Schema::create('denda_delivery_periode', function (Blueprint $table) {
             $table->id();
             $table->unsignedInteger('periode_id');
             $table->unsignedInteger('sprinter_pickup'); //CP ID
-            $table->char('grading_type', 1);
             $table->bigInteger('transit_fee');
             $table->bigInteger('denda_void');
             $table->bigInteger('denda_dfod');
@@ -36,6 +35,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('denda_grading_periode');
+        Schema::dropIfExists('delivery_denda_periode');
     }
 };

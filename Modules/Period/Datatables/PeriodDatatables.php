@@ -7,6 +7,7 @@ use App\Models\Periode;
 use App\Models\User;
 use Hexters\Ladmin\Datatables;
 use Illuminate\Support\Facades\Blade;
+use Illuminate\Support\Facades\DB;
 
 class PeriodDatatables extends Datatables
 {
@@ -48,16 +49,24 @@ class PeriodDatatables extends Datatables
             ->addColumn('period', function($row) {
                 return $row->month.'/'.$row->year;
             })
+            ->editColumn('inserted_row', function($row){
+                return DB::table($row->code.'.data_mart')->count();
+            })
             ->editColumn('processed_by', function($row) {
                 $user = ladmin()->admin()->where('id', $row->processed_by)->first();
                 return $user ? $user->name : 'SYSTEM';
             })
             ->editColumn('updated_at', function($row){
                 return $row->updated_at->format('d-m-Y h:i');
+            })
+            ->addColumn('action', function ($row) {
+                return $this->viewDetail($row);
             });
-            // ->addColumn('action', function ($row) {
-            //     return Blade::render('<a href="">Button</a>');
-            // });
+    }
+
+    public function viewDetail($data) {
+        $data['code'] = $data->code;
+        return view('period::_parts._view-detail', $data);
     }
 
     /**
@@ -77,7 +86,7 @@ class PeriodDatatables extends Datatables
             'Status',
             'Pivot Status',
             'Last Update',
-            // 'Action' => ['class' => 'text-center'],
+            'Action' => ['class' => 'text-center'],
         ];
     }
 
@@ -99,7 +108,7 @@ class PeriodDatatables extends Datatables
             ['data' => 'status', 'class' => 'text-center'],
             ['data' => 'is_pivot_processing_done', 'class' => 'text-center'],
             ['data' => 'updated_at', 'class' => 'text-center'],
-            // ['data' => 'action', 'class' => 'text-center', 'orderable' => false]
+            ['data' => 'action', 'class' => 'text-center', 'orderable' => false]
         ];
     }
 }

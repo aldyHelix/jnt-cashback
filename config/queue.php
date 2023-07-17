@@ -66,7 +66,7 @@ return [
             'driver' => 'redis',
             'connection' => 'default',
             'queue' => 'default',
-            'retry_after' => 1,
+            'retry_after' => 5,
             'block_for' => null,
             'after_commit' => true,
         ],

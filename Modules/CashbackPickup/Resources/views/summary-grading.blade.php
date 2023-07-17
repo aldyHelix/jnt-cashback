@@ -20,13 +20,108 @@
                 <div class="container text-center">
                     <div class="row">
                       <div class="col">
-                        Column
+                        <h5>All Count SUM CP DP</h5>
+                        <table class="table">
+                            <thead>
+                              <tr>
+                                <th scope="col">CP</th>
+                                <th scope="col">Count</th>
+                                <th scope="col">Sum</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($cp_dp_all_count_sum as $item)
+                                    <tr>
+                                        <td style="text-align: left">{{$item->drop_point_outgoing}}</td>
+                                        <td>{{$item->count}}</td>
+                                        <td>{{$item->sum}}</td>
+                                    </tr>
+                                @endforeach
+                                <tr class="font-weight-bold border">
+                                    <td style="text-align: left">Total</td>
+                                    <td>{{ $total['cp_dp_all_count_sum_total_count'] }}</td>
+                                    <td>{{ $total['cp_dp_all_count_sum_total_sum'] }}</td>
+                                </tr>
+                            </tbody>
+                          </table>
                       </div>
                       <div class="col">
-                        Column
+                        <h5>Reguler Count SUM CP DP</h5>
+                        <table class="table">
+                            <thead>
+                              <tr>
+                                <th scope="col">CP</th>
+                                <th scope="col">Count</th>
+                                <th scope="col">Sum</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($cp_dp_reguler_count_sum as $item)
+                                    <tr>
+                                        <td style="text-align: left">{{$item->drop_point_outgoing}}</td>
+                                        <td>{{$item->count}}</td>
+                                        <td>{{$item->sum}}</td>
+                                    </tr>
+                                @endforeach
+                                <tr class="font-weight-bold border">
+                                    <td style="text-align: left">Total</td>
+                                    <td>{{ $total['cp_dp_reguler_count_sum_total_count'] }}</td>
+                                    <td>{{ $total['cp_dp_reguler_count_sum_total_sum'] }}</td>
+                                </tr>
+                            </tbody>
+                          </table>
                       </div>
                       <div class="col">
-                        Column
+                        <h5>Dfod Count SUM CP DP</h5>
+                        <table class="table">
+                            <thead>
+                              <tr>
+                                <th scope="col">CP</th>
+                                <th scope="col">Count</th>
+                                <th scope="col">Sum</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($cp_dp_dfod_count_sum as $item)
+                                    <tr>
+                                        <td style="text-align: left">{{$item->drop_point_outgoing}}</td>
+                                        <td>{{$item->count}}</td>
+                                        <td>{{$item->sum}}</td>
+                                    </tr>
+                                @endforeach
+                                <tr class="font-weight-bold border">
+                                    <td style="text-align: left">Total</td>
+                                    <td>{{ $total['cp_dp_dfod_count_sum_total_count'] }}</td>
+                                    <td>{{ $total['cp_dp_dfod_count_sum_total_sum'] }}</td>
+                                </tr>
+                            </tbody>
+                          </table>
+                      </div>
+                      <div class="col">
+                        <h5>Super Count SUM CP DP</h5>
+                        <table class="table">
+                            <thead>
+                              <tr>
+                                <th scope="col">CP</th>
+                                <th scope="col">Count</th>
+                                <th scope="col">Sum</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($cp_dp_super_count_sum as $item)
+                                    <tr>
+                                        <td style="text-align: left">{{$item->drop_point_outgoing}}</td>
+                                        <td>{{$item->count}}</td>
+                                        <td>{{$item->sum}}</td>
+                                    </tr>
+                                @endforeach
+                                <tr class="font-weight-bold border">
+                                    <td style="text-align: left">Total</td>
+                                    <td>{{ $total['cp_dp_super_count_sum_total_count'] }}</td>
+                                    <td>{{ $total['cp_dp_super_count_sum_total_sum'] }}</td>
+                                </tr>
+                            </tbody>
+                          </table>
                       </div>
                     </div>
                 </div>

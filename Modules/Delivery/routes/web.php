@@ -21,6 +21,7 @@ ladmin()->route(function() {
         // Access module in authentication access
 
         Route::get('/', [DeliveryController::class, 'index'])->name('index');
+        Route::post('/denda', [DeliveryController::class, 'saveDenda'])->name('denda');
         Route::get('/detail/{code}', [DeliveryController::class, 'viewDetail'])->name('detail');
         Route::get('/process/{code}/{id}', [DeliveryController::class, 'process'])->name('process');
         Route::get('/lock/{code}/{id}', [DeliveryController::class, 'lock'])->name('lock');

@@ -3,9 +3,11 @@
 namespace Modules\Delivery\Datatables;
 
 use App\Models\Denda;
+use App\Models\DendaDelivery;
 use App\Models\Periode;
 use Hexters\Ladmin\Datatables;
 use Illuminate\Support\Facades\Blade;
+use Modules\CollectionPoint\Models\CollectionPoint;
 
 class DeliveryDatatables extends Datatables
 {
@@ -61,7 +63,10 @@ class DeliveryDatatables extends Datatables
     }
 
     public function setDenda($data) {
-        $data['denda'] = new Denda(); //find where peride id & grading if null new Denda if not null fill
+        $exist = DendaDelivery::where(['periode_id' => $data->id])->first();
+        $data['cp'] = CollectionPoint::get();
+        $data['grading'] = 1;
+        $data['denda'] = $exist ?? new Denda();
         return view('delivery::_parts._form-denda', $data);
     }
 

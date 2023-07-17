@@ -2,12 +2,18 @@
 
 namespace Modules\CashbackPickup\Http\Controllers;
 
+use App\Exports\GradingExport;
+use App\Exports\GradingExports;
 use App\Models\Denda;
+use App\Facades\PivotTable;
+use App\Models\Periode;
 use Illuminate\Http\Request;
+use Excel;
 use Modules\CashbackPickup\Datatables\Grading1Datatables;
 use Modules\CashbackPickup\Datatables\Grading2Datatables;
 use Modules\CashbackPickup\Datatables\Grading3Datatables;
 use Modules\CashbackPickup\Http\Requests\DendaRequest;
+use Modules\Period\Models\Period;
 
 class CashbackPickupController extends Controller
 {
@@ -55,22 +61,100 @@ class CashbackPickupController extends Controller
     }
 
     public function viewDetail($code ,$grade) {
-        return view('cashbackpickup::summary-grading');
+        $data['periode'] = Periode::where('code', $code)->first();
+        $data['denda'] = Denda::where(['periode_id'=> $data['periode']->id, 'grading_type'=> $grade])->get();
+        $data['cp_dp_all_count_sum'] = PivotTable::getPivotAllCountSumCPDP($code);
+        $data['cp_dp_reguler_count_sum'] = PivotTable::getPivotRegulerCountSumCPDP($code);
+        $data['cp_dp_dfod_count_sum'] = PivotTable::getPivotDfodCountSumCPDP($code);
+        $data['cp_dp_super_count_sum'] = PivotTable::getPivotSuperCountSumCPDP($code);
+        $data['total'] = [
+            'cp_dp_all_count_sum_total_count' => $data['cp_dp_all_count_sum']->sum('count'),
+            'cp_dp_all_count_sum_total_sum' => $data['cp_dp_all_count_sum']->sum('sum'),
+            'cp_dp_reguler_count_sum_total_count' => $data['cp_dp_reguler_count_sum']->sum('count'),
+            'cp_dp_reguler_count_sum_total_sum' => $data['cp_dp_reguler_count_sum']->sum('sum'),
+            'cp_dp_super_count_sum_total_count' => $data['cp_dp_super_count_sum']->sum('count'),
+            'cp_dp_super_count_sum_total_sum' => $data['cp_dp_super_count_sum']->sum('sum'),
+            'cp_dp_dfod_count_sum_total_count' => $data['cp_dp_dfod_count_sum']->sum('count'),
+            'cp_dp_dfod_count_sum_total_sum' => $data['cp_dp_dfod_count_sum']->sum('sum'),
+        ];
+        return view('cashbackpickup::summary-grading', $data);
     }
 
-    public function saveDenda(DendaRequest $request) {
-        $exist = Denda::where(['id' => $request->id, 'grading_type' => $request->grading_type])->first();
-        if ($exist) {
-            return $request->updateDenda($exist);
+    public function saveDenda(Request $request) {
+        $denda = $request->data;
+
+        foreach($denda as $item) {
+            foreach($item as $key => $data) {
+                $item[$key] = intval($data);
+            }
+
+            $exist = Denda::where(['id' => $item['denda_id']])->first();
+            if ($exist) {
+                $exist->update([
+                    'sprinter_pickup' => $item['sprinter_pickup'],
+                    'transit_fee' => $item['transit_fee'],
+                    'denda_void' => $item['denda_void'],
+                    'denda_dfod' => $item['denda_dfod'],
+                    'denda_pusat' => $item['denda_pusat'],
+                    'denda_selisih_berat' => $item['denda_selisih_berat'],
+                    'denda_lost_scan_kirim' => $item['denda_lost_scan_kirim'],
+                    'denda_auto_claim' => $item['denda_auto_claim'],
+                    'denda_sponsorship' => $item['denda_sponsorship'],
+                    'denda_late_pickup_ecommerce' => $item['denda_late_pickup_ecommerce'],
+                    'potongan_pop' => $item['potongan_pop'],
+                    'denda_lainnya' => $item['denda_lainnya'],
+                ]);
+            } else {
+                $collection_point = Denda::create([
+                    'periode_id' => $request->periode_id,
+                    'grading_type' => $request->grading_type,
+                    'sprinter_pickup' => $item['sprinter_pickup'],
+                    'transit_fee' => $item['transit_fee'],
+                    'denda_void' => $item['denda_void'],
+                    'denda_dfod' => $item['denda_dfod'],
+                    'denda_pusat' => $item['denda_pusat'],
+                    'denda_selisih_berat' => $item['denda_selisih_berat'],
+                    'denda_lost_scan_kirim' => $item['denda_lost_scan_kirim'],
+                    'denda_auto_claim' => $item['denda_auto_claim'],
+                    'denda_sponsorship' => $item['denda_sponsorship'],
+                    'denda_late_pickup_ecommerce' => $item['denda_late_pickup_ecommerce'],
+                    'potongan_pop' => $item['potongan_pop'],
+                    'denda_lainnya' => $item['denda_lainnya'],
+                ]);
+            }
         }
-        return $request->createDenda();
+
+        session()->flash('success', 'Denda has been saved');
+
+        return redirect()->route('ladmin.cashbackpickup.index', $request->grading_type);
+
     }
 
     public function process() {
+        // Store on default disk
+        Excel::store(new GradingExport(), 'MAR-2023-GRADING-1.xlsx'); //this is success\
+
+        /**
+         * process description
+         * first of all
+         * artisan queue work at only id if queue not running
+         * generate grading Excel & PDF
+         * calculation denda each grading
+         * joinning by drop_point_outgoing
+         * query and table view on processing
+         * write on excel
+         * un disable pdf download
+         * un disable lock data
+         * if locked process button will disabled
+         * alert on done.
+         */
         return redirect()->back();
     }
 
     public function lock() {
+        /**
+         * disabled and lock button on locked
+         */
         return redirect()->back();
     }
 

@@ -23,7 +23,7 @@ class DendaRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'sprinter_pickup' => ['required'],
+            // 'sprinter_pickup' => ['required'],
         ];
     }
 
@@ -45,9 +45,10 @@ class DendaRequest extends FormRequest
             'denda_lainnya' => $this->denda_lainnya,
         ]);
 
-        session()->flash('success', 'Denda has been created');
+        // session()->flash('success', 'Denda has been created');
 
-        return redirect()->route('ladmin.cashbackpickup.index', $this->grading_type);
+        // return redirect()->route('ladmin.cashbackpickup.index', $this->grading_type);
+        return;
     }
 
     public function updateDenda(Denda $denda) {
@@ -69,8 +70,9 @@ class DendaRequest extends FormRequest
             'denda_lainnya' => $this->denda_lainnya,
         ]);
 
-        session()->flash('success', 'Denda has been updated');
+        // session()->flash('success', 'Denda has been updated');
 
-        return redirect()->back();
+        // return redirect()->back();
+        return;
     }
 }

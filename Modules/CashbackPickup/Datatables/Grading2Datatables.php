@@ -6,6 +6,7 @@ use App\Models\Periode;
 use App\Models\Denda;
 use Hexters\Ladmin\Datatables;
 use Illuminate\Support\Facades\Blade;
+use Modules\CollectionPoint\Models\CollectionPoint;
 
 class Grading2Datatables extends Datatables
 {
@@ -59,8 +60,10 @@ class Grading2Datatables extends Datatables
     }
 
     public function setDenda($data) {
+        $exist = Denda::where(['periode_id' => $data->id, 'grading_type' => 2])->first();
+        $data['cp'] = CollectionPoint::get();
         $data['grading'] = 2;
-        $data['denda'] = new Denda(); //find where peride id & grading if null new Denda if not null fill
+        $data['denda'] = $exist ?? new Denda(); //find where peride id & grading if null new Denda if not null fillif null new Denda if not null fill
         return view('cashbackpickup::_parts._form-denda', $data);
     }
 

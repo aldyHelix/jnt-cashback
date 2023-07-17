@@ -10,7 +10,7 @@
     <link href="{{ asset('favicon.ico') }}" rel="icon" type="image/x-icon">
 
 
-
+    <link rel="stylesheet" href="/webfonts/css/all.css">
     @stack('before-styles')
     @vite('Modules/Ladmin/Resources/sass/ladmin.scss')
     {{ $styles ?? null }}

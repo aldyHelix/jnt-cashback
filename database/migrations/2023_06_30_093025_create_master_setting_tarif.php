@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('master_setting_tarif', function (Blueprint $table) {
             $table->id();
-            $table->char('grading_type')->nullable()->comment('A;B;C');
+            $table->char('grading_type', 1)->nullable()->comment('A;B;C');
             $table->string('sumber_waybill')->nullable();
             $table->integer('diskon_persen')->nullable();
             $table->string('fee')->nullable();
