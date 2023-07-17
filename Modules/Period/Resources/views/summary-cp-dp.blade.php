@@ -187,217 +187,205 @@
 
         </div>
         <div class="tab-pane fade" id="cp-dp-mp-sum-biaya-kirim-tab-pane" role="tabpanel" aria-labelledby="cp-dp-mp-sum-biaya-kirim-tab" tabindex="0">
-
-                <div class="row">
-                    <div class="container text-center table-responsive">
-                        <h4>Summary CP DP MP Sum Biaya Kirim</h4>
-                        <table class="table">
-                            <thead>
-                              <tr>
-                                <th scope="col">Drop point outgoing</th>
-                                <th scope="col">AKULAKUOB</th>
-                                <th scope="col">BUKAEXPRESS</th>
-                                <th scope="col">BUKALAPAK</th>
-                                <th scope="col">BUKASEND</th>
-                                <th scope="col">EVERMOSAPI</th>
-                                <th scope="col">LAZADA</th>
-                                <th scope="col">LAZADA COD</th>
-                                <th scope="col">MAGELLAN</th>
-                                <th scope="col">MAGELLAN COD</th>
-                                <th scope="col">MENGANTAR</th>
-                                <th scope="col">ORDIVO</th>
-                                <th scope="col">SHOPEE</th>
-                                <th scope="col">SHOPEE COD</th>
-                                <th scope="col">TOKOPEDIA</th>
-                                <th scope="col">GRAND TOTAL</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($cp_dp_mp_sum_biaya_kirim as $item)
-                                    <tr>
-                                        <td style="text-align: left">{{$item->drop_point_outgoing}}</td>
-                                        <td>Rp{{rupiah_format($item->akulakuob)}}</td>
-                                        <td>Rp{{rupiah_format($item->bukaexpress)}}</td>
-                                        <td>Rp{{rupiah_format($item->bukalapak)}}</td>
-                                        <td>Rp{{rupiah_format($item->bukasend)}}</td>
-                                        <td>Rp{{rupiah_format($item->evermosapi)}}</td>
-                                        <td>Rp{{rupiah_format($item->lazada)}}</td>
-                                        <td>Rp{{rupiah_format($item->lazada_cod)}}</td>
-                                        <td>Rp{{rupiah_format($item->magellan)}}</td>
-                                        <td>Rp{{rupiah_format($item->magellan_cod)}}</td>
-                                        <td>Rp{{rupiah_format($item->mengantar)}}</td>
-                                        <td>Rp{{rupiah_format($item->ordivo)}}</td>
-                                        <td>Rp{{rupiah_format($item->shopee)}}</td>
-                                        <td>Rp{{rupiah_format($item->shopee_cod)}}</td>
-                                        <td>Rp{{rupiah_format($item->tokopedia)}}</td>
-                                        <td>Rp{{rupiah_format($item->grand_total)}}</td>
-                                    </tr>
-                                @endforeach
-                                <tr class="font-weight-bold border">
-                                    <td style="text-align: left" >Total</td>
-                                    <td>Rp{{rupiah_format($cp_dp_mp_sum_biaya_kirim->sum('akulakuob'))}}</td>
-                                    <td>Rp{{rupiah_format($cp_dp_mp_sum_biaya_kirim->sum('bukaexpress'))}}</td>
-                                    <td>Rp{{rupiah_format($cp_dp_mp_sum_biaya_kirim->sum('bukalapak'))}}</td>
-                                    <td>Rp{{rupiah_format($cp_dp_mp_sum_biaya_kirim->sum('bukasend'))}}</td>
-                                    <td>Rp{{rupiah_format($cp_dp_mp_sum_biaya_kirim->sum('evermosapi'))}}</td>
-                                    <td>Rp{{rupiah_format($cp_dp_mp_sum_biaya_kirim->sum('lazada'))}}</td>
-                                    <td>Rp{{rupiah_format($cp_dp_mp_sum_biaya_kirim->sum('lazada_cod'))}}</td>
-                                    <td>Rp{{rupiah_format($cp_dp_mp_sum_biaya_kirim->sum('magellan'))}}</td>
-                                    <td>Rp{{rupiah_format($cp_dp_mp_sum_biaya_kirim->sum('magellan_cod'))}}</td>
-                                    <td>Rp{{rupiah_format($cp_dp_mp_sum_biaya_kirim->sum('mengantar'))}}</td>
-                                    <td>Rp{{rupiah_format($cp_dp_mp_sum_biaya_kirim->sum('ordivo'))}}</td>
-                                    <td>Rp{{rupiah_format($cp_dp_mp_sum_biaya_kirim->sum('shopee'))}}</td>
-                                    <td>Rp{{rupiah_format($cp_dp_mp_sum_biaya_kirim->sum('shopee_cod'))}}</td>
-                                    <td>Rp{{rupiah_format($cp_dp_mp_sum_biaya_kirim->sum('tokopedia'))}}</td>
-                                    <td>Rp{{rupiah_format($cp_dp_mp_sum_biaya_kirim->sum('grand_total'))}}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
+            <div class="container text-center table-responsive">
+                <h4>Summary CP DP MP Sum Biaya Kirim</h4>
+                <table class="table">
+                    <thead>
+                        <tr>
+                        <th scope="col">Drop point outgoing</th>
+                        <th scope="col">AKULAKUOB</th>
+                        <th scope="col">BUKAEXPRESS</th>
+                        <th scope="col">BUKALAPAK</th>
+                        <th scope="col">BUKASEND</th>
+                        <th scope="col">EVERMOSAPI</th>
+                        <th scope="col">LAZADA</th>
+                        <th scope="col">LAZADA COD</th>
+                        <th scope="col">MAGELLAN</th>
+                        <th scope="col">MAGELLAN COD</th>
+                        <th scope="col">MENGANTAR</th>
+                        <th scope="col">ORDIVO</th>
+                        <th scope="col">SHOPEE</th>
+                        <th scope="col">SHOPEE COD</th>
+                        <th scope="col">TOKOPEDIA</th>
+                        <th scope="col">GRAND TOTAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($cp_dp_mp_sum_biaya_kirim as $item)
+                            <tr>
+                                <td style="text-align: left">{{$item->drop_point_outgoing}}</td>
+                                <td>Rp{{rupiah_format($item->akulakuob)}}</td>
+                                <td>Rp{{rupiah_format($item->bukaexpress)}}</td>
+                                <td>Rp{{rupiah_format($item->bukalapak)}}</td>
+                                <td>Rp{{rupiah_format($item->bukasend)}}</td>
+                                <td>Rp{{rupiah_format($item->evermosapi)}}</td>
+                                <td>Rp{{rupiah_format($item->lazada)}}</td>
+                                <td>Rp{{rupiah_format($item->lazada_cod)}}</td>
+                                <td>Rp{{rupiah_format($item->magellan)}}</td>
+                                <td>Rp{{rupiah_format($item->magellan_cod)}}</td>
+                                <td>Rp{{rupiah_format($item->mengantar)}}</td>
+                                <td>Rp{{rupiah_format($item->ordivo)}}</td>
+                                <td>Rp{{rupiah_format($item->shopee)}}</td>
+                                <td>Rp{{rupiah_format($item->shopee_cod)}}</td>
+                                <td>Rp{{rupiah_format($item->tokopedia)}}</td>
+                                <td>Rp{{rupiah_format($item->grand_total)}}</td>
+                            </tr>
+                        @endforeach
+                        <tr class="font-weight-bold border">
+                            <td style="text-align: left" >Total</td>
+                            <td>Rp{{rupiah_format($cp_dp_mp_sum_biaya_kirim->sum('akulakuob'))}}</td>
+                            <td>Rp{{rupiah_format($cp_dp_mp_sum_biaya_kirim->sum('bukaexpress'))}}</td>
+                            <td>Rp{{rupiah_format($cp_dp_mp_sum_biaya_kirim->sum('bukalapak'))}}</td>
+                            <td>Rp{{rupiah_format($cp_dp_mp_sum_biaya_kirim->sum('bukasend'))}}</td>
+                            <td>Rp{{rupiah_format($cp_dp_mp_sum_biaya_kirim->sum('evermosapi'))}}</td>
+                            <td>Rp{{rupiah_format($cp_dp_mp_sum_biaya_kirim->sum('lazada'))}}</td>
+                            <td>Rp{{rupiah_format($cp_dp_mp_sum_biaya_kirim->sum('lazada_cod'))}}</td>
+                            <td>Rp{{rupiah_format($cp_dp_mp_sum_biaya_kirim->sum('magellan'))}}</td>
+                            <td>Rp{{rupiah_format($cp_dp_mp_sum_biaya_kirim->sum('magellan_cod'))}}</td>
+                            <td>Rp{{rupiah_format($cp_dp_mp_sum_biaya_kirim->sum('mengantar'))}}</td>
+                            <td>Rp{{rupiah_format($cp_dp_mp_sum_biaya_kirim->sum('ordivo'))}}</td>
+                            <td>Rp{{rupiah_format($cp_dp_mp_sum_biaya_kirim->sum('shopee'))}}</td>
+                            <td>Rp{{rupiah_format($cp_dp_mp_sum_biaya_kirim->sum('shopee_cod'))}}</td>
+                            <td>Rp{{rupiah_format($cp_dp_mp_sum_biaya_kirim->sum('tokopedia'))}}</td>
+                            <td>Rp{{rupiah_format($cp_dp_mp_sum_biaya_kirim->sum('grand_total'))}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
         <div class="tab-pane fade" id="cp-dp-mp-retur-count-waybill-tab-pane" role="tabpanel" aria-labelledby="cp-dp-mp-retur-count-waybill-tab" tabindex="0">
-
-                <div class="row">
-                    <div class="container text-center table-responsive">
-                        <h4>Summary CP DP MP Retur Count Waybill</h4>
-                        <table class="table">
-                            <thead>
-                              <tr>
-                                <th scope="col">Drop point outgoing</th>
-                                <th scope="col">AKULAKUOB</th>
-                                <th scope="col">BUKAEXPRESS</th>
-                                <th scope="col">BUKALAPAK</th>
-                                <th scope="col">BUKASEND</th>
-                                <th scope="col">EVERMOSAPI</th>
-                                <th scope="col">LAZADA</th>
-                                <th scope="col">LAZADA COD</th>
-                                <th scope="col">MAGELLAN</th>
-                                <th scope="col">MAGELLAN COD</th>
-                                <th scope="col">MENGANTAR</th>
-                                <th scope="col">ORDIVO</th>
-                                <th scope="col">SHOPEE</th>
-                                <th scope="col">SHOPEE COD</th>
-                                <th scope="col">TOKOPEDIA</th>
-                                <th scope="col">GRAND TOTAL</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($cp_dp_mp_retur_count_waybill as $item)
-                                    <tr>
-                                        <td style="text-align: left">{{$item->drop_point_outgoing}}</td>
-                                        <td>{{decimal_format($item->akulakuob)}}</td>
-                                        <td>{{decimal_format($item->bukaexpress)}}</td>
-                                        <td>{{decimal_format($item->bukalapak)}}</td>
-                                        <td>{{decimal_format($item->bukasend)}}</td>
-                                        <td>{{decimal_format($item->evermosapi)}}</td>
-                                        <td>{{decimal_format($item->lazada)}}</td>
-                                        <td>{{decimal_format($item->lazada_cod)}}</td>
-                                        <td>{{decimal_format($item->magellan)}}</td>
-                                        <td>{{decimal_format($item->magellan_cod)}}</td>
-                                        <td>{{decimal_format($item->mengantar)}}</td>
-                                        <td>{{decimal_format($item->ordivo)}}</td>
-                                        <td>{{decimal_format($item->shopee)}}</td>
-                                        <td>{{decimal_format($item->shopee_cod)}}</td>
-                                        <td>{{decimal_format($item->tokopedia)}}</td>
-                                        <td>{{decimal_format($item->grand_total)}}</td>
-                                    </tr>
-                                @endforeach
-                                <tr class="font-weight-bold border">
-                                    <td style="text-align: left" >Total</td>
-                                    <td>{{decimal_format($cp_dp_mp_retur_count_waybill->sum('akulakuob'))}}</td>
-                                    <td>{{decimal_format($cp_dp_mp_retur_count_waybill->sum('bukaexpress'))}}</td>
-                                    <td>{{decimal_format($cp_dp_mp_retur_count_waybill->sum('bukalapak'))}}</td>
-                                    <td>{{decimal_format($cp_dp_mp_retur_count_waybill->sum('bukasend'))}}</td>
-                                    <td>{{decimal_format($cp_dp_mp_retur_count_waybill->sum('evermosapi'))}}</td>
-                                    <td>{{decimal_format($cp_dp_mp_retur_count_waybill->sum('lazada'))}}</td>
-                                    <td>{{decimal_format($cp_dp_mp_retur_count_waybill->sum('lazada_cod'))}}</td>
-                                    <td>{{decimal_format($cp_dp_mp_retur_count_waybill->sum('magellan'))}}</td>
-                                    <td>{{decimal_format($cp_dp_mp_retur_count_waybill->sum('magellan_cod'))}}</td>
-                                    <td>{{decimal_format($cp_dp_mp_retur_count_waybill->sum('mengantar'))}}</td>
-                                    <td>{{decimal_format($cp_dp_mp_retur_count_waybill->sum('ordivo'))}}</td>
-                                    <td>{{decimal_format($cp_dp_mp_retur_count_waybill->sum('shopee'))}}</td>
-                                    <td>{{decimal_format($cp_dp_mp_retur_count_waybill->sum('shopee_cod'))}}</td>
-                                    <td>{{decimal_format($cp_dp_mp_retur_count_waybill->sum('tokopedia'))}}</td>
-                                    <td>{{decimal_format($cp_dp_mp_retur_count_waybill->sum('grand_total'))}}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
+            <div class="container text-center table-responsive">
+                <h4>Summary CP DP MP Retur Count Waybill</h4>
+                <table class="table">
+                    <thead>
+                        <tr>
+                        <th scope="col">Drop point outgoing</th>
+                        <th scope="col">AKULAKUOB</th>
+                        <th scope="col">BUKAEXPRESS</th>
+                        <th scope="col">BUKALAPAK</th>
+                        <th scope="col">BUKASEND</th>
+                        <th scope="col">EVERMOSAPI</th>
+                        <th scope="col">LAZADA</th>
+                        <th scope="col">LAZADA COD</th>
+                        <th scope="col">MAGELLAN</th>
+                        <th scope="col">MAGELLAN COD</th>
+                        <th scope="col">MENGANTAR</th>
+                        <th scope="col">ORDIVO</th>
+                        <th scope="col">SHOPEE</th>
+                        <th scope="col">SHOPEE COD</th>
+                        <th scope="col">TOKOPEDIA</th>
+                        <th scope="col">GRAND TOTAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($cp_dp_mp_retur_count_waybill as $item)
+                            <tr>
+                                <td style="text-align: left">{{$item->drop_point_outgoing}}</td>
+                                <td>{{decimal_format($item->akulakuob)}}</td>
+                                <td>{{decimal_format($item->bukaexpress)}}</td>
+                                <td>{{decimal_format($item->bukalapak)}}</td>
+                                <td>{{decimal_format($item->bukasend)}}</td>
+                                <td>{{decimal_format($item->evermosapi)}}</td>
+                                <td>{{decimal_format($item->lazada)}}</td>
+                                <td>{{decimal_format($item->lazada_cod)}}</td>
+                                <td>{{decimal_format($item->magellan)}}</td>
+                                <td>{{decimal_format($item->magellan_cod)}}</td>
+                                <td>{{decimal_format($item->mengantar)}}</td>
+                                <td>{{decimal_format($item->ordivo)}}</td>
+                                <td>{{decimal_format($item->shopee)}}</td>
+                                <td>{{decimal_format($item->shopee_cod)}}</td>
+                                <td>{{decimal_format($item->tokopedia)}}</td>
+                                <td>{{decimal_format($item->grand_total)}}</td>
+                            </tr>
+                        @endforeach
+                        <tr class="font-weight-bold border">
+                            <td style="text-align: left" >Total</td>
+                            <td>{{decimal_format($cp_dp_mp_retur_count_waybill->sum('akulakuob'))}}</td>
+                            <td>{{decimal_format($cp_dp_mp_retur_count_waybill->sum('bukaexpress'))}}</td>
+                            <td>{{decimal_format($cp_dp_mp_retur_count_waybill->sum('bukalapak'))}}</td>
+                            <td>{{decimal_format($cp_dp_mp_retur_count_waybill->sum('bukasend'))}}</td>
+                            <td>{{decimal_format($cp_dp_mp_retur_count_waybill->sum('evermosapi'))}}</td>
+                            <td>{{decimal_format($cp_dp_mp_retur_count_waybill->sum('lazada'))}}</td>
+                            <td>{{decimal_format($cp_dp_mp_retur_count_waybill->sum('lazada_cod'))}}</td>
+                            <td>{{decimal_format($cp_dp_mp_retur_count_waybill->sum('magellan'))}}</td>
+                            <td>{{decimal_format($cp_dp_mp_retur_count_waybill->sum('magellan_cod'))}}</td>
+                            <td>{{decimal_format($cp_dp_mp_retur_count_waybill->sum('mengantar'))}}</td>
+                            <td>{{decimal_format($cp_dp_mp_retur_count_waybill->sum('ordivo'))}}</td>
+                            <td>{{decimal_format($cp_dp_mp_retur_count_waybill->sum('shopee'))}}</td>
+                            <td>{{decimal_format($cp_dp_mp_retur_count_waybill->sum('shopee_cod'))}}</td>
+                            <td>{{decimal_format($cp_dp_mp_retur_count_waybill->sum('tokopedia'))}}</td>
+                            <td>{{decimal_format($cp_dp_mp_retur_count_waybill->sum('grand_total'))}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
         <div class="tab-pane fade" id="cp-dp-mp-retur-sum-biaya-kirim-tab-pane" role="tabpanel" aria-labelledby="cp-dp-mp-retur-sum-biaya-kirim-tab" tabindex="0">
-
-                <div class="row">
-                    <div class="container text-center table-responsive">
-                        <h4>Summary CP DP MP Retur Sum Biaya Kirim</h4>
-                        <table class="table">
-                            <thead>
-                              <tr>
-                                <th scope="col">Drop point outgoing</th>
-                                <th scope="col">AKULAKUOB</th>
-                                <th scope="col">BUKAEXPRESS</th>
-                                <th scope="col">BUKALAPAK</th>
-                                <th scope="col">BUKASEND</th>
-                                <th scope="col">EVERMOSAPI</th>
-                                <th scope="col">LAZADA</th>
-                                <th scope="col">LAZADA COD</th>
-                                <th scope="col">MAGELLAN</th>
-                                <th scope="col">MAGELLAN COD</th>
-                                <th scope="col">MENGANTAR</th>
-                                <th scope="col">ORDIVO</th>
-                                <th scope="col">SHOPEE</th>
-                                <th scope="col">SHOPEE COD</th>
-                                <th scope="col">TOKOPEDIA</th>
-                                <th scope="col">GRAND TOTAL</th>
-                              </tr>
-                            </thead>
-                            <tbody>
-                                @foreach ($cp_dp_mp_retur_sum_biaya_kirim as $item)
-                                    <tr>
-                                        <td style="text-align: left">{{$item->drop_point_outgoing}}</td>
-                                        <td>Rp{{rupiah_format($item->akulakuob)}}</td>
-                                        <td>Rp{{rupiah_format($item->bukaexpress)}}</td>
-                                        <td>Rp{{rupiah_format($item->bukalapak)}}</td>
-                                        <td>Rp{{rupiah_format($item->bukasend)}}</td>
-                                        <td>Rp{{rupiah_format($item->evermosapi)}}</td>
-                                        <td>Rp{{rupiah_format($item->lazada)}}</td>
-                                        <td>Rp{{rupiah_format($item->lazada_cod)}}</td>
-                                        <td>Rp{{rupiah_format($item->magellan)}}</td>
-                                        <td>Rp{{rupiah_format($item->magellan_cod)}}</td>
-                                        <td>Rp{{rupiah_format($item->mengantar)}}</td>
-                                        <td>Rp{{rupiah_format($item->ordivo)}}</td>
-                                        <td>Rp{{rupiah_format($item->shopee)}}</td>
-                                        <td>Rp{{rupiah_format($item->shopee_cod)}}</td>
-                                        <td>Rp{{rupiah_format($item->tokopedia)}}</td>
-                                        <td>Rp{{rupiah_format($item->grand_total)}}</td>
-                                    </tr>
-                                @endforeach
-                                <tr class="font-weight-bold border">
-                                    <td style="text-align: left" >Total</td>
-                                    <td>Rp{{rupiah_format($cp_dp_mp_retur_sum_biaya_kirim->sum('akulakuob'))}}</td>
-                                    <td>Rp{{rupiah_format($cp_dp_mp_retur_sum_biaya_kirim->sum('bukaexpress'))}}</td>
-                                    <td>Rp{{rupiah_format($cp_dp_mp_retur_sum_biaya_kirim->sum('bukalapak'))}}</td>
-                                    <td>Rp{{rupiah_format($cp_dp_mp_retur_sum_biaya_kirim->sum('bukasend'))}}</td>
-                                    <td>Rp{{rupiah_format($cp_dp_mp_retur_sum_biaya_kirim->sum('evermosapi'))}}</td>
-                                    <td>Rp{{rupiah_format($cp_dp_mp_retur_sum_biaya_kirim->sum('lazada'))}}</td>
-                                    <td>Rp{{rupiah_format($cp_dp_mp_retur_sum_biaya_kirim->sum('lazada_cod'))}}</td>
-                                    <td>Rp{{rupiah_format($cp_dp_mp_retur_sum_biaya_kirim->sum('magellan'))}}</td>
-                                    <td>Rp{{rupiah_format($cp_dp_mp_retur_sum_biaya_kirim->sum('magellan_cod'))}}</td>
-                                    <td>Rp{{rupiah_format($cp_dp_mp_retur_sum_biaya_kirim->sum('mengantar'))}}</td>
-                                    <td>Rp{{rupiah_format($cp_dp_mp_retur_sum_biaya_kirim->sum('ordivo'))}}</td>
-                                    <td>Rp{{rupiah_format($cp_dp_mp_retur_sum_biaya_kirim->sum('shopee'))}}</td>
-                                    <td>Rp{{rupiah_format($cp_dp_mp_retur_sum_biaya_kirim->sum('shopee_cod'))}}</td>
-                                    <td>Rp{{rupiah_format($cp_dp_mp_retur_sum_biaya_kirim->sum('tokopedia'))}}</td>
-                                    <td>Rp{{rupiah_format($cp_dp_mp_retur_sum_biaya_kirim->sum('grand_total'))}}</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </div>
-
+            <div class="container text-center table-responsive">
+                <h4>Summary CP DP MP Retur Sum Biaya Kirim</h4>
+                <table class="table">
+                    <thead>
+                        <tr>
+                        <th scope="col">Drop point outgoing</th>
+                        <th scope="col">AKULAKUOB</th>
+                        <th scope="col">BUKAEXPRESS</th>
+                        <th scope="col">BUKALAPAK</th>
+                        <th scope="col">BUKASEND</th>
+                        <th scope="col">EVERMOSAPI</th>
+                        <th scope="col">LAZADA</th>
+                        <th scope="col">LAZADA COD</th>
+                        <th scope="col">MAGELLAN</th>
+                        <th scope="col">MAGELLAN COD</th>
+                        <th scope="col">MENGANTAR</th>
+                        <th scope="col">ORDIVO</th>
+                        <th scope="col">SHOPEE</th>
+                        <th scope="col">SHOPEE COD</th>
+                        <th scope="col">TOKOPEDIA</th>
+                        <th scope="col">GRAND TOTAL</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach ($cp_dp_mp_retur_sum_biaya_kirim as $item)
+                            <tr>
+                                <td style="text-align: left">{{$item->drop_point_outgoing}}</td>
+                                <td>Rp{{rupiah_format($item->akulakuob)}}</td>
+                                <td>Rp{{rupiah_format($item->bukaexpress)}}</td>
+                                <td>Rp{{rupiah_format($item->bukalapak)}}</td>
+                                <td>Rp{{rupiah_format($item->bukasend)}}</td>
+                                <td>Rp{{rupiah_format($item->evermosapi)}}</td>
+                                <td>Rp{{rupiah_format($item->lazada)}}</td>
+                                <td>Rp{{rupiah_format($item->lazada_cod)}}</td>
+                                <td>Rp{{rupiah_format($item->magellan)}}</td>
+                                <td>Rp{{rupiah_format($item->magellan_cod)}}</td>
+                                <td>Rp{{rupiah_format($item->mengantar)}}</td>
+                                <td>Rp{{rupiah_format($item->ordivo)}}</td>
+                                <td>Rp{{rupiah_format($item->shopee)}}</td>
+                                <td>Rp{{rupiah_format($item->shopee_cod)}}</td>
+                                <td>Rp{{rupiah_format($item->tokopedia)}}</td>
+                                <td>Rp{{rupiah_format($item->grand_total)}}</td>
+                            </tr>
+                        @endforeach
+                        <tr class="font-weight-bold border">
+                            <td style="text-align: left" >Total</td>
+                            <td>Rp{{rupiah_format($cp_dp_mp_retur_sum_biaya_kirim->sum('akulakuob'))}}</td>
+                            <td>Rp{{rupiah_format($cp_dp_mp_retur_sum_biaya_kirim->sum('bukaexpress'))}}</td>
+                            <td>Rp{{rupiah_format($cp_dp_mp_retur_sum_biaya_kirim->sum('bukalapak'))}}</td>
+                            <td>Rp{{rupiah_format($cp_dp_mp_retur_sum_biaya_kirim->sum('bukasend'))}}</td>
+                            <td>Rp{{rupiah_format($cp_dp_mp_retur_sum_biaya_kirim->sum('evermosapi'))}}</td>
+                            <td>Rp{{rupiah_format($cp_dp_mp_retur_sum_biaya_kirim->sum('lazada'))}}</td>
+                            <td>Rp{{rupiah_format($cp_dp_mp_retur_sum_biaya_kirim->sum('lazada_cod'))}}</td>
+                            <td>Rp{{rupiah_format($cp_dp_mp_retur_sum_biaya_kirim->sum('magellan'))}}</td>
+                            <td>Rp{{rupiah_format($cp_dp_mp_retur_sum_biaya_kirim->sum('magellan_cod'))}}</td>
+                            <td>Rp{{rupiah_format($cp_dp_mp_retur_sum_biaya_kirim->sum('mengantar'))}}</td>
+                            <td>Rp{{rupiah_format($cp_dp_mp_retur_sum_biaya_kirim->sum('ordivo'))}}</td>
+                            <td>Rp{{rupiah_format($cp_dp_mp_retur_sum_biaya_kirim->sum('shopee'))}}</td>
+                            <td>Rp{{rupiah_format($cp_dp_mp_retur_sum_biaya_kirim->sum('shopee_cod'))}}</td>
+                            <td>Rp{{rupiah_format($cp_dp_mp_retur_sum_biaya_kirim->sum('tokopedia'))}}</td>
+                            <td>Rp{{rupiah_format($cp_dp_mp_retur_sum_biaya_kirim->sum('grand_total'))}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>
