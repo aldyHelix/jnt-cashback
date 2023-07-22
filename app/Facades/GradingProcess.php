@@ -2,12 +2,12 @@
 
 namespace App\Facades;
 
-use App\Services\PivotService;
+use App\Services\GradingService;
 use Illuminate\Support\Facades\Facade;
 
-class PivotTable extends Facade {
+class GradingProcess extends Facade {
     protected static function getFacadeAccessor()
     {
-        return PivotService::class;
+        return GradingService::class;
     }
 }

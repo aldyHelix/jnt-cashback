@@ -111,6 +111,7 @@ class ProcessCSVData implements ShouldQueue
                 $duplicates = DB::table($this->schema_name.'.data_mart')->where('no_waybill', $item[0])->first();
 
                 if($duplicates) {
+                    //kalau duplicate akan di update data barunya.
                     unset($this->data[$key2]);
                     continue;
                 }

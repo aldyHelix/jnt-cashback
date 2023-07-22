@@ -1,10 +1,9 @@
-<a href="" data-bs-toggle="modal" class="btn btn-sm btn-outline-primary" data-bs-target="#modal-denda-role-{{ $id }}">
-    Setting Denda
-</a>
 
-<x-ladmin-modal id="modal-denda-role-{{ $id }}" class="text-start modal-xl modal-fullscreen">
+<x-ladmin-auth-layout>
     <x-slot name="title">Setting Denda Grading {{ $grading }}</x-slot>
-    <x-slot name="body">
+
+    <x-ladmin-card>
+        <x-slot name="body">
         <form action="{{ route('ladmin.cashbackpickup.denda') }}" method="POST">
             @csrf
                 <input type="hidden" name="periode_id" value="{{$id}}">
@@ -71,5 +70,12 @@
               <x-ladmin-button type="submit" class="text-white" color="primary">Simpan</x-ladmin-button>
           </div>
           </form>
-    </x-slot>
-</x-ladmin-modal>
+        </x-slot>
+        </x-ladmin-card>
+        <x-slot name="scripts">
+
+        </x-slot>
+        <x-slot name="scripts">
+
+        </x-slot>
+</x-ladmin-auth-layout>

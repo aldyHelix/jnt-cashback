@@ -118,8 +118,10 @@ class CreateSchemaService {
                     count(data_mart.no_waybill) AS count,
                     sum(data_mart.biaya_kirim) AS sum
                     FROM ".$schema.".data_mart
-                WHERE (data_mart.kat = 'CP' OR data_mart.kat = 'DP')
-                AND (data_mart.metode_pembayaran = 'PP_PM' OR data_mart.metode_pembayaran = 'PP_CASH')
+                WHERE
+                (data_mart.kat = 'CP' OR data_mart.kat = 'DP')
+                AND
+                (data_mart.metode_pembayaran = 'PP_PM' OR data_mart.metode_pembayaran = 'PP_CASH')
                 GROUP BY data_mart.drop_point_outgoing";
     }
 
@@ -322,8 +324,11 @@ class CreateSchemaService {
                 sum(data_mart.biaya_kirim) AS SUM
             FROM ".$schema.".data_mart
             WHERE (data_mart.kat = 'DPF')
-            AND (data_mart.metode_pembayaran ='CC_CASH'
-                    AND (data_mart.klien_pengiriman IN ('ALWAHHIJAB', 'BLIBLIAPI', 'MAULAGI', 'TRIES', 'WEEKENDBGR', 'BITESHIP', NULL)))
+            AND (
+                (data_mart.metode_pembayaran ='CC_CASH')
+                    AND
+                (data_mart.klien_pengiriman IN ('ALWAHHIJAB', 'BLIBLIAPI', 'MAULAGI', 'TRIES', 'WEEKENDBGR', 'BITESHIP', NULL))
+            )
             GROUP BY data_mart.drop_point_outgoing";
     }
 

@@ -20,6 +20,7 @@ ladmin()->route(function() {
 
         // Access module in authentication access
         Route::get('/{grade}', [CashbackPickupController::class, 'index'])->name('index');
+        Route::get('/denda/{id}/{grade}', [CashbackPickupController::class, 'viewDenda'])->name('view-denda');
         Route::post('/denda', [CashbackPickupController::class, 'saveDenda'])->name('denda');
         Route::get('/detail/{code}/{grade}', [CashbackPickupController::class, 'viewDetail'])->name('detail');
         Route::get('/process/{code}/{grade}/{id}', [CashbackPickupController::class, 'process'])->name('process');
