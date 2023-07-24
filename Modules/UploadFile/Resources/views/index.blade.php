@@ -28,15 +28,15 @@
                             </div>
                             <div class="modal-body">
                                 <div class="alert alert-info" role="alert">
-                                    Please check period! don't duplicate upload file.
+                                    Please wait until the process done. don't close the window!
                                 </div>
                                 <div class="mb-3">
                                     <label for="formFile" class="form-label">File</label>
-                                    <input class="form-control" type="file" id="formFile" name="file" onchange="showFile()">
+                                    <input class="form-control" type="file" id="formFile" name="file" required>
                                 </div>
                                 <div class="mb-3">
                                     <label for="exampleFormControlInput1" class="form-label">Month</label>
-                                    <select class="form-select" aria-label="Month" name="month_period">
+                                    <select class="form-select" aria-label="Month" name="month_period" required>
                                         <option selected>Select Month</option>
                                         <option value="Jan">January</option>
                                         <option value="Feb">February</option>
@@ -54,7 +54,7 @@
                                 </div>
                                 <div class="mb-3">
                                     <label for="exampleFormControlInput1" class="form-label">Year</label>
-                                    <select class="form-select" aria-label="Year" name="year_period">
+                                    <select class="form-select" aria-label="Year" name="year_period" required>
                                         <option selected>Select Year</option>
                                         <option value="2022">2022</option>
                                         <option value="2023">2023</option>
@@ -66,7 +66,7 @@
                             </div>
                             <div class="modal-footer">
                                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                <button type="submit" class="btn btn-primary">Save changes</button>
+                                <button type="submit" id="submit_upload" class="btn btn-primary" onclick="loadingLoader()" disabled>Save changes</button>
                             </div>
                         </div>
                     </form>

@@ -16,10 +16,17 @@
     {{ $styles ?? null }}
     @stack('after-styles')
 
+    @livewireStyles
+
 
 </head>
 
 <body class="ladmin">
+    <!-- Add the loading screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-spinner"></div>
+    </div>
+
     <aside class="aside">
         <div class="bg-aside bg-body text-body">
 
@@ -56,6 +63,8 @@
                 </div>
             </div>
             <div class="d-flex align-items-center me-3">
+
+                @livewire('queue-status')
 
                 <x-ladmin-notification :user="$user" />
 
@@ -130,6 +139,8 @@
     <form action="{{ route('ladmin.notification.store') }}" method="POST" id="notification-all-read">
         @csrf
     </form>
+
+    @livewireScripts
 
     @stack('before-scripts')
     @vite(['resources/scss/app.scss', 'resources/js/app.js', 'Modules/Ladmin/Resources/js/ladmin.js'])

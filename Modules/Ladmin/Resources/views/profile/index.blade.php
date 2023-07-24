@@ -25,6 +25,22 @@
                     </a>
                 </x-slot>
             </x-ladmin-card>
+
+            <x-ladmin-card class="mb-3">
+                <x-slot name="body">
+                    <h5 class="card-title">Process Online</h5>
+
+                    <div class="d-flex align-items-center">
+                        <div class="mx-3">
+                            <i class="fa-solid fa-cogs fa-3x text-primary"></i>
+                        </div>
+                        <div class="mx-3 flex-grow-1">
+                            @livewire('queue-status')
+                        </div>
+                    </div>
+
+                </x-slot>
+            </x-ladmin-card>
         </div>
         <div class="col-lg-9">
             <x-ladmin-card class="mb-3">
