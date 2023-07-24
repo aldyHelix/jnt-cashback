@@ -6,7 +6,38 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 class CreateSchemaService {
-	public function createSchema($month, $year){
+    public function createSchemaDelivery($month, $year) {
+        //check if exist first
+        if(Schema::hasTable('delivery_'.$month.'_'.$year.'.data_mart')) {
+            return false;
+        }
+        $schema = "delivery_".$month."_".$year;
+
+        $created = DB::connection('pgsql')->unprepared("
+            CREATE SCHEMA ".$schema."
+            CREATE TABLE data_mart (
+                drop_point_outgoing varchar,
+                drop_point_ttd varchar,
+                waktu_ttd timestamp,
+                no_waybill varchar unique,
+                sprinter text,
+                tempat_tujuan text,
+                layanan text,
+                berat float
+            )");
+
+        return $created;
+    }
+
+    public function MPDeliveryAWB($schema) {
+        return "
+            CREATE OR REPLACE VIEW mp_delivery_count_sprinter AS
+            SELECT DISTINCT data_mart.sprinter, COUNT(data_mart.no_waybill)
+            FROM ".$schema.".data_mart
+            GROUP BY data_mart.sprinter";
+    }
+
+	public function createSchemaCashback($month, $year){
         //check if exist first
         if(Schema::hasTable('cashback_'.$month.'_'.$year.'.data_mart')) {
             return false;

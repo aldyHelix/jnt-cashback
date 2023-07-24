@@ -5,6 +5,7 @@ namespace Modules\UploadFile\Http\Controllers;
 use App\Facades\CreateSchema;
 use App\Imports\CashbackImport;
 use App\Jobs\ProcessCSVData;
+use App\Jobs\ProcessCSVDataDelivery;
 use App\Models\Cashback;
 use App\Models\Periode;
 use Illuminate\Bus\Batch;
@@ -49,6 +50,119 @@ class UploadController extends Controller
         return view('uploadfile::index');
     }
 
+    public function uploadFileDelivery(Request $request) {
+        $schema_name = 'delivery_'.strtolower($request->month_period).'_'.$request->year_period;
+        $csv    = file($request->file);
+
+        //i need to convert this file to UTF-8 Encoding
+        foreach ($csv as $cellIndex => $cell) {
+            $cell = mb_convert_encoding($cell, 'UTF-8', 'UTF-8');
+            $cell = mb_check_encoding($cell, 'UTF-8') ? $cell : '';
+
+            $csv[$cellIndex] = $cell;
+        }
+
+        $chunks = array_chunk($csv,500);
+        $count_csv = (count($csv)-1);
+        $timeout = intval($count_csv * 0.5 );
+
+        if(!Schema::hasTable($schema_name.'.'.'data_mart')) {
+            $schema = CreateSchema::createSchemaDelivery(strtolower($request->month_period), $request->year_period);
+        }
+
+        $file = $request->file('file');
+
+
+        $uploaded_file = UploadFile::create([
+            'file_name' => $file->getClientOriginalName(),
+            'month_period' => $request->month_period,
+            'year_period' => $request->year_period,
+            'count_row' => $count_csv,
+            'file_size' => $file->getSize(),
+            'table_name' => $schema_name.'.'.'data_mart',
+            'processed_by' => auth()->user()->id,
+            'type_file' => 1, //0 cashback; 1 ttd;
+            'processing_status' => 'ON QUEUE',
+        ]);
+
+        $queue_name = 'QUEUE : '.$file->getClientOriginalName().';SCHEMA : '.$schema_name.';TIME UPLOAD : '.$uploaded_file->created_at;
+
+        $batch  = Bus::batch([])
+        ->then(function (Batch $batch) use ($uploaded_file, $count_csv) {
+            $uploaded_file->update([
+                'processing_status'=> 'FINISHED'
+            ]);
+
+        })
+        ->catch(function (Batch $batch, Throwable $e) use ($uploaded_file,  $count_csv) {
+            // First batch job failure detected...
+            $uploaded_file->update(['processing_status'=> 'FAILED']);
+        })
+        ->finally(function (Batch $batch) use ($uploaded_file, $count_csv) {
+            $status = 'FINISHED '.$batch->progress().'%';
+            if($batch->failedJobs > 0) {
+               $status = 'NOT FULLY IMPORTED ('.$batch->progress().'% PROCESSED)';
+            }
+
+            $uploaded_file->update([
+                'processing_status'=> $status,
+            ]);
+            // The batch has finished executing...
+        })->name($queue_name);
+
+        $header = [
+            'drop_point_outgoing',
+            'drop_point_ttd',
+            'waktu_ttd',
+            'no_waybill',
+            'sprinter',
+            'tempat_tujuan',
+            'layanan',
+            'berat',
+        ];
+
+        foreach($chunks as $key => $chunk) {
+            // $chunk = $this->data;
+            $raw_before = $chunk;
+
+            /**
+             * cleansing csv
+             */
+            $chunk = str_replace(',', '.', $chunk);
+            $chunk = str_replace(';', ',', $chunk);
+
+            $chunk = str_replace("\xE2\x80\x8B", "", $chunk);
+            // Zero-width non-breakabke space
+            // See: https://en.wikipedia.org/wiki/Word_joiner
+            $chunk = str_replace("\xEF\xBB\xBF", "", $chunk);
+
+            // Zero-width space
+            // See: https://en.wikipedia.org/wiki/Zero-width_space
+            $chunk = preg_replace('/[^(\x20-\x7F)]*/','', $chunk);
+
+            $chunk = str_replace('\r\n', '', $chunk);
+            $chunk = str_replace('\n";', '";', $chunk);
+
+
+            /**
+             * END CLEANSING
+             */
+
+
+            $result = array_map('str_getcsv', $chunk);
+
+            if($key == 0){
+                unset($result[0]);
+            }
+
+            $batch->add([new ProcessCSVDataDelivery($result, $schema_name, $uploaded_file, $raw_before, $timeout, $key)]);
+        }
+
+        $batch->dispatch($uploaded_file);
+
+        return redirect()->back();
+    }
+
     public function uploadFile(Request $request) {
         $schema_name = 'cashback_'.strtolower($request->month_period).'_'.$request->year_period;
         $csv    = file($request->file);
@@ -66,7 +180,7 @@ class UploadController extends Controller
         $timeout = intval($count_csv * 0.5 );
 
         if(!Schema::hasTable($schema_name.'.'.'data_mart')) {
-            $schema = CreateSchema::createSchema(strtolower($request->month_period), $request->year_period);
+            $schema = CreateSchema::createSchemaCashback(strtolower($request->month_period), $request->year_period);
         }
 
         $file = $request->file('file');

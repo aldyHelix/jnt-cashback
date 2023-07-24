@@ -12,8 +12,6 @@ fileInput.addEventListener("change", function() {
         // If no file is selected, disable the submit button
         submitButton.disabled = true;
     }
-
-    console.log('test file');
 });
 
 
@@ -22,5 +20,29 @@ function loadingLoader() {
 
      // Show the loading screen
      $('#loadingScreen').fadeIn();
-    console.log('test');
+}
+
+// Get the file input element and submit button element
+const fileInputDelivery = document.getElementById("formFileDelivery");
+const submitButtonDelivery = document.getElementById("submit_upload_delivery");
+
+// Add an event listener to the file input
+fileInputDelivery.addEventListener("change", function() {
+    console.log(fileInputDelivery.files.length);
+    // Check if a file is selected
+    if (fileInputDelivery.files.length > 0) {
+        // Enable the submit button
+        submitButtonDelivery.disabled = false;
+    } else {
+        // If no file is selected, disable the submit button
+        submitButtonDelivery.disabled = true;
+    }
+});
+
+
+function loadingLoaderDelivery() {
+    $('#uploadTTD').hide();
+
+     // Show the loading screen
+     $('#loadingScreen').fadeIn();
 }
