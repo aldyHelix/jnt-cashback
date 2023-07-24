@@ -26,6 +26,7 @@ class ProcessCSVDataDelivery implements ShouldQueue
     public $data;
     public $uploaded_file;
     public $raw_before;
+    public $period_id;
     /**
      * The number of times the job may be attempted.
      *
@@ -40,7 +41,7 @@ class ProcessCSVDataDelivery implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($data, $schema_name, $uploaded_file, $raw_before, $timeout, $key)
+    public function __construct($data, $schema_name, $uploaded_file, $raw_before, $timeout, $key, $period_id)
     {
         $this->data = $data;
         $this->schema_name = $schema_name;
@@ -96,10 +97,15 @@ class ProcessCSVDataDelivery implements ShouldQueue
 
                     $item[2] = $item[2]->format('Y-m-d h:i');
                     $data_insert[] = $item;
+                    $inserted++;
                 }
             }
 
             $insert = DB::table($this->schema_name.'.data_mart')->insert($data_insert);
+
+            $periode->update([
+                'inserted_row' => $periode->inserted_row + $inserted,
+            ]);
 
             $uploaded_file->update(['processed_row' => $uploaded_file->processed_row + $countData]);
 

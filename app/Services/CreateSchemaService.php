@@ -24,15 +24,26 @@ class CreateSchemaService {
                 tempat_tujuan text,
                 layanan text,
                 berat float
-            )");
+            )
+            ".$this->MPDeliveryAWB($schema)."
+
+            ");
 
         return $created;
     }
 
+
+
     public function MPDeliveryAWB($schema) {
         return "
             CREATE OR REPLACE VIEW mp_delivery_count_sprinter AS
-            SELECT DISTINCT data_mart.sprinter, COUNT(data_mart.no_waybill)
+            SELECT DISTINCT data_mart.sprinter,
+            COUNT(data_mart.no_waybill),
+            CASE
+               WHEN COUNT(data_mart.no_waybill) < 2200 THEN 0
+               WHEN COUNT(data_mart.no_waybill) BETWEEN 2200 AND 2400 THEN 50
+               ELSE 100
+            END AS fee_condition_value
             FROM ".$schema.".data_mart
             GROUP BY data_mart.sprinter";
     }
@@ -46,6 +57,8 @@ class CreateSchemaService {
 		$created = DB::connection('pgsql')->unprepared("
             CREATE SCHEMA ".$schema."
             CREATE TABLE data_mart (no_waybill varchar unique, tgl_pengiriman date, drop_point_outgoing varchar, sprinter_pickup text,tempat_tujuan text,keterangan text, berat_yang_ditagih float, cod integer, biaya_asuransi integer, biaya_kirim integer, biaya_lainnya integer, total_biaya integer, klien_pengiriman text, metode_pembayaran text, nama_pengirim text, sumber_waybill text, paket_retur text, waktu_ttd timestamp, layanan text, diskon integer, total_biaya_setelah_diskon integer, agen_tujuan text, nik text, kode_promo text, kat text)
+
+            ".$this->allSumBiayaKirim($schema)."
 
             ".$this->CPDPAllCountSum($schema)."
 
@@ -132,6 +145,14 @@ class CreateSchemaService {
             //     SELECT title, release FROM films WHERE awards IS NOT NULL;
         return $created;
 	}
+
+    public function allSumBiayaKirim($schema) {
+        return "
+            CREATE OR REPLACE VIEW sum_all_biaya_kirim AS
+            SELECT SUM(data_mart.biaya_kirim)
+            FROM FROM ".$schema.".data_mart;
+        ";
+    }
 
     public function CPDPAllCountSum($schema) {
         return "

@@ -8,6 +8,7 @@ use App\Jobs\ProcessCSVData;
 use App\Jobs\ProcessCSVDataDelivery;
 use App\Models\Cashback;
 use App\Models\Periode;
+use App\Models\PeriodeDelivery;
 use Illuminate\Bus\Batch;
 use Illuminate\Database\QueryException;
 use Illuminate\Http\Request;
@@ -87,78 +88,116 @@ class UploadController extends Controller
 
         $queue_name = 'QUEUE : '.$file->getClientOriginalName().';SCHEMA : '.$schema_name.';TIME UPLOAD : '.$uploaded_file->created_at;
 
-        $batch  = Bus::batch([])
-        ->then(function (Batch $batch) use ($uploaded_file, $count_csv) {
-            $uploaded_file->update([
-                'processing_status'=> 'FINISHED'
-            ]);
+        if($uploaded_file) {
+            $existing_periode = PeriodeDelivery::where('code', $schema_name)->first();
 
-        })
-        ->catch(function (Batch $batch, Throwable $e) use ($uploaded_file,  $count_csv) {
-            // First batch job failure detected...
-            $uploaded_file->update(['processing_status'=> 'FAILED']);
-        })
-        ->finally(function (Batch $batch) use ($uploaded_file, $count_csv) {
-            $status = 'FINISHED '.$batch->progress().'%';
-            if($batch->failedJobs > 0) {
-               $status = 'NOT FULLY IMPORTED ('.$batch->progress().'% PROCESSED)';
+            if(!$existing_periode) {
+                $existing_periode = PeriodeDelivery::create([
+                    'code' => $schema_name,
+                    'month' => $request->month_period,
+                    'year' => $request->year_period,
+                    'count_row' => $count_csv,
+                    'status' => 'ON QUEUE',
+                ]);
+
+                $period_id = $existing_periode->id;
+            } else {
+                $existing_periode->update([
+                    'count_row' => $existing_periode->count_row + $count_csv
+                ]);
+                $period_id = $existing_periode->id;
             }
 
-            $uploaded_file->update([
-                'processing_status'=> $status,
-            ]);
-            // The batch has finished executing...
-        })->name($queue_name);
+            $batch  = Bus::batch([])
+                    ->then(function (Batch $batch) use ($uploaded_file, $existing_periode, $count_csv) {
+                        $uploaded_file->update([
+                            'processing_status'=> 'FINISHED'
+                        ]);
 
-        $header = [
-            'drop_point_outgoing',
-            'drop_point_ttd',
-            'waktu_ttd',
-            'no_waybill',
-            'sprinter',
-            'tempat_tujuan',
-            'layanan',
-            'berat',
-        ];
+                        $done = $existing_periode->update([
+                            'count_row' => $existing_periode->count_row + $count_csv,
+                            'status' => 'FINISHED',
+                        ]);
+                    })
+                    ->catch(function (Batch $batch, Throwable $e) use ($uploaded_file, $existing_periode, $count_csv) {
+                        // First batch job failure detected...
+                        $uploaded_file->update(['processing_status'=> 'FAILED']);
 
-        foreach($chunks as $key => $chunk) {
-            // $chunk = $this->data;
-            $raw_before = $chunk;
+                        $existing_periode->update([
+                            'status' => 'FAILED',
+                        ]);
+                    })
+                    ->finally(function (Batch $batch) use ($uploaded_file, $existing_periode, $count_csv) {
+                        $status = 'FINISHED '.$batch->progress().'%';
+                        if($batch->failedJobs > 0) {
+                        $status = 'NOT FULLY IMPORTED ('.$batch->progress().'% PROCESSED)';
+                        }
 
-            /**
-             * cleansing csv
-             */
-            $chunk = str_replace(',', '.', $chunk);
-            $chunk = str_replace(';', ',', $chunk);
+                        $uploaded_file->update([
+                            'processing_status'=> $status,
+                        ]);
 
-            $chunk = str_replace("\xE2\x80\x8B", "", $chunk);
-            // Zero-width non-breakabke space
-            // See: https://en.wikipedia.org/wiki/Word_joiner
-            $chunk = str_replace("\xEF\xBB\xBF", "", $chunk);
+                        $existing_periode->update([
+                            'status' => $status,
+                        ]);
+                        // The batch has finished executing...
+                    })->name($queue_name);
 
-            // Zero-width space
-            // See: https://en.wikipedia.org/wiki/Zero-width_space
-            $chunk = preg_replace('/[^(\x20-\x7F)]*/','', $chunk);
+            $header = [
+                'drop_point_outgoing',
+                'drop_point_ttd',
+                'waktu_ttd',
+                'no_waybill',
+                'sprinter',
+                'tempat_tujuan',
+                'layanan',
+                'berat',
+            ];
 
-            $chunk = str_replace('\r\n', '', $chunk);
-            $chunk = str_replace('\n";', '";', $chunk);
+            foreach($chunks as $key => $chunk) {
+                // $chunk = $this->data;
+                $raw_before = $chunk;
+
+                /**
+                 * cleansing csv
+                 */
+                $chunk = str_replace(',', '.', $chunk);
+                $chunk = str_replace(';', ',', $chunk);
+
+                $chunk = str_replace("\xE2\x80\x8B", "", $chunk);
+                // Zero-width non-breakabke space
+                // See: https://en.wikipedia.org/wiki/Word_joiner
+                $chunk = str_replace("\xEF\xBB\xBF", "", $chunk);
+
+                // Zero-width space
+                // See: https://en.wikipedia.org/wiki/Zero-width_space
+                $chunk = preg_replace('/[^(\x20-\x7F)]*/','', $chunk);
+
+                $chunk = str_replace('\r\n', '', $chunk);
+                $chunk = str_replace('\n";', '";', $chunk);
 
 
-            /**
-             * END CLEANSING
-             */
+                /**
+                 * END CLEANSING
+                 */
 
 
-            $result = array_map('str_getcsv', $chunk);
+                $result = array_map('str_getcsv', $chunk);
 
-            if($key == 0){
-                unset($result[0]);
+                if($key == 0){
+                    unset($result[0]);
+                }
+
+                $batch->add([new ProcessCSVDataDelivery($result, $schema_name, $uploaded_file, $raw_before, $timeout, $key, $period_id)]);
+
+                $existing_periode = PeriodeDelivery::where('code', $schema_name)->first();
+                $existing_periode->update([
+                    'processed_row'=> $existing_periode->processed_row + count($result),
+                ]);
             }
 
-            $batch->add([new ProcessCSVDataDelivery($result, $schema_name, $uploaded_file, $raw_before, $timeout, $key)]);
+            $batch->dispatch($uploaded_file);
         }
-
-        $batch->dispatch($uploaded_file);
 
         return redirect()->back();
     }

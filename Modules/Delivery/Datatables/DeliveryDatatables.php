@@ -5,6 +5,7 @@ namespace Modules\Delivery\Datatables;
 use App\Models\Denda;
 use App\Models\DendaDelivery;
 use App\Models\Periode;
+use App\Models\Periodedelivery;
 use Hexters\Ladmin\Datatables;
 use Illuminate\Support\Facades\Blade;
 use Modules\CollectionPoint\Models\CollectionPoint;
@@ -24,7 +25,7 @@ class DeliveryDatatables extends Datatables
      */
     public function __construct()
     {
-        $this->query = Periode::query();
+        $this->query = PeriodeDelivery::query();
     }
 
     /**
@@ -51,9 +52,9 @@ class DeliveryDatatables extends Datatables
             ->addColumn('periode', function ($row) {
                 return $row->month.'/'.$row->year;
             })
-            ->addColumn('denda', function ($row) {
-                return $this->setDenda($row);
-            })
+            // ->addColumn('denda', function ($row) {
+            //     return $this->setDenda($row);
+            // })
             ->addColumn('detail', function ($row) {
                 return $this->viewDetail($row);
             })
@@ -97,7 +98,7 @@ class DeliveryDatatables extends Datatables
             'Periode',
             'Update Terakhir',
             'Status',
-            'Denda',
+            // 'Denda',
             'Setting Pickup Fee',
             'Tampilkan Detail',
             'Aksi' => ['class' => 'text-center'],
@@ -118,7 +119,7 @@ class DeliveryDatatables extends Datatables
             ['data' => 'status', 'class' => 'text-center'],
             ['data' => 'updated_at', 'class' => 'text-center'],
             ['data' => 'pickup_fee', 'class' => 'text-center'],
-            ['data' => 'denda', 'class' => 'text-center'],
+            // ['data' => 'denda', 'class' => 'text-center'],
             ['data' => 'detail', 'class' => 'text-center'],
             ['data' => 'action', 'class' => 'text-center', 'orderable' => false]
         ];
