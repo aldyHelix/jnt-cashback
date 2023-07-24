@@ -70,6 +70,7 @@ class CashbackPickupController extends Controller
         $data['cp_dp_reguler_count_sum'] = PivotTable::getPivotRegulerCountSumCPDP($code);
         $data['cp_dp_dfod_count_sum'] = PivotTable::getPivotDfodCountSumCPDP($code);
         $data['cp_dp_super_count_sum'] = PivotTable::getPivotSuperCountSumCPDP($code);
+        $data['sum_all_biaya_kirim'] = PivotTable::getSumAllBiayaKirim($code);
         $data['total'] = [
             'cp_dp_all_count_sum_total_count' => $data['cp_dp_all_count_sum']->sum('count'),
             'cp_dp_all_count_sum_total_sum' => $data['cp_dp_all_count_sum']->sum('sum'),

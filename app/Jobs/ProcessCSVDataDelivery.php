@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use App\Models\PeriodeDelivery;
 use Exception;
 use Illuminate\Bus\Queueable;
 use Illuminate\Bus\Batchable;
@@ -69,6 +70,7 @@ class ProcessCSVDataDelivery implements ShouldQueue
         try {
             $uploaded_file = UploadFile::where('id', $this->uploaded_file->id)->first();
             $uploaded_file->update(['processing_status'=> 'ON PROCESSING']);
+            $periode = PeriodeDelivery::where('id', $this->period_id)->first();
 
             $data_insert = [];
             $inserted = 0;
@@ -95,7 +97,6 @@ class ProcessCSVDataDelivery implements ShouldQueue
                 if ((count($item) == count($header))) {
                     $item = array_combine($header,$item);
 
-                    $item[2] = $item[2]->format('Y-m-d h:i');
                     $data_insert[] = $item;
                     $inserted++;
                 }

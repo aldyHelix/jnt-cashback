@@ -49,6 +49,11 @@ class QueueWorkerController extends Controller
         return $output;
     }
 
+    private function startAllQueue()
+    {
+        Artisan::call('queue:work');
+    }
+
     private function startWorkerForQueue($queue)
     {
         Artisan::call('queue:work', [

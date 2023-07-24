@@ -49,8 +49,17 @@ class PeriodDatatables extends Datatables
             ->addColumn('period', function($row) {
                 return $row->month.'/'.$row->year;
             })
+            ->addColumn('total_biaya_kirim', function($row){
+                return 'Rp'.rupiah_format(DB::table($row->code.'.sum_all_biaya_kirim')->first()->sum ?? 0) ;
+            })
+            ->editColumn('processed_row', function($row){
+                return decimal_format($row->processed_row ?? 0);
+            })
+            ->editColumn('count_row', function($row){
+                return decimal_format($row->count_row ?? 0);
+            })
             ->editColumn('inserted_row', function($row){
-                return DB::table($row->code.'.data_mart')->count();
+                return decimal_format(DB::table($row->code.'.data_mart')->count() ?? 0);
             })
             ->editColumn('processed_by', function($row) {
                 $user = ladmin()->admin()->where('id', $row->processed_by)->first();
@@ -79,6 +88,7 @@ class PeriodDatatables extends Datatables
         return [
             'Code',
             'Month/Year',
+            'Total Biaya Kirim',
             'Row Processed',
             'Row Inserted',
             'Row Total',
@@ -101,6 +111,7 @@ class PeriodDatatables extends Datatables
         return [
             ['data' => 'code', 'class' => 'text-center'],
             ['data' => 'period', 'class' => 'text-center'],
+            ['data' => 'total_biaya_kirim', 'class' => 'text-center'],
             ['data' => 'processed_row', 'class' => 'text-center'],
             ['data' => 'inserted_row', 'class' => 'text-center'],
             ['data' => 'count_row', 'class' => 'text-center'],

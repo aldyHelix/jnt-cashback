@@ -7,6 +7,16 @@ use Illuminate\Support\Facades\Schema;
 
 class PivotService {
     /**
+     * general summary
+     */
+    public function getSumAllBiayaKirim($schema){
+        if(!Schema::hasTable($schema.'.data_mart')) {
+            return false;
+        }
+        return DB::table($schema.'.sum_all_biaya_kirim')
+            ->first()->sum;
+    }
+    /**
      * CP DP
      */
     public function getPivotAllCountSumCPDP($schema){

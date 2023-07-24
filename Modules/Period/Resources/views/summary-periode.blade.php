@@ -54,6 +54,10 @@
                                             <td style="text-align: left;width: 200px;">: {{ decimal_format($row_total) }} </td>
                                         </tr>
                                         <tr>
+                                            <td style="text-align: left">Total Biaya Kirim</td>
+                                            <td style="text-align: left;width: 200px;">: Rp{{ rupiah_format($sum_all_biaya_kirim) }} </td>
+                                        </tr>
+                                        <tr>
                                             <td style="text-align: left">Import Last Status</td>
                                             <td style="text-align: left;width: 200px;">: {{ $periode->status }} </td>
                                         </tr>
