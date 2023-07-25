@@ -138,4 +138,12 @@ class PivotService {
         return DB::table($schema.'.dpf_mp_retur_sum_biaya_kirim')
             ->get();
     }
+
+    public function getDeliverySprinter($schema) {
+        if(!Schema::hasTable($schema.'.data_mart')) {
+            return false;
+        }
+        return DB::table($schema.'.mp_delivery_count_sprinter')
+            ->get();
+    }
 }

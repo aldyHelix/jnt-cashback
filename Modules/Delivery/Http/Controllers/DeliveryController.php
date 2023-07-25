@@ -2,8 +2,11 @@
 
 namespace Modules\Delivery\Http\Controllers;
 
+use App\Facades\PivotTable;
 use App\Models\DendaDelivery;
+use App\Models\PeriodeDelivery;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Modules\Delivery\Datatables\DeliveryDatatables;
 
 class DeliveryController extends Controller
@@ -22,8 +25,11 @@ class DeliveryController extends Controller
         return view('delivery::index', $data);
     }
 
-    public function viewDetail($code ) {
-        return view('delivery::summary-delivery');
+    public function viewDetail($code) {
+        $data['periode'] = PeriodeDelivery::where('code', $code)->first();
+        $data['summary_sprinter'] = PivotTable::getDeliverySprinter($code);
+        $data['row_total'] = DB::table($data['periode']->code.'.data_mart')->count();
+        return view('delivery::summary-delivery', $data);
     }
 
     public function process() {
