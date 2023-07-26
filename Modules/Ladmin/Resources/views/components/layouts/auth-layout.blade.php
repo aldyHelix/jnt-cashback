@@ -64,6 +64,8 @@
             </div>
             <div class="d-flex align-items-center me-3">
 
+                @livewire('queue-processor')
+
                 @livewire('queue-status')
 
                 <x-ladmin-notification :user="$user" />
@@ -141,6 +143,7 @@
     </form>
 
     @livewireScripts
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js" defer></script>
 
     @stack('before-scripts')
     @vite(['resources/scss/app.scss', 'resources/js/app.js', 'Modules/Ladmin/Resources/js/ladmin.js'])
