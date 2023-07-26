@@ -2479,9 +2479,9 @@ class CreateSchemaService {
                 cp.kode_cp,
                 cp.nama_cp,
                 cp.nama_pt,
-                cpdprcg.total_cashback,
+                COALESCE(cpdprcg.total_cashback, 0) AS total_cashback,
                 COALESCE(dg.transit_fee , 0) AS transit_fee,
-                cpdprcg.total_cashback - COALESCE(dg.transit_fee , 0) AS total_cashback_dikurangi_transit_fee,
+                COALESCE(cpdprcg.total_cashback, 0) - COALESCE(dg.transit_fee , 0) AS total_cashback_dikurangi_transit_fee,
                 COALESCE(dg.denda_void , 0) AS denda_void,
                 COALESCE(dg.denda_dfod , 0) AS denda_dfod,
                 COALESCE(dg.denda_pusat , 0) AS denda_pusat,
@@ -2493,18 +2493,18 @@ class CreateSchemaService {
                 COALESCE(dg.potongan_pop, 0) AS potongan_pop,
                 COALESCE(dg.denda_lainnya, 0) AS denda_lainnya,
                 COALESCE(dg.total_denda, 0) AS total_denda,
-                ROUND((cpdprcg.total_cashback - dg.total_denda) / 1.011)  AS dpp,
-                ROUND(((cpdprcg.total_cashback - dg.total_denda) / 1.011) * 0.02) AS amount_pph_2,
-                ROUND((cpdprcg.total_cashback - dg.total_denda) / 1.011) - ROUND(((cpdprcg.total_cashback - dg.total_denda) / 1.011) * 0.02) AS amount_setelah_pph,
+                ROUND((COALESCE(cpdprcg.total_cashback, 0) - COALESCE(dg.total_denda, 0)) / 1.011)  AS dpp,
+                ROUND(((COALESCE(cpdprcg.total_cashback, 0) - COALESCE(dg.total_denda, 0)) / 1.011) * 0.02) AS amount_pph_2,
+                ROUND((COALESCE(cpdprcg.total_cashback, 0) - COALESCE(dg.total_denda, 0)) / 1.011) - ROUND(((COALESCE(cpdprcg.total_cashback, 0) - COALESCE(dg.total_denda, 0)) / 1.011) * 0.02) AS amount_setelah_pph,
                 CASE
                     WHEN cp.nama_bank <> 'BCA' THEN 2900
                     ELSE 0
                 END AS admin_bank,
                 CASE
                     WHEN cp.nama_bank <> 'BCA' THEN
-                        (ROUND((cpdprcg.total_cashback - dg.total_denda) / 1.011) - ROUND(((cpdprcg.total_cashback - dg.total_denda) / 1.011) * 0.02) - 2900)
+                        (ROUND((COALESCE(cpdprcg.total_cashback,0) - COALESCE(dg.total_denda, 0)) / 1.011) - ROUND(((COALESCE(cpdprcg.total_cashback, 0) - COALESCE(dg.total_denda, 0)) / 1.011) * 0.02) - 2900)
                     ELSE
-                    ROUND((cpdprcg.total_cashback - dg.total_denda) / 1.011) - ROUND(((cpdprcg.total_cashback - dg.total_denda) / 1.011) * 0.02)
+                    ROUND((COALESCE(cpdprcg.total_cashback,0) - COALESCE(dg.total_denda, 0)) / 1.011) - ROUND(((COALESCE(cpdprcg.total_cashback, 0) - COALESCE(dg.total_denda, 0)) / 1.011) * 0.02)
                 END AS amount_setelah_potongan,
                 cp.nama_bank
             FROM
@@ -2514,7 +2514,8 @@ class CreateSchemaService {
             LEFT JOIN
                 (
                     SELECT
-                    *,
+                    pd.code,
+                    dgp.*,
                     -- Calculate total denda by summing up all denda columns
                     (
                             transit_fee + denda_void + denda_dfod + denda_pusat + denda_selisih_berat
@@ -2522,7 +2523,12 @@ class CreateSchemaService {
                         + denda_late_pickup_ecommerce + potongan_pop + denda_lainnya
                         ) AS total_denda
                 FROM
-                    denda_grading_periode
+                    denda_grading_periode dgp
+                LEFT JOIN
+                    PUBLIC.master_periode pd ON pd.id = dgp.periode_id
+                WHERE
+                        dgp.grading_type = 'A' AND pd.code = '".$schema."'
+
                 ) AS dg ON dg.sprinter_pickup = cp.id
             WHERE
                 cp.grading_pickup = 'A'
@@ -2737,9 +2743,9 @@ class CreateSchemaService {
                 cp.kode_cp,
                 cp.nama_cp,
                 cp.nama_pt,
-                cpdprcg.total_cashback,
+                COALESCE(cpdprcg.total_cashback, 0) AS total_cashback,
                 COALESCE(dg.transit_fee , 0) AS transit_fee,
-                cpdprcg.total_cashback - COALESCE(dg.transit_fee , 0) AS total_cashback_dikurangi_transit_fee,
+                COALESCE(cpdprcg.total_cashback, 0) - COALESCE(dg.transit_fee , 0) AS total_cashback_dikurangi_transit_fee,
                 COALESCE(dg.denda_void , 0) AS denda_void,
                 COALESCE(dg.denda_dfod , 0) AS denda_dfod,
                 COALESCE(dg.denda_pusat , 0) AS denda_pusat,
@@ -2751,18 +2757,18 @@ class CreateSchemaService {
                 COALESCE(dg.potongan_pop, 0) AS potongan_pop,
                 COALESCE(dg.denda_lainnya, 0) AS denda_lainnya,
                 COALESCE(dg.total_denda, 0) AS total_denda,
-                ROUND((cpdprcg.total_cashback - dg.total_denda) / 1.011)  AS dpp,
-                ROUND(((cpdprcg.total_cashback - dg.total_denda) / 1.011) * 0.02) AS amount_pph_2,
-                ROUND((cpdprcg.total_cashback - dg.total_denda) / 1.011) - ROUND(((cpdprcg.total_cashback - dg.total_denda) / 1.011) * 0.02) AS amount_setelah_pph,
+                ROUND((COALESCE(cpdprcg.total_cashback, 0) - COALESCE(dg.total_denda, 0)) / 1.011)  AS dpp,
+                ROUND(((COALESCE(cpdprcg.total_cashback, 0) - COALESCE(dg.total_denda, 0)) / 1.011) * 0.02) AS amount_pph_2,
+                ROUND((COALESCE(cpdprcg.total_cashback, 0) - COALESCE(dg.total_denda, 0)) / 1.011) - ROUND(((COALESCE(cpdprcg.total_cashback, 0) - COALESCE(dg.total_denda, 0)) / 1.011) * 0.02) AS amount_setelah_pph,
                 CASE
                     WHEN cp.nama_bank <> 'BCA' THEN 2900
                     ELSE 0
                 END AS admin_bank,
                 CASE
                     WHEN cp.nama_bank <> 'BCA' THEN
-                        (ROUND((cpdprcg.total_cashback - dg.total_denda) / 1.011) - ROUND(((cpdprcg.total_cashback - dg.total_denda) / 1.011) * 0.02) - 2900)
+                        (ROUND((COALESCE(cpdprcg.total_cashback,0) - COALESCE(dg.total_denda, 0)) / 1.011) - ROUND(((COALESCE(cpdprcg.total_cashback, 0) - COALESCE(dg.total_denda, 0)) / 1.011) * 0.02) - 2900)
                     ELSE
-                    ROUND((cpdprcg.total_cashback - dg.total_denda) / 1.011) - ROUND(((cpdprcg.total_cashback - dg.total_denda) / 1.011) * 0.02)
+                    ROUND((COALESCE(cpdprcg.total_cashback,0) - COALESCE(dg.total_denda, 0)) / 1.011) - ROUND(((COALESCE(cpdprcg.total_cashback, 0) - COALESCE(dg.total_denda, 0)) / 1.011) * 0.02)
                 END AS amount_setelah_potongan,
                 cp.nama_bank
             FROM
@@ -2772,7 +2778,8 @@ class CreateSchemaService {
             LEFT JOIN
                 (
                     SELECT
-                    *,
+                    pd.code,
+                    dgp.*,
                     -- Calculate total denda by summing up all denda columns
                     (
                             transit_fee + denda_void + denda_dfod + denda_pusat + denda_selisih_berat
@@ -2780,7 +2787,12 @@ class CreateSchemaService {
                         + denda_late_pickup_ecommerce + potongan_pop + denda_lainnya
                         ) AS total_denda
                 FROM
-                    denda_grading_periode
+                    denda_grading_periode dgp
+                LEFT JOIN
+                    PUBLIC.master_periode pd ON pd.id = dgp.periode_id
+                WHERE
+                        dgp.grading_type = 'B' AND pd.code = '".$schema."'
+
                 ) AS dg ON dg.sprinter_pickup = cp.id
             WHERE
                 cp.grading_pickup = 'B'
@@ -2995,9 +3007,9 @@ class CreateSchemaService {
                 cp.kode_cp,
                 cp.nama_cp,
                 cp.nama_pt,
-                cpdprcg.total_cashback,
+                COALESCE(cpdprcg.total_cashback, 0) AS total_cashback,
                 COALESCE(dg.transit_fee , 0) AS transit_fee,
-                cpdprcg.total_cashback - COALESCE(dg.transit_fee , 0) AS total_cashback_dikurangi_transit_fee,
+                COALESCE(cpdprcg.total_cashback, 0) - COALESCE(dg.transit_fee , 0) AS total_cashback_dikurangi_transit_fee,
                 COALESCE(dg.denda_void , 0) AS denda_void,
                 COALESCE(dg.denda_dfod , 0) AS denda_dfod,
                 COALESCE(dg.denda_pusat , 0) AS denda_pusat,
@@ -3009,18 +3021,18 @@ class CreateSchemaService {
                 COALESCE(dg.potongan_pop, 0) AS potongan_pop,
                 COALESCE(dg.denda_lainnya, 0) AS denda_lainnya,
                 COALESCE(dg.total_denda, 0) AS total_denda,
-                ROUND((cpdprcg.total_cashback - dg.total_denda) / 1.011)  AS dpp,
-                ROUND(((cpdprcg.total_cashback - dg.total_denda) / 1.011) * 0.02) AS amount_pph_2,
-                ROUND((cpdprcg.total_cashback - dg.total_denda) / 1.011) - ROUND(((cpdprcg.total_cashback - dg.total_denda) / 1.011) * 0.02) AS amount_setelah_pph,
+                ROUND((COALESCE(cpdprcg.total_cashback, 0) - COALESCE(dg.total_denda, 0)) / 1.011)  AS dpp,
+                ROUND(((COALESCE(cpdprcg.total_cashback, 0) - COALESCE(dg.total_denda, 0)) / 1.011) * 0.02) AS amount_pph_2,
+                ROUND((COALESCE(cpdprcg.total_cashback, 0) - COALESCE(dg.total_denda, 0)) / 1.011) - ROUND(((COALESCE(cpdprcg.total_cashback, 0) - COALESCE(dg.total_denda, 0)) / 1.011) * 0.02) AS amount_setelah_pph,
                 CASE
                     WHEN cp.nama_bank <> 'BCA' THEN 2900
                     ELSE 0
                 END AS admin_bank,
                 CASE
                     WHEN cp.nama_bank <> 'BCA' THEN
-                        (ROUND((cpdprcg.total_cashback - dg.total_denda) / 1.011) - ROUND(((cpdprcg.total_cashback - dg.total_denda) / 1.011) * 0.02) - 2900)
+                        (ROUND((COALESCE(cpdprcg.total_cashback,0) - COALESCE(dg.total_denda, 0)) / 1.011) - ROUND(((COALESCE(cpdprcg.total_cashback, 0) - COALESCE(dg.total_denda, 0)) / 1.011) * 0.02) - 2900)
                     ELSE
-                    ROUND((cpdprcg.total_cashback - dg.total_denda) / 1.011) - ROUND(((cpdprcg.total_cashback - dg.total_denda) / 1.011) * 0.02)
+                    ROUND((COALESCE(cpdprcg.total_cashback,0) - COALESCE(dg.total_denda, 0)) / 1.011) - ROUND(((COALESCE(cpdprcg.total_cashback, 0) - COALESCE(dg.total_denda, 0)) / 1.011) * 0.02)
                 END AS amount_setelah_potongan,
                 cp.nama_bank
             FROM
@@ -3030,7 +3042,8 @@ class CreateSchemaService {
             LEFT JOIN
                 (
                     SELECT
-                    *,
+                    pd.code,
+                    dgp.*,
                     -- Calculate total denda by summing up all denda columns
                     (
                             transit_fee + denda_void + denda_dfod + denda_pusat + denda_selisih_berat
@@ -3038,7 +3051,12 @@ class CreateSchemaService {
                         + denda_late_pickup_ecommerce + potongan_pop + denda_lainnya
                         ) AS total_denda
                 FROM
-                    denda_grading_periode
+                    denda_grading_periode dgp
+                LEFT JOIN
+                    PUBLIC.master_periode pd ON pd.id = dgp.periode_id
+                WHERE
+                        dgp.grading_type = 'C' AND pd.code = '".$schema."'
+
                 ) AS dg ON dg.sprinter_pickup = cp.id
             WHERE
                 cp.grading_pickup = 'C'
