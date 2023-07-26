@@ -170,8 +170,6 @@ class ProcessCSVData implements ShouldQueue
                     $inserted++;
                 }
             }
-            $countData = count($data_insert);
-
 
             $insert = DB::table($this->schema_name.'.data_mart')->insert($data_insert);
 
@@ -179,11 +177,11 @@ class ProcessCSVData implements ShouldQueue
                 'inserted_row' => $periode->inserted_row + $inserted,
             ]);
 
-            $uploaded_file->update(['processed_row' => $uploaded_file->processed_row + $countData]);
+            $uploaded_file->update(['processed_row' => $uploaded_file->processed_row + count($data_insert)]);
 
             $this->release();
         } catch (\Exception $e) {
-            dump($e);
+            // dump($e);
         }
     }
 }

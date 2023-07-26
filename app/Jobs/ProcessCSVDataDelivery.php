@@ -50,6 +50,7 @@ class ProcessCSVDataDelivery implements ShouldQueue
         $this->raw_before = $raw_before;
         $this->timeout = $timeout;
         $this->key = $key;
+        $this->period_id = $period_id;
     }
 
     /**
@@ -102,17 +103,18 @@ class ProcessCSVDataDelivery implements ShouldQueue
                 }
             }
 
+
             $insert = DB::table($this->schema_name.'.data_mart')->insert($data_insert);
 
             $periode->update([
                 'inserted_row' => $periode->inserted_row + $inserted,
             ]);
 
-            $uploaded_file->update(['processed_row' => $uploaded_file->processed_row + $countData]);
+            $uploaded_file->update(['processed_row' => $uploaded_file->processed_row + count($data_insert)]);
 
             $this->release();
         } catch (\Exception $e) {
-            dump($e);
+            // dump($e);
         }
     }
 }
