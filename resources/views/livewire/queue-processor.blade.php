@@ -1,7 +1,7 @@
 <div class="me-3 ">
     {{-- The Master doesn't talk, he acts. --}}
     @if ($isLoading)
-        <div class="loading-icon"><span>Loading...</span></div>
+        <div class="loading-icon"><i class="fa fa-spinner"></i><span>Loading...</span></div>
     @elseif ($currentJob)
         <span>Current Job: {{ $currentJob }}</span>
     @else

@@ -1,6 +1,9 @@
 <?php
 namespace App\Services;
 
+use App\Exports\CashbackGrading1Export;
+use App\Exports\CashbackGrading2Export;
+use App\Exports\CashbackGrading3Export;
 use App\Exports\GradingExport;
 use App\Models\Periode;
 use Illuminate\Http\Request;
@@ -13,18 +16,48 @@ class GradingService {
     public function generateGrading($id, $grade) {
         // Store on default disk
         $get_periode = Periode::findOrFail($id);
-        $schema = $get_periode->code.'.data_mart';
+        $schema = $get_periode->code;
 
-        $get_cp_grading = $this->getDataGrading($get_periode->code, $grade);
-        $generate_view = $this->createViewGrading($get_periode->code, $grade);
+        switch ($grade) {
+            case 1:
+                $data['cpdp_reguler'] = DB::table($schema.'.cp_dp_cashback_reguler_grading_1')->get()->toArray();
+                $data['cpdp_cod'] = DB::table($schema.'.cp_dp_cashback_cod_grading_1')->get()->toArray();
+                $data['cpdp_non_cod'] = DB::table($schema.'.cp_dp_cashback_non_cod_grading_1')->get()->toArray();
+                $data['cpdp_rekap'] = DB::table($schema.'.cp_dp_rekap_cashback_grading_1')->get()->toArray();
+                $data['cpdp_rekap_denda'] = DB::table($schema.'.cp_dp_rekap_denda_cashback_grading_1')->get()->toArray();
 
-        $this->exportFile($get_cp_grading, $get_periode->month, $get_periode->year, $grade);
+                $this->exportFileGrade1($data, $get_periode->month, $get_periode->year);
+                break;
+            case 2:
+                $data['cpdp_reguler'] = DB::table($schema.'.cp_dp_cashback_reguler_grading_2')->get()->toArray();
+                $data['cpdp_cod'] = DB::table($schema.'.cp_dp_cashback_awb_grading_2')->get()->toArray();
+                $data['cpdp_rekap'] = DB::table($schema.'.cp_dp_rekap_cashback_grading_2')->get()->toArray();
+                $data['cpdp_rekap_denda'] = DB::table($schema.'.cp_dp_rekap_denda_cashback_grading_2')->get()->toArray();
+
+                $this->exportFileGrade2($data, $get_periode->month, $get_periode->year);
+                break;
+            case 3:
+                $data['cpdp_reguler'] = DB::table($schema.'.cp_dp_cashback_reguler_grading_3')->get()->toArray();
+                $data['cpdp_cod'] = DB::table($schema.'.cp_dp_cashback_awb_grading_3')->get()->toArray();
+                $data['cpdp_rekap'] = DB::table($schema.'.cp_dp_rekap_cashback_grading_3')->get()->toArray();
+                $data['cpdp_rekap_denda'] = DB::table($schema.'.cp_dp_rekap_denda_cashback_grading_3')->get()->toArray();
+
+                $this->exportFileGrade3($data, $get_periode->month, $get_periode->year);
+                break;
+            case 'deelivery':
+
+                break;
+            default:
+                # code...
+                break;
+        }
+
 
         return true;
     }
 
-    public function exportFile($get_cp_grading ,$month, $year, $grade) {
-        $file_name = strtoupper($month).'-'.$year.'-GRADING-'.$grade.'.xlsx';
+    public function exportFileGrade1($data ,$month, $year) {
+        $file_name = strtoupper($month).'-'.$year.'-GRADING-1.xlsx';
 
         $storage_exist = storage_path($file_name);
 
@@ -35,104 +68,48 @@ class GradingService {
             Storage::delete($file_name);
         }
 
-        $gradingExport = new GradingExport($get_cp_grading, $file_name);
+        $gradingExport = new CashbackGrading1Export($data, $file_name);
 
         Excel::store($gradingExport, $file_name, 'public');//this is success
 
         // Append the sum row after storing the Excel file
     }
 
-    public function createViewGrading($code, $grade) {
-        return $created = DB::connection('pgsql')->unprepared("
-            CREATE OR REPLACE VIEW ".$code.".cp_dp_raw_grading_".$grade." AS
-            SELECT
-                cp.kode_cp,
-                cp.nama_cp,
-                COALESCE(acs.sum, 0) AS biaya_kirim_all,
-                COALESCE(rcs.sum, 0) AS biaya_kirim_reguler,
-                COALESCE(dcs.sum, 0) AS biaya_kirim_dfod,
-                COALESCE(scs.sum, 0) AS biaya_kirim_super,
-                COALESCE(rcs.sum, 0) + COALESCE(dcs.sum, 0) + COALESCE(scs.sum, 0) AS total_biaya_kirim,
-                CAST(ROUND(COALESCE(rcs.sum, 0) + COALESCE(dcs.sum, 0) + COALESCE(scs.sum, 0) / 1.011)::BIGINT AS BIGINT) AS total_biaya_kirim_dikurangi_ppn,
-                CAST(ROUND((COALESCE(rcs.sum, 0) + COALESCE(dcs.sum, 0) + COALESCE(scs.sum, 0)) * 0.25)::BIGINT AS BIGINT) AS amount_discount_25,
-                COALESCE(sbk.akulakuob, 0) AS akulaku,
-                COALESCE(sbk.ordivo, 0) AS ordivo,
-                COALESCE(sbk.evermosapi, 0) AS evermos,
-                COALESCE(sbk.mengantar, 0) AS mengantar,
-                COALESCE(sbk.akulakuob, 0) + COALESCE(sbk.ordivo, 0) + COALESCE(sbk.evermosapi, 0) + COALESCE(sbk.mengantar, 0) AS total_biaya_kirim_a,
-                CAST(ROUND((COALESCE(sbk.akulakuob, 0) + COALESCE(sbk.ordivo, 0) + COALESCE(sbk.evermosapi, 0) + COALESCE(sbk.mengantar, 0)) / 1.011)::BIGINT AS BIGINT) AS total_biaya_kirim_a_dikurangi_ppn,
-                CAST(ROUND((COALESCE(sbk.akulakuob, 0) + COALESCE(sbk.ordivo, 0) + COALESCE(sbk.evermosapi, 0) + COALESCE(sbk.mengantar, 0)) * 0.10)::BIGINT AS BIGINT) AS amount_discount_10,
-                CAST(ROUND((COALESCE(rcs.sum, 0) + COALESCE(dcs.sum, 0) + COALESCE(scs.sum, 0)) * 0.25 + (COALESCE(sbk.akulakuob, 0) + COALESCE(sbk.ordivo, 0) + COALESCE(sbk.evermosapi, 0) + COALESCE(sbk.mengantar, 0)) * 0.10)::BIGINT AS BIGINT) AS total_cashback_reguler
-            FROM
-                PUBLIC.master_collection_point AS cp
-            LEFT JOIN
-                ".$code.".cp_dp_all_count_sum AS acs ON cp.drop_point_outgoing = acs.drop_point_outgoing
-            LEFT JOIN
-                ".$code.".cp_dp_reguler_count_sum AS rcs ON cp.drop_point_outgoing = rcs.drop_point_outgoing
-            LEFT JOIN
-                ".$code.".cp_dp_dfod_count_sum AS dcs ON cp.drop_point_outgoing = dcs.drop_point_outgoing
-            LEFT JOIN
-                ".$code.".cp_dp_super_count_sum AS scs ON cp.drop_point_outgoing = scs.drop_point_outgoing
-            LEFT JOIN
-                ".$code.".cp_dp_mp_sum_biaya_kirim AS sbk ON cp.drop_point_outgoing = sbk.drop_point_outgoing
-            WHERE
-                cp.grading_pickup = '".grading_map($grade)."'");
+    public function exportFileGrade2($periode_code ,$month, $year) {
+        $file_name = strtoupper($month).'-'.$year.'-GRADING-2.xlsx';
+
+        $storage_exist = storage_path($file_name);
+
+        if (file_exists($storage_exist)) {
+            // The file exists in the storage directory.
+            // You can perform further actions here.
+            unlink($storage_exist); # delete old file before create new one with same name
+            Storage::delete($file_name);
+        }
+
+        $gradingExport = new CashbackGrading2Export($periode_code, $file_name);
+
+        Excel::store($gradingExport, $file_name, 'public');//this is success
+
+        // Append the sum row after storing the Excel file
     }
 
-    public function getDataGrading($code, $grade) {
+    public function exportFileGrade3($periode_code ,$month, $year) {
+        $file_name = strtoupper($month).'-'.$year.'-GRADING-3.xlsx';
 
-        $get_cp_grading = DB::table('master_collection_point AS cp')
-            ->leftJoin($code.'.cp_dp_all_count_sum AS acs', 'cp.drop_point_outgoing', '=', 'acs.drop_point_outgoing')
-            ->leftJoin($code.'.cp_dp_reguler_count_sum AS rcs', 'cp.drop_point_outgoing', '=', 'rcs.drop_point_outgoing')
-            ->leftJoin($code.'.cp_dp_dfod_count_sum AS dcs', 'cp.drop_point_outgoing', '=', 'dcs.drop_point_outgoing')
-            ->leftJoin($code.'.cp_dp_super_count_sum AS scs', 'cp.drop_point_outgoing', '=', 'scs.drop_point_outgoing')
-            ->leftJoin($code.'.cp_dp_mp_sum_biaya_kirim AS sbk', 'cp.drop_point_outgoing', '=', 'sbk.drop_point_outgoing')
-            ->select(
-                'cp.kode_cp',
-                'cp.nama_cp',
-                DB::raw('COALESCE(acs.sum, 0) as biaya_kirim_all'),
-                DB::raw('COALESCE(rcs.sum, 0) as biaya_kirim_reguler'),
-                DB::raw('COALESCE(dcs.sum, 0) as biaya_kirim_dfod'),
-                DB::raw('COALESCE(scs.sum, 0) as biaya_kirim_super'),
-                DB::raw('COALESCE(rcs.sum, 0) + COALESCE(dcs.sum, 0) + COALESCE(scs.sum, 0) as total_biaya_kirim'),
-                DB::raw('CAST(ROUND((COALESCE(rcs.sum, 0) + COALESCE(dcs.sum, 0) + COALESCE(scs.sum, 0)) / 1.011, 0) AS BIGINT) as total_biaya_kirim_dikurangi_ppn'),
-                DB::raw('CAST(ROUND((COALESCE(rcs.sum, 0) + COALESCE(dcs.sum, 0) + COALESCE(scs.sum, 0)) * 0.25, 0) AS BIGINT) as amount_discount_25'),
-                DB::raw('COALESCE(sbk.akulakuob, 0) as akulaku'),
-                DB::raw('COALESCE(sbk.ordivo, 0)  as ordivo'),
-                DB::raw('COALESCE(sbk.evermosapi, 0)  as evermos'),
-                DB::raw('COALESCE(sbk.mengantar, 0)  as mengantar'),
-                DB::raw('COALESCE(sbk.akulakuob, 0) + COALESCE(sbk.ordivo, 0) + COALESCE(sbk.evermosapi, 0) + COALESCE(sbk.mengantar, 0) as total_biaya_kirim_a'),
-                DB::raw('CAST(ROUND((COALESCE(sbk.akulakuob, 0) + COALESCE(sbk.ordivo, 0) + COALESCE(sbk.evermosapi, 0) + COALESCE(sbk.mengantar, 0)) / 1.011, 0) AS BIGINT) as total_biaya_kirim_a_dikurangi_ppn'),
-                DB::raw('CAST(ROUND((COALESCE(sbk.akulakuob, 0) + COALESCE(sbk.ordivo, 0) + COALESCE(sbk.evermosapi, 0) + COALESCE(sbk.mengantar, 0)) * 0.10, 0) AS BIGINT) as amount_discount_10'),
-                DB::raw('CAST(ROUND((COALESCE(rcs.sum, 0) + COALESCE(dcs.sum, 0) + COALESCE(scs.sum, 0)) * 0.25, 0) AS BIGINT) + CAST(ROUND((COALESCE(sbk.akulakuob, 0) + COALESCE(sbk.ordivo, 0) + COALESCE(sbk.evermosapi, 0) + COALESCE(sbk.mengantar, 0)) * 0.10, 0) AS BIGINT) as total_cashback_reguler')
-            )
-            ->where('cp.grading_pickup', grading_map($grade))->get();
+        $storage_exist = storage_path($file_name);
 
-            $sum = [
-                'kode_cp' => 'TOTAL',
-                'nama_cp' => '',
-                'biaya_kirim_all' => $get_cp_grading->sum('biaya_kirim_all'),
-                'biaya_kirim_reguler' => $get_cp_grading->sum('biaya_kirim_reguler'),
-                'biaya_kirim_dfod' => $get_cp_grading->sum('biaya_kirim_dfod'),
-                'biaya_kirim_super' => $get_cp_grading->sum('biaya_kirim_super'),
-                'total_biaya_kirim' => $get_cp_grading->sum('total_biaya_kirim'),
-                'total_biaya_kirim_dikurangi_ppn' => $get_cp_grading->sum('total_biaya_kirim_dikurangi_ppn'),
-                'amount_discount_25' => $get_cp_grading->sum('amount_discount_25'),
-                'akulaku' => $get_cp_grading->sum('akulaku'),
-                'ordivo' => $get_cp_grading->sum('ordivo'),
-                'evermos' => $get_cp_grading->sum('evermos'),
-                'mengantar' => $get_cp_grading->sum('mengantar'),
-                'total_biaya_kirim_a' => $get_cp_grading->sum('total_biaya_kirim_a'),
-                'total_biaya_kirim_a_dikurangi_ppn' => $get_cp_grading->sum('total_biaya_kirim_a_dikurangi_ppn'),
-                'amount_discount_10' => $get_cp_grading->sum('amount_discount_10'),
-                'total_cashback_reguler' => $get_cp_grading->sum('total_cashback_reguler')
-            ];
+        if (file_exists($storage_exist)) {
+            // The file exists in the storage directory.
+            // You can perform further actions here.
+            unlink($storage_exist); # delete old file before create new one with same name
+            Storage::delete($file_name);
+        }
 
-            // convert to object
-            $sum = (object)$sum;
-            // Push the sum row into the new collection
-            $get_cp_grading->push($sum);
+        $gradingExport = new CashbackGrading3Export($periode_code, $file_name);
 
-            return $get_cp_grading;
+        Excel::store($gradingExport, $file_name, 'public');//this is success
+
+        // Append the sum row after storing the Excel file
     }
 }
