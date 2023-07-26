@@ -3063,4 +3063,505 @@ class CreateSchemaService {
             ORDER BY cp.nama_pt
         ";
     }
+
+    public function createViewDPFCashbackRegulerGrading($schema){
+        return "
+        CREATE OR REPLACE VIEW dpf_cashback_reguler_grading AS
+        SELECT
+            cp.drop_point_outgoing,
+            COALESCE(acs.sum, 0) AS biaya_kirim_all,
+            COALESCE(rcs.sum, 0) AS biaya_kirim_reguler,
+            COALESCE(dcs.sum, 0) AS biaya_kirim_dfod,
+            COALESCE(scs.sum, 0) AS biaya_kirim_super,
+            (
+                 COALESCE(rcs.sum, 0) +
+                COALESCE(dcs.sum, 0) +
+                COALESCE(scs.sum, 0)
+             ) AS total_biaya_kirim,
+            CAST(
+                 ROUND(
+                    COALESCE(rcs.sum, 0) +
+                    COALESCE(dcs.sum, 0) +
+                    COALESCE(scs.sum, 0) /
+                    1.011
+                )::BIGINT AS BIGINT
+             ) AS total_biaya_kirim_dikurangi_ppn,
+            CAST(
+                 ROUND(
+                         (
+                            (
+                                 COALESCE(rcs.sum, 0) +
+                                 COALESCE(dcs.sum, 0) +
+                                 COALESCE(scs.sum, 0)
+                            ) / 1.011
+                    ) * 0.25
+                )::BIGINT AS BIGINT
+             ) AS amount_discount_25,
+            --reguler
+            COALESCE(sbk.akulakuob, 0) AS akulaku,
+            COALESCE(sbk.ordivo, 0) AS ordivo,
+            COALESCE(sbk.evermosapi, 0) AS evermos,
+            COALESCE(sbk.mengantar, 0) AS mengantar,
+            (
+                 COALESCE(sbk.akulakuob, 0) +
+                COALESCE(sbk.ordivo, 0) +
+                COALESCE(sbk.evermosapi, 0) +
+                COALESCE(sbk.mengantar, 0)
+             ) AS total_biaya_kirim_a,
+            CAST(
+                 ROUND(
+                    (
+                        COALESCE(sbk.akulakuob, 0) +
+                        COALESCE(sbk.ordivo, 0) +
+                        COALESCE(sbk.evermosapi, 0) +
+                        COALESCE(sbk.mengantar, 0)
+                    ) / 1.011
+                )::BIGINT AS BIGINT
+             ) AS total_biaya_kirim_a_dikurangi_ppn,
+            CAST(
+                 ROUND(
+                     (
+                         (
+                             COALESCE(sbk.akulakuob, 0) +
+                            COALESCE(sbk.ordivo, 0) +
+                            COALESCE(sbk.evermosapi, 0) +
+                            COALESCE(sbk.mengantar, 0)
+                        )/ 1.011
+                   ) * 0.10
+                )::BIGINT AS BIGINT
+             ) AS amount_discount_10,
+            CAST(
+                 ROUND(
+                     (
+                         (
+                             COALESCE(rcs.sum, 0) +
+                            COALESCE(dcs.sum, 0) +
+                            COALESCE(scs.sum, 0)
+                        ) / 1.011
+                    ) * 0.25 +
+                    (
+                        (
+                            COALESCE(sbk.akulakuob, 0) +
+                            COALESCE(sbk.ordivo, 0) +
+                            COALESCE(sbk.evermosapi, 0) +
+                            COALESCE(sbk.mengantar, 0)
+                        ) / 1.011
+                    ) * 0.10
+                )::BIGINT AS BIGINT
+             ) AS total_cashback_reguler
+        FROM
+            ".$schema.".dpf_all_count_sum AS cp
+        LEFT JOIN
+            ".$schema.".dpf_all_count_sum AS acs ON cp.drop_point_outgoing = acs.drop_point_outgoing
+        LEFT JOIN
+            ".$schema.".dpf_reguler_count_sum AS rcs ON cp.drop_point_outgoing = rcs.drop_point_outgoing
+        LEFT JOIN
+            ".$schema.".dpf_dfod_count_sum AS dcs ON cp.drop_point_outgoing = dcs.drop_point_outgoing
+        LEFT JOIN
+            ".$schema.".dpf_super_count_sum AS scs ON cp.drop_point_outgoing = scs.drop_point_outgoing
+        LEFT JOIN
+            ".$schema.".dpf_mp_sum_biaya_kirim AS sbk ON cp.drop_point_outgoing = sbk.drop_point_outgoing
+        LEFT JOIN
+            ".$schema.".dpf_mp_retur_sum_biaya_kirim AS srbk ON cp.drop_point_outgoing = srbk.drop_point_outgoing
+        ";
+    }
+
+    public function createViewDPFCashbackCODGrading($schema){
+        return "
+        CREATE OR REPLACE VIEW dpf_cashback_cod_grading AS
+        SELECT
+             mcp.kode_cp,
+            cp.drop_point_outgoing,
+            (
+                 COALESCE(sbk.bukalapak, 0) +
+                COALESCE(sbk.bukaexpress, 0) +
+                COALESCE(sbk.bukasend, 0)
+             ) AS bukalapak,
+            (
+                 COALESCE(sbk.bukalapak, 0) +
+                COALESCE(sbk.bukaexpress, 0) +
+                COALESCE(sbk.bukasend, 0)
+             ) AS total_biaya_kirim_bukalapak,
+            CAST(
+                 ROUND(
+                     (
+                         COALESCE(sbk.bukalapak, 0) +
+                        COALESCE(sbk.bukaexpress, 0) +
+                        COALESCE(sbk.bukasend, 0)
+                    ) / 1.011
+                ) AS BIGINT
+             ) AS total_biaya_kirim_bukalapak_dikurangi_ppn,
+            CAST(
+                 ROUND(
+                     (
+                         (
+                             COALESCE(sbk.bukalapak, 0) +
+                            COALESCE(sbk.bukaexpress, 0) +
+                            COALESCE(sbk.bukasend, 0)
+                        ) / 1.011
+                    ) * 0.05
+                ) AS BIGINT
+             ) AS discount_bukalapak_5,
+            COALESCE(sbk.shopee_cod, 0) AS shopee_cod,
+            COALESCE(srbk.shopee_cod, 0) AS retur_shopee_cod,
+            (
+                 COALESCE(sbk.shopee_cod, 0) -
+                COALESCE(srbk.shopee_cod, 0)
+             ) AS total_biaya_kirim_shopee_cod,
+            COALESCE(sbk.magellan_cod, 0) AS magellan_cod,
+            COALESCE(srbk.magellan_cod, 0) AS retur_magellan_cod,
+            (
+                 COALESCE(sbk.magellan_cod, 0) -
+                COALESCE(srbk.magellan_cod, 0)
+             ) AS total_biaya_kirim_magellan_cod,
+            COALESCE(sbk.lazada_cod, 0) AS lazada_cod,
+            COALESCE(srbk.lazada_cod, 0) AS retur_lazada_cod,
+            (
+                COALESCE(sbk.lazada_cod, 0) -
+                COALESCE(srbk.lazada_cod, 0)
+             ) AS total_biaya_kirim_lazada_cod,
+            CAST(
+                 ROUND(
+                     (
+                         COALESCE(sbk.shopee_cod, 0) -
+                         COALESCE(srbk.shopee_cod, 0)
+                    ) +
+                    (
+                        COALESCE(sbk.magellan_cod, 0) -
+                        COALESCE(srbk.magellan_cod, 0)
+                    ) +
+                    (
+                        COALESCE(sbk.lazada_cod, 0) -
+                        COALESCE(srbk.lazada_cod, 0)
+                    )
+                ) AS BIGINT
+             ) AS total_biaya_kirim_cod,
+            CAST(
+                 ROUND(
+                     (
+                         (
+                             COALESCE(sbk.shopee_cod, 0) -
+                            COALESCE(srbk.shopee_cod, 0)
+                        ) +
+                        (
+                            COALESCE(sbk.magellan_cod, 0) -
+                            COALESCE(srbk.magellan_cod, 0)
+                        ) +
+                        (
+                            COALESCE(sbk.lazada_cod, 0) -
+                            COALESCE(srbk.lazada_cod, 0)
+                        )
+                    ) / 1.011
+                ) AS BIGINT
+             ) AS total_biaya_kirim_cod_dikurangi_ppn,
+            CAST(
+                 ROUND(
+                     (
+                         (
+                             (
+                                 COALESCE(sbk.shopee_cod, 0) -
+                                COALESCE(srbk.shopee_cod, 0)
+                            ) +
+                            (
+                                COALESCE(sbk.magellan_cod, 0) -
+                                COALESCE(srbk.magellan_cod, 0)
+                            ) +
+                            (
+                                COALESCE(sbk.lazada_cod, 0) -
+                                COALESCE(srbk.lazada_cod, 0)
+                            )
+                        ) / 1.011
+                    ) * 0.07
+                ) AS BIGINT
+             ) AS diskon_cod_7,
+            COALESCE(sbk.tokopedia, 0) AS tokopedia,
+            COALESCE(sbk.tokopedia, 0) AS total_biaya_kirim_tokopedia,
+            CAST(
+                 ROUND(
+                     COALESCE(sbk.tokopedia, 0) / 1.011
+                ) AS BIGINT
+             ) AS total_biaya_kirim_tokopedia_dikurangi_ppn,
+            CAST(
+                 ROUND(
+                     (
+                         COALESCE(sbk.tokopedia, 0) / 1.011
+                    ) * 0.1
+                ) AS BIGINT
+             ) AS discount_tokopedia_10,
+             CAST(
+                 (
+                     ROUND(
+                         (
+                             (
+                                 COALESCE(sbk.bukalapak, 0) +
+                                COALESCE(sbk.bukaexpress, 0) +
+                                COALESCE(sbk.bukasend, 0)
+                            ) / 1.011
+                        ) * 0.05
+                    ) +
+                    ROUND(
+                        (
+                            (
+                                (
+                                    COALESCE(sbk.shopee_cod, 0) -
+                                    COALESCE(srbk.shopee_cod, 0)
+                                ) +
+                                (
+                                    COALESCE(sbk.magellan_cod, 0) -
+                                    COALESCE(srbk.magellan_cod, 0)
+                                ) +
+                                (
+                                    COALESCE(sbk.lazada_cod, 0) -
+                                    COALESCE(srbk.lazada_cod, 0)
+                                )
+                            ) / 1.011
+                        ) * 0.07
+                    ) +
+                    ROUND(
+                        (
+                            COALESCE(sbk.tokopedia, 0) / 1.011
+                        ) * 0.1
+                    )
+                ) AS BIGINT
+             ) AS cashback_marketplace
+        FROM
+            ".$schema.".dpf_all_count_sum AS cp
+        LEFT JOIN
+             PUBLIC.master_collection_point AS mcp ON mcp.nama_cp = cp.drop_point_outgoing
+        LEFT JOIN
+            ".$schema.".dpf_all_count_sum AS acs ON cp.drop_point_outgoing = acs.drop_point_outgoing
+        LEFT JOIN
+            ".$schema.".dpf_reguler_count_sum AS rcs ON cp.drop_point_outgoing = rcs.drop_point_outgoing
+        LEFT JOIN
+            ".$schema.".dpf_dfod_count_sum AS dcs ON cp.drop_point_outgoing = dcs.drop_point_outgoing
+        LEFT JOIN
+            ".$schema.".dpf_super_count_sum AS scs ON cp.drop_point_outgoing = scs.drop_point_outgoing
+        LEFT JOIN
+            ".$schema.".dpf_mp_sum_biaya_kirim AS sbk ON cp.drop_point_outgoing = sbk.drop_point_outgoing
+        LEFT JOIN
+            ".$schema.".dpf_mp_retur_sum_biaya_kirim AS srbk ON cp.drop_point_outgoing = srbk.drop_point_outgoing
+        ";
+    }
+
+    public function createViewDPFCashbackNonCODGrading($schema){
+        return "
+        CREATE OR REPLACE VIEW dpf_cashback_non_cod_grading AS
+        SELECT
+            mcp.kode_cp,
+             cp.drop_point_outgoing,
+            COALESCE(sbk.lazada, 0) AS lazada,
+            COALESCE(srbk.lazada, 0) AS retur_lazada,
+            COALESCE(sbk.shopee, 0) AS shopee,
+            COALESCE(srbk.shopee, 0) AS retur_shopee,
+            --tokotalk 0
+            COALESCE(sbk.magellan, 0) AS magellan,
+            COALESCE(srbk.magellan, 0) AS retur_magellan,
+             (
+                 COALESCE(srbk.akulakuob, 0) +
+                COALESCE(srbk.bukaexpress, 0) +
+                COALESCE(srbk.evermosapi, 0) +
+                COALESCE(srbk.mengantar, 0) +
+                COALESCE(srbk.ordivo, 0) +
+                COALESCE(srbk.tokopedia, 0)
+             ) AS total_retur_pilihan,
+             (
+                 (COALESCE(sbk.lazada, 0) - COALESCE(srbk.lazada, 0)) +
+                (COALESCE(sbk.shopee, 0) - COALESCE(srbk.shopee, 0)) +
+                (COALESCE(sbk.magellan, 0) - COALESCE(srbk.magellan, 0)) +
+                (
+                    COALESCE(srbk.akulakuob, 0) +
+                    COALESCE(srbk.bukaexpress, 0) +
+                    COALESCE(srbk.evermosapi, 0) +
+                    COALESCE(srbk.mengantar, 0) +
+                    COALESCE(srbk.ordivo, 0) +
+                    COALESCE(srbk.tokopedia, 0)
+                ) +
+                0 --retur belum terpotong
+             ) AS total_biaya_kirim_non_cod,
+             (
+              CAST(ROUND((
+                     (COALESCE(sbk.lazada, 0) - COALESCE(srbk.lazada, 0)) +
+                    (COALESCE(sbk.shopee, 0) - COALESCE(srbk.shopee, 0)) +
+                    (COALESCE(sbk.magellan, 0) - COALESCE(srbk.magellan, 0)) +
+                    (
+                        COALESCE(srbk.akulakuob, 0) +
+                        COALESCE(srbk.bukaexpress, 0) +
+                        COALESCE(srbk.evermosapi, 0) +
+                        COALESCE(srbk.mengantar, 0) +
+                        COALESCE(srbk.ordivo, 0) +
+                        COALESCE(srbk.tokopedia, 0)
+                    ) +
+                    0 --retur belum terpotong
+                 ) / 1.011) AS BIGINT)) AS total_biaya_kirim_non_cod_dikurangi_ppn,
+                 (
+              CAST(
+                  ROUND(
+                  (
+                         (COALESCE(sbk.lazada, 0) - COALESCE(srbk.lazada, 0)) +
+                        (COALESCE(sbk.shopee, 0) - COALESCE(srbk.shopee, 0)) +
+                        (COALESCE(sbk.magellan, 0) - COALESCE(srbk.magellan, 0)) +
+                        (
+                            COALESCE(srbk.akulakuob, 0) +
+                            COALESCE(srbk.bukaexpress, 0) +
+                            COALESCE(srbk.evermosapi, 0) +
+                            COALESCE(srbk.mengantar, 0) +
+                            COALESCE(srbk.ordivo, 0) +
+                            COALESCE(srbk.tokopedia, 0)
+                        ) +
+                        0 --retur belum terpotong
+                     ) / 1.011
+                ) * 0.09 AS BIGINT)) AS discount_total_biaya_kirim_9,
+                (	CAST(
+                     (
+                         ROUND(
+                             (
+                                 (
+                                     COALESCE(sbk.bukalapak, 0) +
+                                    COALESCE(sbk.bukaexpress, 0) +
+                                    COALESCE(sbk.bukasend, 0)
+                                ) / 1.011
+                            ) * 0.05
+                        ) +
+                        ROUND(
+                            (
+                                (
+                                    (
+                                        COALESCE(sbk.shopee_cod, 0) -
+                                        COALESCE(srbk.shopee_cod, 0)
+                                    ) +
+                                    (
+                                        COALESCE(sbk.magellan_cod, 0) -
+                                        COALESCE(srbk.magellan_cod, 0)
+                                    ) +
+                                    (
+                                        COALESCE(sbk.lazada_cod, 0) -
+                                        COALESCE(srbk.lazada_cod, 0)
+                                    )
+                                ) / 1.011
+                            ) * 0.07
+                        ) +
+                        ROUND(
+                            (
+                                COALESCE(sbk.tokopedia, 0) / 1.011
+                            ) * 0.1
+                        )
+                    ) AS BIGINT
+                 ) +
+                CAST(
+                      ROUND(
+                      (
+                             (COALESCE(sbk.lazada, 0) - COALESCE(srbk.lazada, 0)) +
+                            (COALESCE(sbk.shopee, 0) - COALESCE(srbk.shopee, 0)) +
+                            (COALESCE(sbk.magellan, 0) - COALESCE(srbk.magellan, 0)) +
+                            (
+                                COALESCE(srbk.akulakuob, 0) +
+                                COALESCE(srbk.bukaexpress, 0) +
+                                COALESCE(srbk.evermosapi, 0) +
+                                COALESCE(srbk.mengantar, 0) +
+                                COALESCE(srbk.ordivo, 0) +
+                                COALESCE(srbk.tokopedia, 0)
+                            ) +
+                            0 --retur belum terpotong
+                         ) / 1.011
+                    ) * 0.09 AS BIGINT)
+            ) AS total_cashback_marketplace
+        FROM
+            ".$schema.".dpf_all_count_sum AS cp
+        LEFT JOIN
+             PUBLIC.master_collection_point AS mcp ON mcp.nama_cp = cp.drop_point_outgoing
+        LEFT JOIN
+            ".$schema.".dpf_all_count_sum AS acs ON cp.drop_point_outgoing = acs.drop_point_outgoing
+        LEFT JOIN
+            ".$schema.".dpf_reguler_count_sum AS rcs ON cp.drop_point_outgoing = rcs.drop_point_outgoing
+        LEFT JOIN
+            ".$schema.".dpf_dfod_count_sum AS dcs ON cp.drop_point_outgoing = dcs.drop_point_outgoing
+        LEFT JOIN
+            ".$schema.".dpf_super_count_sum AS scs ON cp.drop_point_outgoing = scs.drop_point_outgoing
+        LEFT JOIN
+            ".$schema.".dpf_mp_sum_biaya_kirim AS sbk ON cp.drop_point_outgoing = sbk.drop_point_outgoing
+        LEFT JOIN
+            ".$schema.".dpf_mp_retur_sum_biaya_kirim AS srbk ON cp.drop_point_outgoing = srbk.drop_point_outgoing
+        ";
+    }
+
+    public function createViewDPFCashbackRekapGrading($schema){
+        return "
+            CREATE OR REPLACE VIEW dpf_rekap_cashback_grading AS
+            SELECT
+                mcp.kode_cp,
+            cp.drop_point_outgoing,
+            COALESCE(cpdpcrg.total_cashback_reguler, 0) AS total_cashback_reguler,
+            COALESCE(cpdpcncg.total_cashback_marketplace, 0) AS total_cashback_marketplace,
+            COALESCE(rzmp.total_cashback_marketplace, 0) AS total_cashback_mp_luar_zona,
+            COALESCE(cpdpcrg.total_cashback_reguler, 0) + COALESCE(cpdpcncg.total_cashback_marketplace,0) + COALESCE(rzmp.total_cashback_marketplace, 0) AS total_cashback
+            FROM
+                ".$schema.".dpf_all_count_sum AS cp
+            LEFT JOIN PUBLIC.master_collection_point AS mcp ON mcp.nama_cp = cp.drop_point_outgoing
+            LEFT JOIN ".$schema.".rekap_zonasi rzmp ON cp.drop_point_outgoing = rzmp.drop_point_outgoing
+            LEFT JOIN ".$schema.".dpf_cashback_reguler_grading cpdpcrg ON cp.drop_point_outgoing = cpdpcrg.drop_point_outgoing
+            LEFT JOIN ".$schema.".dpf_cashback_non_cod_grading cpdpcncg ON cp.drop_point_outgoing = cpdpcncg.drop_point_outgoing
+        ";
+    }
+
+    public function createViewDPFCashbackRekapDendaGrading($schema){
+        return "
+            CREATE OR REPLACE VIEW dpf_rekap_denda_cashback_grading AS
+            SELECT
+                cp.kode_cp,
+                cpdprcg.drop_point_outgoing,
+                cp.nama_pt,
+                COALESCE(cpdprcg.total_cashback, 0) AS total_cashback,
+                COALESCE(dg.transit_fee , 0) AS transit_fee,
+                COALESCE(cpdprcg.total_cashback, 0) - COALESCE(dg.transit_fee , 0) AS total_cashback_dikurangi_transit_fee,
+                COALESCE(dg.denda_void , 0) AS denda_void,
+                COALESCE(dg.denda_dfod , 0) AS denda_dfod,
+                COALESCE(dg.denda_pusat , 0) AS denda_pusat,
+                COALESCE(dg.denda_selisih_berat , 0) AS denda_selisih_berat,
+                COALESCE(dg.denda_lost_scan_kirim , 0) AS denda_lost_scan_kirim,
+                COALESCE(dg.denda_auto_claim , 0) AS denda_auto_claim,
+                COALESCE(dg.denda_sponsorship , 0) AS denda_sponsorship,
+                COALESCE(dg.denda_late_pickup_ecommerce , 0) AS denda_late_pickup_ecommerce,
+                COALESCE(dg.potongan_pop, 0) AS potongan_pop,
+                COALESCE(dg.denda_lainnya, 0) AS denda_lainnya,
+                COALESCE(dg.total_denda, 0) AS total_denda,
+                ROUND((COALESCE(cpdprcg.total_cashback, 0) - COALESCE(dg.total_denda, 0)) / 1.011)  AS dpp,
+                ROUND(((COALESCE(cpdprcg.total_cashback, 0) - COALESCE(dg.total_denda, 0)) / 1.011) * 0.02) AS amount_pph_2,
+                ROUND((COALESCE(cpdprcg.total_cashback, 0) - COALESCE(dg.total_denda, 0)) / 1.011) - ROUND(((COALESCE(cpdprcg.total_cashback, 0) - COALESCE(dg.total_denda, 0)) / 1.011) * 0.02) AS amount_setelah_pph,
+                CASE
+                    WHEN cp.nama_bank <> 'BCA' THEN 2900
+                    ELSE 0
+                END AS admin_bank,
+                CASE
+                    WHEN cp.nama_bank <> 'BCA' THEN
+                        (ROUND((COALESCE(cpdprcg.total_cashback,0) - COALESCE(dg.total_denda, 0)) / 1.011) - ROUND(((COALESCE(cpdprcg.total_cashback, 0) - COALESCE(dg.total_denda, 0)) / 1.011) * 0.02) - 2900)
+                    ELSE
+                    ROUND((COALESCE(cpdprcg.total_cashback,0) - COALESCE(dg.total_denda, 0)) / 1.011) - ROUND(((COALESCE(cpdprcg.total_cashback, 0) - COALESCE(dg.total_denda, 0)) / 1.011) * 0.02)
+                END AS amount_setelah_potongan,
+                cp.nama_bank
+            FROM
+                ".$schema.".dpf_rekap_cashback_grading AS cpdprcg
+            LEFT JOIN
+                PUBLIC.master_collection_point AS cp ON cp.drop_point_outgoing = cpdprcg.drop_point_outgoing
+            LEFT JOIN
+                (
+                    SELECT
+                    pd.code,
+                    dgp.*,
+                    -- Calculate total denda by summing up all denda columns
+                    (
+                            transit_fee + denda_void + denda_dfod + denda_pusat + denda_selisih_berat
+                        + denda_lost_scan_kirim + denda_auto_claim + denda_sponsorship
+                        + denda_late_pickup_ecommerce + potongan_pop + denda_lainnya
+                        ) AS total_denda
+                FROM
+                    denda_grading_periode dgp
+                LEFT JOIN
+                    PUBLIC.master_periode pd ON pd.id = dgp.periode_id
+                WHERE
+                        pd.code = '".$schema."'
+
+                ) AS dg ON dg.sprinter_pickup = cp.id
+            ORDER BY cp.nama_pt
+        ";
+    }
 }
