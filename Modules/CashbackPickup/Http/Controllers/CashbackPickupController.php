@@ -138,7 +138,7 @@ class CashbackPickupController extends Controller
         //change into page : because its too heavy to load
         $exist = Denda::where(['periode_id' => $id, 'grading_type' => $grade])->first();
         $data['id'] = $id;
-        $data['cp'] = CollectionPoint::get();
+        $data['cp'] = CollectionPoint::where('grading_pickup', grading_map($grade))->get();
         $data['grading'] = $grade;
         $data['denda'] = $exist ?? new Denda(); //find where peride id & grading if null new Denda if not null fill
         return view('cashbackpickup::_form-denda', $data);
