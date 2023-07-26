@@ -153,7 +153,7 @@ class CreateSchemaService {
 
             ".$this->createViewCPDPCashbackRekapGrading1($schema)."
 
-            ".$this->createViewCPDPCashbackRekapDendaGrading1($schema)."
+            ".$this->createViewCPDPRekapDendaGrading1($schema)."
 
             ".$this->createViewCPDPCashbackAWBGrading2($schema)."
 
@@ -2458,9 +2458,9 @@ class CreateSchemaService {
             SELECT
                 cp.kode_cp,
             cp.nama_cp,
-            cpdpcrg.total_cashback_reguler AS total_cashback_reguler,
-            cpdpcncg.total_cashback_marketplace AS total_cashback_marketplace,
-            rzmp.total_cashback_marketplace AS total_cashback_mp_luar_zona,
+            COALESCE(cpdpcrg.total_cashback_reguler, 0) AS total_cashback_reguler,
+            COALESCE(cpdpcncg.total_cashback_marketplace, 0) AS total_cashback_marketplace,
+            COALESCE(rzmp.total_cashback_marketplace, 0) AS total_cashback_mp_luar_zona,
             COALESCE(cpdpcrg.total_cashback_reguler, 0) + COALESCE(cpdpcncg.total_cashback_marketplace,0) + COALESCE(rzmp.total_cashback_marketplace, 0) AS total_cashback
             FROM
                 PUBLIC.master_collection_point cp
