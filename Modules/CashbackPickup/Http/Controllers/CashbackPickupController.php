@@ -11,6 +11,7 @@ use App\Models\Periode;
 use Illuminate\Http\Request;
 use Excel;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 use Modules\CashbackPickup\Datatables\Grading1Datatables;
 use Modules\CashbackPickup\Datatables\Grading2Datatables;
 use Modules\CashbackPickup\Datatables\Grading3Datatables;
@@ -66,6 +67,7 @@ class CashbackPickupController extends Controller
     public function viewDetail($code ,$grade) {
         $data['periode'] = Periode::where('code', $code)->first();
         $data['denda'] = Denda::where(['periode_id'=> $data['periode']->id, 'grading_type'=> $grade])->get();
+        $data['filename'] = strtoupper($data['periode']->month).'-'.$data['periode']->year.'-GRADING-'.$grade.'.xlsx';
         $data['cp_dp_all_count_sum'] = PivotTable::getPivotAllCountSumCPDP($code);
         $data['cp_dp_reguler_count_sum'] = PivotTable::getPivotRegulerCountSumCPDP($code);
         $data['cp_dp_dfod_count_sum'] = PivotTable::getPivotDfodCountSumCPDP($code);
@@ -138,7 +140,7 @@ class CashbackPickupController extends Controller
         //change into page : because its too heavy to load
         $exist = Denda::where(['periode_id' => $id, 'grading_type' => $grade])->first();
         $data['id'] = $id;
-        $data['cp'] = CollectionPoint::where('grading_pickup', grading_map($grade))->get();
+        $data['cp'] = CollectionPoint::where('grading_pickup', grading_map($grade))->orderBy('drop_point_outgoing', 'ASC')->get();
         $data['grading'] = $grade;
         $data['denda'] = $exist ?? new Denda(); //find where peride id & grading if null new Denda if not null fill
         return view('cashbackpickup::_form-denda', $data);
@@ -175,6 +177,25 @@ class CashbackPickupController extends Controller
          * disabled and lock button on locked
          */
         return redirect()->back();
+    }
+
+    public function downloadExcel($filename){
+        // Replace 'path/to/your/excel_file.xlsx' with the actual path to your Excel file.
+        $filePath = storage_path('app/public/'.$filename);
+        // Check if the file exists and is readable
+        if (file_exists($filePath) && is_readable($filePath)) {
+            // Set the appropriate headers to initiate the file download
+            // header('Content-Type: application/octet-stream');
+            // header('Content-Disposition: attachment; filename="' . basename($filePath) . '"');
+            // header('Content-Length: ' . filesize($filePath));
+
+            // Read the file and send its contents to the browser
+            return response()->download($filePath);
+            exit;
+        } else {
+            // If the file does not exist or is not readable, display an error message
+            die('File not found or not accessible.');
+        }
     }
 
 }

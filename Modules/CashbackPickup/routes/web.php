@@ -25,6 +25,7 @@ ladmin()->route(function() {
         Route::get('/detail/{code}/{grade}', [CashbackPickupController::class, 'viewDetail'])->name('detail');
         Route::get('/process/{code}/{grade}/{id}', [CashbackPickupController::class, 'process'])->name('process');
         Route::get('/lock/{code}/{grade}/{id}', [CashbackPickupController::class, 'lock'])->name('lock');
+        Route::get('/download/{filename}', [CashbackPickupController::class, 'downloadExcel'])->name('download');
     });
 
 });
