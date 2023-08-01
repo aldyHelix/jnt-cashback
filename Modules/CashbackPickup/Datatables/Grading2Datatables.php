@@ -73,6 +73,12 @@ class Grading2Datatables extends Datatables
 
     public function action($data)
     {
+        $data['has_denda'] = false;
+        $denda = Denda::where(['periode_id' => $data->id, 'grading_type' => 2])->get();
+        if($denda->count() > 0) {
+            $data['has_denda'] = true;
+        }
+        $data['is_locked'] = $data->is_locked;
         $data['code'] = $data->code;
         $data['grading'] = 2;
         return view('cashbackpickup::_parts.table-action', $data);

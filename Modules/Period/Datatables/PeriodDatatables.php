@@ -94,7 +94,6 @@ class PeriodDatatables extends Datatables
             'Row Total',
             'Processed By',
             'Status',
-            'Pivot Status',
             'Last Update',
             'Action' => ['class' => 'text-center'],
         ];
@@ -117,7 +116,6 @@ class PeriodDatatables extends Datatables
             ['data' => 'count_row', 'class' => 'text-center'],
             ['data' => 'processed_by', 'class' => 'text-center'],
             ['data' => 'status', 'class' => 'text-center'],
-            ['data' => 'is_pivot_processing_done', 'class' => 'text-center'],
             ['data' => 'updated_at', 'class' => 'text-center'],
             ['data' => 'action', 'class' => 'text-center', 'orderable' => false]
         ];
