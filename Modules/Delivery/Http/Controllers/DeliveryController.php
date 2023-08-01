@@ -2,6 +2,7 @@
 
 namespace Modules\Delivery\Http\Controllers;
 
+use App\Facades\GradingProcess;
 use App\Facades\PivotTable;
 use App\Models\DendaDelivery;
 use App\Models\PeriodeDelivery;
@@ -32,7 +33,8 @@ class DeliveryController extends Controller
         return view('delivery::summary-delivery', $data);
     }
 
-    public function process() {
+    public function process($code, $id) {
+        GradingProcess::generateGradingDelivery($id, $code);
         return redirect()->back();
     }
 

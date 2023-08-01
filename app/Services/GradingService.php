@@ -4,8 +4,10 @@ namespace App\Services;
 use App\Exports\CashbackGrading1Export;
 use App\Exports\CashbackGrading2Export;
 use App\Exports\CashbackGrading3Export;
+use App\Exports\CashbackGradingDeliveryExport;
 use App\Exports\GradingExport;
 use App\Models\Periode;
+use App\Models\PeriodeDelivery;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
@@ -13,6 +15,20 @@ use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 
 class GradingService {
+    public function generateGradingDelivery($id, $code){
+        $get_periode = PeriodeDelivery::findOrFail($id);
+        $schema = 'cashback_'.strtolower($get_periode->month).'_'.$get_periode->year;
+
+        $data['dpf_reguler'] = DB::table($schema.'.dpf_cashback_reguler_grading')->get()->toArray();
+        $data['dpf_cod'] = DB::table($schema.'.dpf_cashback_cod_grading')->get()->toArray();
+        $data['dpf_non_cod'] = DB::table($schema.'.dpf_cashback_non_cod_grading')->get()->toArray();
+        $data['dpf_rekap'] = DB::table($schema.'.dpf_rekap_cashback_grading')->get()->toArray();
+        $data['dpf_rekap_sprinter'] = DB::table($code.'.mp_delivery_count_sprinter')->get()->toArray();
+        // $data['dpf_rekap_denda'] = DB::table($schema.'.dpf_rekap_denda_cashback_grading_1')->get()->toArray();
+
+        $this->exportFileGradeDelivery($data, $get_periode->month, $get_periode->year);
+    }
+
     public function generateGrading($id, $grade) {
         // Store on default disk
         $get_periode = Periode::findOrFail($id);
@@ -54,6 +70,25 @@ class GradingService {
 
 
         return true;
+    }
+
+    public function exportFileGradeDelivery($data ,$month, $year) {
+        $file_name = strtoupper($month).'-'.$year.'-DELIVERY.xlsx';
+
+        $storage_exist = storage_path($file_name);
+
+        if (file_exists($storage_exist)) {
+            // The file exists in the storage directory.
+            // You can perform further actions here.
+            unlink($storage_exist); # delete old file before create new one with same name
+            Storage::delete($file_name);
+        }
+
+        $gradingExport = new CashbackGradingDeliveryExport($data, $file_name);
+
+        Excel::store($gradingExport, $file_name, 'public');//this is success
+
+        // Append the sum row after storing the Excel file
     }
 
     public function exportFileGrade1($data ,$month, $year) {

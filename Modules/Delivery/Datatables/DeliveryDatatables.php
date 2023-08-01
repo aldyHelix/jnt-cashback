@@ -5,7 +5,7 @@ namespace Modules\Delivery\Datatables;
 use App\Models\Denda;
 use App\Models\DendaDelivery;
 use App\Models\Periode;
-use App\Models\Periodedelivery;
+use App\Models\PeriodeDelivery;
 use Hexters\Ladmin\Datatables;
 use Illuminate\Support\Facades\Blade;
 use Modules\CollectionPoint\Models\CollectionPoint;
@@ -82,7 +82,11 @@ class DeliveryDatatables extends Datatables
 
     public function action($data)
     {
+        $period_delivery = PeriodeDelivery::where('code', $data->code)->first();
+        $cashback_schema = 'cashback_'.strtolower($period_delivery->month).'_'.$period_delivery->year;
+        $period_cashback = Periode::where('code', $cashback_schema)->first();
         $data['code'] = $data->code;
+        $data['process_available'] = $period_cashback ? true : false;
         return view('delivery::_parts.table-action', $data);
     }
 

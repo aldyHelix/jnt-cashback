@@ -149,6 +149,15 @@
     @vite(['resources/scss/app.scss', 'resources/js/app.js', 'Modules/Ladmin/Resources/js/ladmin.js'])
     {{ $scripts ?? null }}
     @stack('after-scripts')
+    <script>
+        function processDelivery(route) {
+          window.location.href = route;
+        }
+
+        function lockDelivery(route) {
+          window.location.href = route;
+        }
+      </script>
 </body>
 
 </html>
