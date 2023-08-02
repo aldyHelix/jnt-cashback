@@ -66,8 +66,6 @@
 
                 @livewire('queue-processor')
 
-                @livewire('queue-status')
-
                 <x-ladmin-notification :user="$user" />
 
                 <img src="{{ $user->gravatar }}" alt="Avatar" class="img-thumbnail me-3 img-fluid rounded-circle"
@@ -149,6 +147,20 @@
     @vite(['resources/scss/app.scss', 'resources/js/app.js', 'Modules/Ladmin/Resources/js/ladmin.js'])
     {{ $scripts ?? null }}
     @stack('after-scripts')
+
+    <script>
+        // Retrieve the batch ID from the session
+        const batchId = '{{ session('batchId') }}';
+
+        if (batchId) {
+          window.Echo.channel('batch-progress.' + batchId).listen('.App\\Events\\BatchProgress', (e) => {
+            const progressElement = document.getElementById('progress');
+            if (progressElement) {
+              progressElement.innerText = e.progress + '%';
+            }
+          });
+        }
+      </script>
 </body>
 
 </html>

@@ -217,7 +217,8 @@ class UploadController extends Controller
 
         $chunks = array_chunk($csv,500);
         $count_csv = (count($csv)-1);
-        $timeout = intval($count_csv * 0.5 );
+        // $timeout = intval($count_csv * 0.5 );
+        $timeout = 120;
 
         if(!Schema::hasTable($schema_name.'.'.'data_mart')) {
             $schema = CreateSchema::createSchemaCashback(strtolower($request->month_period), $request->year_period);
@@ -260,41 +261,39 @@ class UploadController extends Controller
                 $period_id = $existing_periode->id;
             }
 
-            $batch  = Bus::batch([])
-             ->then(function (Batch $batch) use ($uploaded_file, $existing_periode, $count_csv) {
-                 $uploaded_file->update([
-                     'processing_status'=> 'FINISHED'
-                 ]);
-                 $done = $existing_periode->update([
-                     'count_row' => $existing_periode->count_row + $count_csv,
-                     'status' => 'FINISHED',
-                 ]);
-             })
-             ->catch(function (Batch $batch, Throwable $e) use ($uploaded_file, $existing_periode, $count_csv) {
-                 // First batch job failure detected...
-                 $uploaded_file->update(['processing_status'=> 'FAILED']);
-                 $existing_periode->update([
-                     'status' => 'FAILED',
-                 ]);
-             })
-             ->finally(function (Batch $batch) use ($uploaded_file, $existing_periode, $count_csv) {
-                 $status = 'FINISHED '.$batch->progress().'%';
-                 if($batch->failedJobs > 0) {
-                    $status = 'NOT FULLY IMPORTED ('.$batch->progress().'% PROCESSED)';
-                 }
-
-                 $uploaded_file->update([
-                     'processing_status'=> $status,
-                 ]);
-
-                 $existing_periode->update([
-                     'status' => $status,
-                 ]);
-                 // The batch has finished executing...
-             })
-             ->name($queue_name);
             //  ->allowFailures()
+            $batch  = Bus::batch([])
+            ->then(function (Batch $batch) use ($uploaded_file, $existing_periode, $count_csv) {
+                $uploaded_file->update([
+                    'processing_status'=> 'FINISHED'
+                ]);
+                $done = $existing_periode->update([
+                    'count_row' => $existing_periode->count_row + $count_csv,
+                    'status' => 'FINISHED',
+                ]);
+            })
+            ->catch(function (Batch $batch, Throwable $e) use ($uploaded_file, $existing_periode, $count_csv) {
+                // First batch job failure detected...
+                $uploaded_file->update(['processing_status'=> 'FAILED']);
+                $existing_periode->update([
+                    'status' => 'FAILED',
+                ]);
+            })
+            ->finally(function (Batch $batch) use ($uploaded_file, $existing_periode, $count_csv) {
+                $status = 'FINISHED '.$batch->progress().'%';
+                if($batch->failedJobs > 0) {
+                   $status = 'NOT FULLY IMPORTED ('.$batch->progress().'% PROCESSED)';
+                }
 
+                $uploaded_file->update([
+                    'processing_status'=> $status,
+                ]);
+
+                $existing_periode->update([
+                    'status' => $status,
+                ]);
+                // The batch has finished executing...
+            })->name($queue_name);
 
             foreach($chunks as $key => $chunk) {
                 // $chunk = $this->data;
@@ -373,7 +372,14 @@ class UploadController extends Controller
                     'processed_row'=> $existing_periode->processed_row + count($result),
                 ]);
             }
-            $batch->dispatch($uploaded_file);
+
+
+             $batch->dispatch();
+
+            //  $batchId = $batch->id;
+
+            //  // Store the batchId in the session
+            //  session()->put('batchId', $batchId);
         }
 
         return redirect()->back();

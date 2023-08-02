@@ -9,7 +9,7 @@
         <x-slot name="body">
             <div class="row">
                 <div class="col-6">
-                    @livewire('queue-button')
+                    {{-- @livewire('queue-button') --}}
                 </div>
                 <div class="col-6">
                     <div class="container text-end">

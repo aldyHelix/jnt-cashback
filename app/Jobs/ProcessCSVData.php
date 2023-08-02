@@ -18,6 +18,8 @@ use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Modules\UploadFile\Models\UploadFile;
 use Throwable;
+use App\Http\Livewire\QueueProcessor;
+use Illuminate\Support\Facades\Broadcast;
 
 class ProcessCSVData implements ShouldQueue
 {
@@ -34,8 +36,8 @@ class ProcessCSVData implements ShouldQueue
      * @var int
      */
     // public $timeout = 60;
-    public $backoff = 1;
-    public $tries = 1;
+    public $timeout = 120;
+    public $maxTries = 1;
     public $key;
     /**
      * Create a new job instance.
@@ -52,17 +54,6 @@ class ProcessCSVData implements ShouldQueue
         $this->key = $key;
         $this->period_id = $period_id;
     }
-
-    /**
-     * Get the middleware the job should pass through.
-     *
-     * @return array<int, object>
-     */
-    public function middleware(): array
-    {
-        return [new WithoutOverlapping($this->key)];
-    }
-
     /**
      * Execute the job.
      *
@@ -71,7 +62,7 @@ class ProcessCSVData implements ShouldQueue
     public function handle()
     {
         try {
-
+            usleep(100000);
             $uploaded_file = UploadFile::where('id', $this->uploaded_file->id)->first();
             $periode = Periode::where('id', $this->period_id)->first();
 
@@ -136,7 +127,7 @@ class ProcessCSVData implements ShouldQueue
                         unset($this->data[$key2+1]);
                     }
 
-                    if($key != 0) {
+                    if($this->key != 0) {
                         if (count($this->data[$key2-1]) > count($item)){
                             continue;
                         }
@@ -169,6 +160,7 @@ class ProcessCSVData implements ShouldQueue
                     $data_insert[] = $item;
                     $inserted++;
                 }
+
             }
 
             $insert = DB::table($this->schema_name.'.data_mart')->insert($data_insert);
@@ -181,7 +173,8 @@ class ProcessCSVData implements ShouldQueue
 
             $this->release();
         } catch (\Exception $e) {
-            // dump($e);
+            dd($e);
         }
     }
 }
+

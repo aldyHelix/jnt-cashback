@@ -31,7 +31,7 @@ return [
     'connections' => [
 
         'sync' => [
-            'driver' => 'redis',
+            'driver' => 'database',
         ],
 
         'database' => [
@@ -66,7 +66,7 @@ return [
             'driver' => 'redis',
             'connection' => 'default',
             'queue' => 'default',
-            'retry_after' => 5,
+            'retry_after' => 130,
             'block_for' => null,
             'after_commit' => true,
         ],

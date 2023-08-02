@@ -1,10 +1,25 @@
 <div class="me-3 ">
-    {{-- The Master doesn't talk, he acts. --}}
-    @if ($isLoading)
-        <div class="loading-icon"><i class="fa fa-spinner"></i><span>Loading...</span></div>
-    @elseif ($currentJob)
-        <span>Current Job: {{ $currentJob }}</span>
+     {{-- Knowing others is intelligence; knowing yourself is true wisdom. --}}
+    @if($isActive)
+        <span>Progress: {{ $progress }}% in progress . . . Remaining queue : {{ $totalInBatch }}</span>
     @else
-        <span>No job is currently being processed.</span>
+        <span>The queue is not active.</span>
     @endif
+
+    <script>
+        document.addEventListener('livewire:load', function () {
+            // Define the interval time (in milliseconds)
+            const intervalTime = 500; // Refresh every 5 seconds
+
+            // Set up an interval to refresh the Livewire component
+            const interval = setInterval(() => {
+                Livewire.emit('refreshProgress'); // Emit a custom event to refresh the progress
+            }, intervalTime);
+
+            // Stop the interval when the Livewire component is removed
+            Livewire.hook('component.remove', () => {
+                clearInterval(interval);
+            });
+        });
+    </script>
 </div>
