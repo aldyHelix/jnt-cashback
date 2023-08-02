@@ -6,6 +6,7 @@ use App\Facades\CreateSchema;
 use App\Imports\CashbackImport;
 use App\Jobs\ProcessCSVData;
 use App\Jobs\ProcessCSVDataDelivery;
+use App\Jobs\ProcessCSVDataOptimized;
 use App\Models\Cashback;
 use App\Models\Periode;
 use App\Models\PeriodeDelivery;
@@ -218,7 +219,7 @@ class UploadController extends Controller
         $chunks = array_chunk($csv,500);
         $count_csv = (count($csv)-1);
         // $timeout = intval($count_csv * 0.5 );
-        $timeout = 120;
+        $timeout = 1200;
 
         if(!Schema::hasTable($schema_name.'.'.'data_mart')) {
             $schema = CreateSchema::createSchemaCashback(strtolower($request->month_period), $request->year_period);
@@ -262,6 +263,7 @@ class UploadController extends Controller
             }
 
             //  ->allowFailures()
+            $jobs = [];
             $batch  = Bus::batch([])
             ->then(function (Batch $batch) use ($uploaded_file, $existing_periode, $count_csv) {
                 $uploaded_file->update([
@@ -365,7 +367,7 @@ class UploadController extends Controller
                     unset($result[0]);
                 }
 
-                $batch->add([new ProcessCSVData($result, $schema_name, $uploaded_file, $raw_before, $timeout, $key, $period_id)]);
+                $batch->add(new ProcessCSVDataOptimized($result, $schema_name, $uploaded_file, $raw_before, $timeout, $key, $period_id));
 
                 $existing_periode = Periode::where('code', $schema_name)->first();
                 $existing_periode->update([
@@ -373,8 +375,40 @@ class UploadController extends Controller
                 ]);
             }
 
+            // $batch  = Bus::batch($jobs)
+            // ->then(function (Batch $batch) use ($uploaded_file, $existing_periode, $count_csv) {
+            //     $uploaded_file->update([
+            //         'processing_status'=> 'FINISHED'
+            //     ]);
+            //     $done = $existing_periode->update([
+            //         'count_row' => $existing_periode->count_row + $count_csv,
+            //         'status' => 'FINISHED',
+            //     ]);
+            // })
+            // ->catch(function (Batch $batch, Throwable $e) use ($uploaded_file, $existing_periode, $count_csv) {
+            //     // First batch job failure detected...
+            //     $uploaded_file->update(['processing_status'=> 'FAILED']);
+            //     $existing_periode->update([
+            //         'status' => 'FAILED',
+            //     ]);
+            // })
+            // ->finally(function (Batch $batch) use ($uploaded_file, $existing_periode, $count_csv) {
+            //     $status = 'FINISHED '.$batch->progress().'%';
+            //     if($batch->failedJobs > 0) {
+            //        $status = 'NOT FULLY IMPORTED ('.$batch->progress().'% PROCESSED)';
+            //     }
 
-             $batch->dispatch();
+            //     $uploaded_file->update([
+            //         'processing_status'=> $status,
+            //     ]);
+
+            //     $existing_periode->update([
+            //         'status' => $status,
+            //     ]);
+            //     // The batch has finished executing...
+            // })
+            //->name($queue_name)
+            $batch->dispatch();
 
             //  $batchId = $batch->id;
 

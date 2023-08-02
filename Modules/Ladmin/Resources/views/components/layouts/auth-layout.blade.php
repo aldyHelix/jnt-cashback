@@ -64,7 +64,7 @@
             </div>
             <div class="d-flex align-items-center me-3">
 
-                @livewire('queue-processor')
+                {{-- @livewire('queue-processor') --}}
 
                 <x-ladmin-notification :user="$user" />
 

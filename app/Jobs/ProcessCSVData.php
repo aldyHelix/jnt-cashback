@@ -20,6 +20,7 @@ use Modules\UploadFile\Models\UploadFile;
 use Throwable;
 use App\Http\Livewire\QueueProcessor;
 use Illuminate\Support\Facades\Broadcast;
+use Illuminate\Support\Facades\Redis;
 
 class ProcessCSVData implements ShouldQueue
 {
@@ -36,9 +37,19 @@ class ProcessCSVData implements ShouldQueue
      * @var int
      */
     // public $timeout = 60;
-    public $timeout = 120;
+    public $timeout = 1200;
     public $maxTries = 1;
     public $key;
+
+    /**
+    * Calculate the number of seconds to wait before retrying the job.
+    *
+    * @return array<int, int>
+    */
+    public function backoff(): array
+    {
+        return [1, 5, 10];
+    }
     /**
      * Create a new job instance.
      *
@@ -61,12 +72,17 @@ class ProcessCSVData implements ShouldQueue
      */
     public function handle()
     {
-        try {
-            usleep(100000);
+
+        $job = $this;
+
+        Redis::throttle('jnt_cashback_horizon')->block(60)->allow(60)->every(40)->then(function () {
+            info('Lock obtained...');
+                    // try {
+            // usleep(100000);
             $uploaded_file = UploadFile::where('id', $this->uploaded_file->id)->first();
             $periode = Periode::where('id', $this->period_id)->first();
 
-            $uploaded_file->update(['processing_status'=> 'ON PROCESSING']);
+            $uploaded_file->update(['processing_status'=> 'ON PROCESSING '.$this->batch()->progress]);
 
             $data_insert = [];
             $inserted = 0;
@@ -164,17 +180,24 @@ class ProcessCSVData implements ShouldQueue
             }
 
             $insert = DB::table($this->schema_name.'.data_mart')->insert($data_insert);
-
             $periode->update([
                 'inserted_row' => $periode->inserted_row + $inserted,
             ]);
 
             $uploaded_file->update(['processed_row' => $uploaded_file->processed_row + count($data_insert)]);
 
-            $this->release();
-        } catch (\Exception $e) {
-            dd($e);
-        }
+            // $this->release();
+            // $this->release(180);
+            // Handle job...
+        }, function () {
+            // Could not obtain lock...
+
+            return $this->release(80);
+        });
+
+        // } catch (\Exception $e) {
+        //     dump($e);
+        // }
     }
 }
 

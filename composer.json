@@ -60,6 +60,12 @@
         ],
         "post-create-project-cmd": [
             "@php artisan key:generate --ansi"
+        ],
+        "queue-clean" : [
+            "@php artisan queue:clear",
+            "@php artisan queue:flush",
+            "@php artisan queue:prune-failed",
+            "@php artisan queue:prune-batches"
         ]
     },
     "extra": {
