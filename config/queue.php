@@ -68,7 +68,7 @@ return [
             'queue' => 'default',
             'retry_after' => 1300,
             'block_for' => null,
-            'after_commit' => false,
+            'after_commit' => true,
         ],
 
     ],
