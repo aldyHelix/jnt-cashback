@@ -20,6 +20,7 @@ use Illuminate\Support\Facades\Bus;
 use Illuminate\Support\Facades\Schema;
 use Modules\UploadFile\Models\UploadFile;
 use Throwable;
+use Illuminate\Support\Facades\Storage;
 
 class UploadController extends Controller
 {
@@ -204,7 +205,204 @@ class UploadController extends Controller
         return redirect()->back();
     }
 
+    public function uploadFileDEV(Request $request)
+    {
+        try {
+            $schema_name = 'cashback_'.strtolower($request->month_period).'_'.$request->year_period;
+            $file_path = $request->file('file')->path();
+            $file_size = filesize($file_path); // Use filesize() to get the file size
+            $handle = fopen($file_path, 'r');
+            // Assuming your CSV file contains a header, read and skip it
+            $header = fgetcsv($handle);
+            $batchSize = 500; // Set the batch size to your desired value
+            $batch = []; // Initialize an empty batch array
+
+            // Create the schema if it doesn't exist
+            if (!Schema::hasTable($schema_name.'.'.'data_mart')) {
+                $schema = CreateSchema::createSchemaCashback(strtolower($request->month_period), $request->year_period);
+            }
+
+            $uploaded_file = UploadFile::create([
+                'file_name' => $request->file('file')->getClientOriginalName(),
+                'month_period' => $request->month_period,
+                'year_period' => $request->year_period,
+                'file_size' => $file_size,
+                'table_name' => $schema_name.'.'.'data_mart',
+                'processed_by' => auth()->user()->id,
+                'type_file' => 0, //0 cashback; 1 ttd;
+                'processing_status' => 'ON QUEUE',
+            ]);
+
+            $existing_periode = Periode::firstOrCreate(
+                ['code' => $schema_name],
+                [
+                    'month' => $request->month_period,
+                    'year' => $request->year_period,
+                    'status' => 'ON QUEUE',
+                ]
+            );
+
+            $period_id = $existing_periode->id;
+
+            while (($csv = fgetcsv($handle)) !== false) {
+                // Convert the line to UTF-8 Encoding
+                array_walk($csv, function (&$cell) {
+                    $cell = mb_convert_encoding($cell, 'UTF-8', 'UTF-8');
+                    $cell = mb_check_encoding($cell, 'UTF-8') ? $cell : '';
+                });
+
+                $batch[] = $csv[0];
+
+                // Process the batch when it reaches the desired size
+                if (count($batch) === $batchSize) {
+                    $this->processBatch($batch, $schema_name, $uploaded_file, $existing_periode);
+                    $batch = []; // Clear the batch for the next set of rows
+                }
+            }
+
+            // Process any remaining rows that did not form a complete batch
+            if (!empty($batch)) {
+                $this->processBatch($batch, $schema_name, $uploaded_file, $existing_periode);
+            }
+
+            fclose($handle);
+            // $batch->dispatch();
+
+            return redirect()->back();
+        } catch (\Throwable $th) {
+            throw $th;
+        }
+    }
+
+    // Helper function to process a batch of rows
+    private function processBatch(array $batch, string $schema_name, $uploaded_file, $existing_periode)
+    {
+        $period_id = $existing_periode->id;
+        $header = [
+            'no_waybill',
+            'tgl_pengiriman',
+            'drop_point_outgoing',
+            'sprinter_pickup',
+            'tempat_tujuan',
+            'keterangan',
+            'berat_yang_ditagih',
+            'cod',
+            'biaya_asuransi',
+            'biaya_kirim',
+            'biaya_lainnya',
+            'total_biaya',
+            'klien_pengiriman',
+            'metode_pembayaran',
+            'nama_pengirim',
+            'sumber_waybill',
+            'paket_retur',
+            'waktu_ttd',
+            'layanan',
+            'diskon',
+            'total_biaya_setelah_diskon',
+            'agen_tujuan',
+            'nik',
+            'kode_promo',
+            'kat'
+        ];
+        // $raw_before = array_map(function ($row) {
+        //     return implode(',', $row);
+        // }, $batch);
+
+
+        $chunk = $batch;
+
+        // foreach ($chunks as $key => $chunk) {
+             /**
+             * cleansing csv
+             */
+            $chunk = str_replace(',', '.', $chunk);
+            $chunk = str_replace(';', ',', $chunk);
+
+            $chunk = str_replace('?SHOPEE COD', ',SHOPEE COD', $chunk);
+            $chunk = str_replace('?SHOPEE', ',SHOPEE', $chunk);
+            $chunk = str_replace('?LAZADA', ',LAZADA', $chunk);
+            $chunk = str_replace('?MAGELLAN COD', ',MAGELLAN COD', $chunk);
+            $chunk = str_replace('?TOKOPEDIA', ',TOKOPEDIA', $chunk);
+            $chunk = str_replace('?E3', ',E3', $chunk);
+            $chunk = str_replace('?1', ',1', $chunk);
+            $chunk = str_replace('?AKULAKUOB', ',AKULAKUOB', $chunk);
+            $chunk = str_replace('?APP', ',APP', $chunk);
+            $chunk = str_replace('?APP Sprinter', ',APP Sprinter', $chunk);
+            $chunk = str_replace('?BITESHIP', ',BITESHIP', $chunk);
+            $chunk = str_replace('?BLIBLIAPI', ',BLIBLIAPI', $chunk);
+            $chunk = str_replace('?BRTTRIMENTARI', ',BRTTRIMENTARI', $chunk);
+            $chunk = str_replace('?BUKAEXPRESS', ',BUKAEXPRESS', $chunk);
+            $chunk = str_replace('?BUKALAPAK', ',BUKALAPAK', $chunk);
+            $chunk = str_replace('?BUKASEND', ',BUKASEND', $chunk);
+            $chunk = str_replace('?CLODEOHQ', ',CLODEOHQ', $chunk);
+            $chunk = str_replace('?DOCTORSHIP', ',DOCTORSHIP', $chunk);
+            $chunk = str_replace('?DONATELLOINDO', ',DONATELLOINDO', $chunk);
+            $chunk = str_replace('?EVERMOSAPI', ',EVERMOSAPI', $chunk);
+            $chunk = str_replace('?GRAMEDIA', ',GRAMEDIA', $chunk);
+            $chunk = str_replace('?LAZADA COD', ',LAZADA COD', $chunk);
+            $chunk = str_replace('?MAGELLAN', ',MAGELLAN', $chunk);
+            $chunk = str_replace('?MAGELLAN COD', ',MAGELLAN COD', $chunk);
+            $chunk = str_replace('?MAULAGI', ',MAULAGI', $chunk);
+            $chunk = str_replace('?MENGANTAR', ',MENGANTAR', $chunk);
+            $chunk = str_replace('?ORDIVO', ',ORDIVO', $chunk);
+            $chunk = str_replace('?PLUNGO', ',PLUNGO', $chunk);
+            $chunk = str_replace('?TRIES', ',TRIES', $chunk);
+            $chunk = str_replace('?VIP', ',VIP', $chunk);
+            $chunk = str_replace('?WEBSITE', ',WEBSITE', $chunk);
+
+            $chunk = str_replace("\xE2\x80\x8B", "", $chunk);
+            $chunk = str_replace("\xEF\xBB\xBF", "", $chunk);
+            $chunk = preg_replace('/[^(\x20-\x7F)]*/', '', $chunk);
+            $chunk = str_replace('\r\n', '', $chunk);
+            $chunk = str_replace('\n";', '";', $chunk);
+            /**
+             * END CLEANSING
+             */
+            $result = array_map('str_getcsv', $chunk);
+
+            $batch = Bus::batch(new ProcessCSVDataOptimized($result, $schema_name, $uploaded_file, $period_id))
+                ->then(function (Batch $batch) use ($uploaded_file, $existing_periode) {
+                    $uploaded_file->update([
+                        'processing_status' => 'FINISHED',
+                    ]);
+                    $done = $existing_periode->update([
+                        'status' => 'FINISHED',
+                    ]);
+                })
+                ->catch(function (Batch $batch, Throwable $e) use ($uploaded_file, $existing_periode) {
+                    $uploaded_file->update(['processing_status' => 'FAILED']);
+                    $existing_periode->update([
+                        'status' => 'FAILED',
+                    ]);
+                })
+                ->finally(function (Batch $batch) use ($uploaded_file, $existing_periode) {
+                    $status = 'FINISHED '.$batch->progress().'%';
+                    if ($batch->failedJobs > 0) {
+                        $status = 'NOT FULLY IMPORTED ('.$batch->progress().'% PROCESSED)';
+                    }
+
+                    $uploaded_file->update([
+                        'processing_status' => $status,
+                    ]);
+
+                    $existing_periode->update([
+                        'status' => $status,
+                    ]);
+                })
+                ->name('QUEUE : '.$uploaded_file->file_name.';SCHEMA : '.$schema_name.';TIME UPLOAD : '.$uploaded_file->created_at)->dispatch();
+
+            $existing_periode->update([
+                'processed_row' => $existing_periode->processed_row + count($result),
+            ]);
+        // }
+        // ... Perform your cleansing and processing logic on the batch here ...
+
+        // ProcessCSVDataOptimized job can be dispatched here with the processed batch data
+    }
+
     public function uploadFile(Request $request) {
+        try {
         $schema_name = 'cashback_'.strtolower($request->month_period).'_'.$request->year_period;
         $csv    = file($request->file);
 
@@ -216,7 +414,7 @@ class UploadController extends Controller
             $csv[$cellIndex] = $cell;
         }
 
-        $chunks = array_chunk($csv,500);
+        $chunks = array_chunk($csv, 500);
         $count_csv = (count($csv)-1);
         // $timeout = intval($count_csv * 0.5 );
         $timeout = 1200;
@@ -263,7 +461,7 @@ class UploadController extends Controller
             }
 
             //  ->allowFailures()
-            $jobs = [];
+            // $jobs = [];
             $batch  = Bus::batch([])
             ->then(function (Batch $batch) use ($uploaded_file, $existing_periode, $count_csv) {
                 $uploaded_file->update([
@@ -295,7 +493,8 @@ class UploadController extends Controller
                     'status' => $status,
                 ]);
                 // The batch has finished executing...
-            })->name($queue_name);
+            })
+            ->name($queue_name);
 
             foreach($chunks as $key => $chunk) {
                 // $chunk = $this->data;
@@ -368,6 +567,7 @@ class UploadController extends Controller
                 }
 
                 $batch->add(new ProcessCSVDataOptimized($result, $schema_name, $uploaded_file, $raw_before, $timeout, $key, $period_id));
+                // $jobs[] = new ProcessCSVDataOptimized($result, $schema_name, $uploaded_file, $raw_before, $timeout, $key, $period_id);
 
                 $existing_periode = Periode::where('code', $schema_name)->first();
                 $existing_periode->update([
@@ -407,8 +607,10 @@ class UploadController extends Controller
             //     ]);
             //     // The batch has finished executing...
             // })
-            //->name($queue_name)
+            // ->name($queue_name)
             $batch->dispatch();
+
+
 
             //  $batchId = $batch->id;
 
@@ -417,5 +619,8 @@ class UploadController extends Controller
         }
 
         return redirect()->back();
+        } catch (\Throwable $th) {
+            throw $th;
+        }
     }
 }
