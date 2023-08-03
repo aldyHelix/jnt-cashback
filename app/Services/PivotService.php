@@ -5,7 +5,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
-class Pivot {
+class PivotService {
+    /**
+     * general summary
+     */
+    public function getSumAllBiayaKirim($schema){
+        if(!Schema::hasTable($schema.'.data_mart')) {
+            return false;
+        }
+        return DB::table($schema.'.sum_all_biaya_kirim')
+            ->first()->sum;
+    }
     /**
      * CP DP
      */
@@ -126,6 +136,14 @@ class Pivot {
             return false;
         }
         return DB::table($schema.'.dpf_mp_retur_sum_biaya_kirim')
+            ->get();
+    }
+
+    public function getDeliverySprinter($schema) {
+        if(!Schema::hasTable($schema.'.data_mart')) {
+            return false;
+        }
+        return DB::table($schema.'.mp_delivery_count_sprinter')
             ->get();
     }
 }

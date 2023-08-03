@@ -22,3 +22,17 @@ if(!function_exists('split_name')) {
         return array($first_name, $last_name);
     }
 }
+
+if (!function_exists('grading_map')) {
+    function grading_map($number)
+    {
+        $letterMap = [
+            1 => 'A',
+            2 => 'B',
+            3 => 'C',
+            // Add more mappings as needed.
+        ];
+
+        return isset($letterMap[$number]) ? $letterMap[$number] : null;
+    }
+}

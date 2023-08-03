@@ -10,6 +10,15 @@
         {{-- <script src="{{ asset("css/uploadfile/uploadfile.css") }}"></script> --}}
     </x-slot>
     <x-slot name="scripts">
+        <script>
+            function processDelivery(route) {
+              window.location.href = route;
+            }
+
+            function lockDelivery(route) {
+              window.location.href = route;
+            }
+        </script>
         {{-- <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.16.8/xlsx.full.min.js"></script>
         <script src="{{ asset("js/uploadfile/uploadfile.js") }}"></script> --}}
     </x-slot>

@@ -1,0 +1,65 @@
+[2023-08-02 13:37:00] local.ERROR: SQLSTATE[08006] [7] connection to server at "localhost" (127.0.0.1), port 5432 failed: Connection refused
+	Is the server running on that host and accepting TCP/IP connections?
+connection to server at "localhost" (::1), port 5432 failed: Cannot assign requested address
+	Is the server running on that host and accepting TCP/IP connections? (Connection: pgsql, SQL: insert into "telescope_entries" ("batch_id", "content", "created_at", "family_hash", "type", "uuid") values (99cab067-07de-45f1-9dd2-a8722d88256f, {"command":"route:cache","exit_code":0,"arguments":{"command":"route:cache"},"options":{"help":false,"quiet":false,"verbose":false,"version":false,"ansi":null,"no-interaction":false,"env":null},"hostname":"cad2271fb8de"}, 2023-08-02 13:36:59, ?, command, 99cab066-b746-4544-b45e-828fc517c63f)) {"exception":"[object] (Illuminate\\Database\\QueryException(code: 7): SQLSTATE[08006] [7] connection to server at \"localhost\" (127.0.0.1), port 5432 failed: Connection refused
+\tIs the server running on that host and accepting TCP/IP connections?
+connection to server at \"localhost\" (::1), port 5432 failed: Cannot assign requested address
+\tIs the server running on that host and accepting TCP/IP connections? (Connection: pgsql, SQL: insert into \"telescope_entries\" (\"batch_id\", \"content\", \"created_at\", \"family_hash\", \"type\", \"uuid\") values (99cab067-07de-45f1-9dd2-a8722d88256f, {\"command\":\"route:cache\",\"exit_code\":0,\"arguments\":{\"command\":\"route:cache\"},\"options\":{\"help\":false,\"quiet\":false,\"verbose\":false,\"version\":false,\"ansi\":null,\"no-interaction\":false,\"env\":null},\"hostname\":\"cad2271fb8de\"}, 2023-08-02 13:36:59, ?, command, 99cab066-b746-4544-b45e-828fc517c63f)) at /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connection.php:795)
+[stacktrace]
+#0 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connection.php(755): Illuminate\\Database\\Connection->runQueryCallback()
+#1 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connection.php(569): Illuminate\\Database\\Connection->run()
+#2 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connection.php(533): Illuminate\\Database\\Connection->statement()
+#3 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(3332): Illuminate\\Database\\Connection->insert()
+#4 /var/www/html/vendor/laravel/telescope/src/Storage/DatabaseEntriesRepository.php(144): Illuminate\\Database\\Query\\Builder->insert()
+#5 /var/www/html/vendor/laravel/framework/src/Illuminate/Collections/Traits/EnumeratesValues.php(236): Laravel\\Telescope\\Storage\\DatabaseEntriesRepository->Laravel\\Telescope\\Storage\\{closure}()
+#6 /var/www/html/vendor/laravel/telescope/src/Storage/DatabaseEntriesRepository.php(143): Illuminate\\Support\\Collection->each()
+#7 /var/www/html/vendor/laravel/telescope/src/Telescope.php(668): Laravel\\Telescope\\Storage\\DatabaseEntriesRepository->store()
+#8 [internal function]: Laravel\\Telescope\\Telescope::Laravel\\Telescope\\{closure}()
+#9 /var/www/html/vendor/laravel/telescope/src/Telescope.php(293): call_user_func()
+#10 /var/www/html/vendor/laravel/telescope/src/Telescope.php(660): Laravel\\Telescope\\Telescope::withoutRecording()
+#11 /var/www/html/vendor/laravel/telescope/src/ListensForStorageOpportunities.php(65): Laravel\\Telescope\\Telescope::store()
+#12 /var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Laravel\\Telescope\\Telescope::Laravel\\Telescope\\{closure}()
+#13 /var/www/html/vendor/laravel/framework/src/Illuminate/Container/Util.php(41): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#14 /var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(81): Illuminate\\Container\\Util::unwrapIfClosure()
+#15 /var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#16 /var/www/html/vendor/laravel/framework/src/Illuminate/Container/Container.php(662): Illuminate\\Container\\BoundMethod::call()
+#17 /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1250): Illuminate\\Container\\Container->call()
+#18 /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(220): Illuminate\\Foundation\\Application->terminate()
+#19 /var/www/html/artisan(51): Illuminate\\Foundation\\Console\\Kernel->terminate()
+#20 {main}
+
+[previous exception] [object] (PDOException(code: 7): SQLSTATE[08006] [7] connection to server at \"localhost\" (127.0.0.1), port 5432 failed: Connection refused
+\tIs the server running on that host and accepting TCP/IP connections?
+connection to server at \"localhost\" (::1), port 5432 failed: Cannot assign requested address
+\tIs the server running on that host and accepting TCP/IP connections? at /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connectors/Connector.php:65)
+[stacktrace]
+#0 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connectors/Connector.php(65): PDO->__construct()
+#1 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connectors/Connector.php(44): Illuminate\\Database\\Connectors\\Connector->createPdoConnection()
+#2 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connectors/PostgresConnector.php(35): Illuminate\\Database\\Connectors\\Connector->createConnection()
+#3 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connectors/ConnectionFactory.php(184): Illuminate\\Database\\Connectors\\PostgresConnector->connect()
+#4 [internal function]: Illuminate\\Database\\Connectors\\ConnectionFactory->Illuminate\\Database\\Connectors\\{closure}()
+#5 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connection.php(1275): call_user_func()
+#6 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connection.php(574): Illuminate\\Database\\Connection->getPdo()
+#7 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connection.php(788): Illuminate\\Database\\Connection->Illuminate\\Database\\{closure}()
+#8 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connection.php(755): Illuminate\\Database\\Connection->runQueryCallback()
+#9 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connection.php(569): Illuminate\\Database\\Connection->run()
+#10 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Connection.php(533): Illuminate\\Database\\Connection->statement()
+#11 /var/www/html/vendor/laravel/framework/src/Illuminate/Database/Query/Builder.php(3332): Illuminate\\Database\\Connection->insert()
+#12 /var/www/html/vendor/laravel/telescope/src/Storage/DatabaseEntriesRepository.php(144): Illuminate\\Database\\Query\\Builder->insert()
+#13 /var/www/html/vendor/laravel/framework/src/Illuminate/Collections/Traits/EnumeratesValues.php(236): Laravel\\Telescope\\Storage\\DatabaseEntriesRepository->Laravel\\Telescope\\Storage\\{closure}()
+#14 /var/www/html/vendor/laravel/telescope/src/Storage/DatabaseEntriesRepository.php(143): Illuminate\\Support\\Collection->each()
+#15 /var/www/html/vendor/laravel/telescope/src/Telescope.php(668): Laravel\\Telescope\\Storage\\DatabaseEntriesRepository->store()
+#16 [internal function]: Laravel\\Telescope\\Telescope::Laravel\\Telescope\\{closure}()
+#17 /var/www/html/vendor/laravel/telescope/src/Telescope.php(293): call_user_func()
+#18 /var/www/html/vendor/laravel/telescope/src/Telescope.php(660): Laravel\\Telescope\\Telescope::withoutRecording()
+#19 /var/www/html/vendor/laravel/telescope/src/ListensForStorageOpportunities.php(65): Laravel\\Telescope\\Telescope::store()
+#20 /var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(36): Laravel\\Telescope\\Telescope::Laravel\\Telescope\\{closure}()
+#21 /var/www/html/vendor/laravel/framework/src/Illuminate/Container/Util.php(41): Illuminate\\Container\\BoundMethod::Illuminate\\Container\\{closure}()
+#22 /var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(81): Illuminate\\Container\\Util::unwrapIfClosure()
+#23 /var/www/html/vendor/laravel/framework/src/Illuminate/Container/BoundMethod.php(35): Illuminate\\Container\\BoundMethod::callBoundMethod()
+#24 /var/www/html/vendor/laravel/framework/src/Illuminate/Container/Container.php(662): Illuminate\\Container\\BoundMethod::call()
+#25 /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Application.php(1250): Illuminate\\Container\\Container->call()
+#26 /var/www/html/vendor/laravel/framework/src/Illuminate/Foundation/Console/Kernel.php(220): Illuminate\\Foundation\\Application->terminate()
+#27 /var/www/html/artisan(51): Illuminate\\Foundation\\Console\\Kernel->terminate()
+#28 {main}
+"} 

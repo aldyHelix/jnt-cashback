@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Modules\UploadFile\Http\Controllers\UploadController;
+use App\Http\Controllers\QueueWorkerController;
 
 /*
 |--------------------------------------------------------------------------
@@ -13,6 +14,7 @@ use Modules\UploadFile\Http\Controllers\UploadController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+Route::get('/start-workers', [QueueWorkerController::class, 'startWorkers']);
 
 Route::get('/', function () {
     return redirect()->route('ladmin.admin.index');

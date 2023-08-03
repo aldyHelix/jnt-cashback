@@ -20,7 +20,8 @@ ladmin()->route(function() {
 
         // Access module in authentication access
         Route::get('/', [UploadController::class, 'index'])->name('welcome');
-        Route::post('/upload/process', [UploadController::class, 'uploadFile'])->name('process');
+        Route::post('/upload/process/cashback', [UploadController::class, 'uploadFile'])->name('process.cashback');
+        Route::post('/upload/process/delivery', [UploadController::class, 'uploadFileDelivery'])->name('process.delivery');
     });
 
 });

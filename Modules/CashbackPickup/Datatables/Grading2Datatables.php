@@ -60,11 +60,9 @@ class Grading2Datatables extends Datatables
     }
 
     public function setDenda($data) {
-        $exist = Denda::where(['periode_id' => $data->id, 'grading_type' => 2])->first();
-        $data['cp'] = CollectionPoint::get();
         $data['grading'] = 2;
-        $data['denda'] = $exist ?? new Denda(); //find where peride id & grading if null new Denda if not null fillif null new Denda if not null fill
-        return view('cashbackpickup::_parts._form-denda', $data);
+        $data['id'] = $data->id;
+        return view('cashbackpickup::_parts._denda-action', $data);
     }
 
     public function viewDetail($data) {
@@ -75,6 +73,12 @@ class Grading2Datatables extends Datatables
 
     public function action($data)
     {
+        $data['has_denda'] = false;
+        $denda = Denda::where(['periode_id' => $data->id, 'grading_type' => 2])->get();
+        if($denda->count() > 0) {
+            $data['has_denda'] = true;
+        }
+        $data['is_locked'] = $data->is_locked;
         $data['code'] = $data->code;
         $data['grading'] = 2;
         return view('cashbackpickup::_parts.table-action', $data);

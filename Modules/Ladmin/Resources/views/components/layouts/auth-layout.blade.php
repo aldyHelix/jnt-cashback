@@ -16,10 +16,17 @@
     {{ $styles ?? null }}
     @stack('after-styles')
 
+    @livewireStyles
+
 
 </head>
 
 <body class="ladmin">
+    <!-- Add the loading screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-spinner"></div>
+    </div>
+
     <aside class="aside">
         <div class="bg-aside bg-body text-body">
 
@@ -56,6 +63,8 @@
                 </div>
             </div>
             <div class="d-flex align-items-center me-3">
+
+                {{-- @livewire('queue-processor') --}}
 
                 <x-ladmin-notification :user="$user" />
 
@@ -131,10 +140,27 @@
         @csrf
     </form>
 
+    @livewireScripts
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js" defer></script>
+
     @stack('before-scripts')
     @vite(['resources/scss/app.scss', 'resources/js/app.js', 'Modules/Ladmin/Resources/js/ladmin.js'])
     {{ $scripts ?? null }}
     @stack('after-scripts')
+
+    <script>
+        // Retrieve the batch ID from the session
+        const batchId = '{{ session('batchId') }}';
+
+        if (batchId) {
+          window.Echo.channel('batch-progress.' + batchId).listen('.App\\Events\\BatchProgress', (e) => {
+            const progressElement = document.getElementById('progress');
+            if (progressElement) {
+              progressElement.innerText = e.progress + '%';
+            }
+          });
+        }
+      </script>
 </body>
 
 </html>

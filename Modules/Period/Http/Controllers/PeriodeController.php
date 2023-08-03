@@ -42,6 +42,7 @@ class PeriodeController extends Controller
         $data['dpf_reguler_count_sum'] = PivotTable::getPivotDPFRegulerCountSum($code);
         $data['dpf_dfod_count_sum'] = PivotTable::getPivotDPFDfodCountSum($code);
         $data['dpf_super_count_sum'] = PivotTable::getPivotDPFSuperCountSum($code);
+        $data['sum_all_biaya_kirim'] = PivotTable::getSumAllBiayaKirim($code);
         $data['total'] = [
             'cp_dp_all_count_sum_total_count' => $data['cp_dp_all_count_sum']->sum('count'),
             'cp_dp_all_count_sum_total_sum' => $data['cp_dp_all_count_sum']->sum('sum'),
