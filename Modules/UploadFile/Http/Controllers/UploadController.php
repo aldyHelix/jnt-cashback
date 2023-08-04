@@ -492,86 +492,28 @@ class UploadController extends Controller
                 $existing_periode->update([
                     'status' => $status,
                 ]);
+
+                ladmin()
+                ->notification()
+                    ->setTitle('Upload finished Executing')
+                    ->setLink(route('ladmin.period.detail', $uploaded_file->code))
+                    ->setDescription($status)
+                    // ->setImageLink('http://porject.test/icon-invoice.ong')
+                    // ->setGates(['ladmin.blog.reviewer', 'ladmin.blog.writer'])
+                ->send();
                 // The batch has finished executing...
             })
             ->name($queue_name);
 
             foreach($chunks as $key => $chunk) {
-                // $chunk = $this->data;
                 $raw_before = $chunk;
 
-                /**
-                 * cleansing csv
-                 */
-                $chunk = str_replace(',', '.', $chunk);
-                $chunk = str_replace(';', ',', $chunk);
-
-                $chunk = str_replace('?SHOPEE COD', ',SHOPEE COD', $chunk);
-                $chunk = str_replace('?SHOPEE', ',SHOPEE', $chunk);
-                $chunk = str_replace('?LAZADA', ',LAZADA', $chunk);
-                $chunk = str_replace('?MAGELLAN COD', ',MAGELLAN COD', $chunk);
-                $chunk = str_replace('?TOKOPEDIA', ',TOKOPEDIA', $chunk);
-                $chunk = str_replace('?E3', ',E3', $chunk);
-                $chunk = str_replace('?1', ',1', $chunk);
-                $chunk = str_replace('?AKULAKUOB', ',AKULAKUOB', $chunk);
-                $chunk = str_replace('?APP', ',APP', $chunk);
-                $chunk = str_replace('?APP Sprinter', ',APP Sprinter', $chunk);
-                $chunk = str_replace('?BITESHIP', ',BITESHIP', $chunk);
-                $chunk = str_replace('?BLIBLIAPI', ',BLIBLIAPI', $chunk);
-                $chunk = str_replace('?BRTTRIMENTARI', ',BRTTRIMENTARI', $chunk);
-                $chunk = str_replace('?BUKAEXPRESS', ',BUKAEXPRESS', $chunk);
-                $chunk = str_replace('?BUKALAPAK', ',BUKALAPAK', $chunk);
-                $chunk = str_replace('?BUKASEND', ',BUKASEND', $chunk);
-                $chunk = str_replace('?CLODEOHQ', ',CLODEOHQ', $chunk);
-                $chunk = str_replace('?DOCTORSHIP', ',DOCTORSHIP', $chunk);
-                $chunk = str_replace('?DONATELLOINDO', ',DONATELLOINDO', $chunk);
-                $chunk = str_replace('?EVERMOSAPI', ',EVERMOSAPI', $chunk);
-                $chunk = str_replace('?GRAMEDIA', ',GRAMEDIA', $chunk);
-                $chunk = str_replace('?LAZADA COD', ',LAZADA COD', $chunk);
-                $chunk = str_replace('?MAGELLAN', ',MAGELLAN', $chunk);
-                $chunk = str_replace('?MAGELLAN COD', ',MAGELLAN COD', $chunk);
-                $chunk = str_replace('?MAULAGI', ',MAULAGI', $chunk);
-                $chunk = str_replace('?MENGANTAR', ',MENGANTAR', $chunk);
-                $chunk = str_replace('?ORDIVO', ',ORDIVO', $chunk);
-                $chunk = str_replace('?PLUNGO', ',PLUNGO', $chunk);
-                $chunk = str_replace('?TRIES', ',TRIES', $chunk);
-                $chunk = str_replace('?VIP', ',VIP', $chunk);
-                $chunk = str_replace('?WEBSITE', ',WEBSITE', $chunk);
-
-                // foreach ($replacements as $replacement) {
-                //     $chunk = str_replace($replacement[0], $replacement[1], $chunk);
-                // }
-
-                $chunk = str_replace("\xE2\x80\x8B", "", $chunk);
-                // Zero-width non-breakabke space
-                // See: https://en.wikipedia.org/wiki/Word_joiner
-                $chunk = str_replace("\xEF\xBB\xBF", "", $chunk);
-
-                // Zero-width space
-                // See: https://en.wikipedia.org/wiki/Zero-width_space
-                $chunk = preg_replace('/[^(\x20-\x7F)]*/','', $chunk);
-
-                $chunk = str_replace('\r\n', '', $chunk);
-                $chunk = str_replace('\n";', '";', $chunk);
-
-
-                /**
-                 * END CLEANSING
-                 */
-
-
-                $result = array_map('str_getcsv', $chunk);
-
-                if($key == 0){
-                    unset($result[0]);
-                }
-
-                $batch->add(new ProcessCSVDataOptimized($result, $schema_name, $uploaded_file, $raw_before, $timeout, $key, $period_id));
+                $batch->add(new ProcessCSVDataOptimized($chunk, $schema_name, $uploaded_file, $raw_before, $timeout, $key, $period_id));
                 // $jobs[] = new ProcessCSVDataOptimized($result, $schema_name, $uploaded_file, $raw_before, $timeout, $key, $period_id);
 
                 $existing_periode = Periode::where('code', $schema_name)->first();
                 $existing_periode->update([
-                    'processed_row'=> $existing_periode->processed_row + count($result),
+                    'processed_row'=> $existing_periode->processed_row + count($chunk),
                 ]);
             }
 

@@ -36,3 +36,14 @@ if (!function_exists('grading_map')) {
         return isset($letterMap[$number]) ? $letterMap[$number] : null;
     }
 }
+
+if (!function_exists('get_string_between')) {
+    function get_string_between($string, $start, $end){
+        $string = ' ' . $string;
+        $ini = strpos($string, $start);
+        if ($ini == 0) return '';
+        $ini += strlen($start);
+        $len = strpos($string, $end, $ini) - $ini;
+        return substr($string, $ini, $len);
+    }
+}
