@@ -64,8 +64,6 @@
             </div>
             <div class="d-flex align-items-center me-3">
 
-                {{-- @livewire('queue-processor') --}}
-
                 <x-ladmin-notification :user="$user" />
 
                 <img src="{{ $user->gravatar }}" alt="Avatar" class="img-thumbnail me-3 img-fluid rounded-circle"
