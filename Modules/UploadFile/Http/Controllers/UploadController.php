@@ -6,6 +6,7 @@ use App\Facades\CreateSchema;
 use App\Imports\CashbackImport;
 use App\Jobs\ProcessCSVData;
 use App\Jobs\ProcessCSVDataDelivery;
+use App\Jobs\ProcessCSVDataDeliveryOptimized;
 use App\Jobs\ProcessCSVDataOptimized;
 use App\Models\Cashback;
 use App\Models\Periode;
@@ -21,6 +22,7 @@ use Illuminate\Support\Facades\Schema;
 use Modules\UploadFile\Models\UploadFile;
 use Throwable;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Broadcast;
 
 class UploadController extends Controller
 {
@@ -50,10 +52,22 @@ class UploadController extends Controller
             return UploadFileDatatables::renderData();
         }
 
+        // ladmin()
+        // ->notification()
+        //     ->setTitle('New Invoice')
+        //     ->setLink('/')
+        //     ->setDescription('abc')
+        // ->send();
+        // Inside your controller or other application logic
+
+        // Display an error toast with no title
+        // toastr()->error('Oops! Something went wrong!');
+
         return view('uploadfile::index');
     }
 
     public function uploadFileDelivery(Request $request) {
+        try {
         $schema_name = 'delivery_'.strtolower($request->month_period).'_'.$request->year_period;
         $csv    = file($request->file);
 
@@ -88,7 +102,7 @@ class UploadController extends Controller
             'processing_status' => 'ON QUEUE',
         ]);
 
-        $queue_name = 'QUEUE : '.$file->getClientOriginalName().';SCHEMA : '.$schema_name.';TIME UPLOAD : '.$uploaded_file->created_at;
+        $queue_name = 'QUEUE DELIVERY : '.$file->getClientOriginalName().';SCHEMA : '.$schema_name.';TIME UPLOAD : '.$uploaded_file->created_at;
 
         if($uploaded_file) {
             $existing_periode = PeriodeDelivery::where('code', $schema_name)->first();
@@ -121,10 +135,24 @@ class UploadController extends Controller
                             'count_row' => $existing_periode->count_row + $count_csv,
                             'status' => 'FINISHED',
                         ]);
+
+                        ladmin()
+                            ->notification()
+                                ->setTitle($uploaded_file->file_name.': TTD Done Import!')
+                                ->setLink(route('ladmin.period.detail', $existing_periode->code))
+                                ->setDescription($uploaded_file->file_name." : Has finished imported")
+                            ->send();
                     })
                     ->catch(function (Batch $batch, Throwable $e) use ($uploaded_file, $existing_periode, $count_csv) {
                         // First batch job failure detected...
                         $uploaded_file->update(['processing_status'=> 'FAILED']);
+
+                        ladmin()
+                            ->notification()
+                                ->setTitle($uploaded_file->file_name.': TTD Failed to import')
+                                ->setLink(route('ladmin.period.detail', $existing_periode->code))
+                                ->setDescription($uploaded_file->file_name." : Has failed to import!")
+                            ->send();
 
                         $existing_periode->update([
                             'status' => 'FAILED',
@@ -133,7 +161,8 @@ class UploadController extends Controller
                     ->finally(function (Batch $batch) use ($uploaded_file, $existing_periode, $count_csv) {
                         $status = 'FINISHED '.$batch->progress().'%';
                         if($batch->failedJobs > 0) {
-                        $status = 'NOT FULLY IMPORTED ('.$batch->progress().'% PROCESSED)';
+                            $status = 'NOT FULLY IMPORTED ('.$batch->progress().'% PROCESSED)';
+                            // Set an error toast, with a title
                         }
 
                         $uploaded_file->update([
@@ -143,7 +172,13 @@ class UploadController extends Controller
                         $existing_periode->update([
                             'status' => $status,
                         ]);
-                        // The batch has finished executing...
+
+                        ladmin()
+                            ->notification()
+                                ->setTitle($uploaded_file->file_name.': TTD '.$status)
+                                ->setLink(route('ladmin.period.detail', $existing_periode->code))
+                                ->setDescription($uploaded_file->file_name." : Has ".$status." imported ")
+                            ->send();
                     })->name($queue_name);
 
             $header = [
@@ -158,9 +193,6 @@ class UploadController extends Controller
             ];
 
             foreach($chunks as $key => $chunk) {
-                // $chunk = $this->data;
-                $raw_before = $chunk;
-
                 /**
                  * cleansing csv
                  */
@@ -191,7 +223,7 @@ class UploadController extends Controller
                     unset($result[0]);
                 }
 
-                $batch->add([new ProcessCSVDataDelivery($result, $schema_name, $uploaded_file, $raw_before, $timeout, $key, $period_id)]);
+                $batch->add([new ProcessCSVDataDeliveryOptimized($result, $schema_name, $uploaded_file, $timeout, $key, $period_id)]);
 
                 $existing_periode = PeriodeDelivery::where('code', $schema_name)->first();
                 $existing_periode->update([
@@ -199,10 +231,13 @@ class UploadController extends Controller
                 ]);
             }
 
-            $batch->dispatch($uploaded_file);
+            $batch->dispatch();
         }
 
-        return redirect()->back();
+            return redirect()->back();
+        } catch (\Throwable $th) {
+            throw $th;
+        }
     }
 
     public function uploadFileDEV(Request $request)
@@ -416,7 +451,6 @@ class UploadController extends Controller
 
         $chunks = array_chunk($csv, 500);
         $count_csv = (count($csv)-1);
-        // $timeout = intval($count_csv * 0.5 );
         $timeout = 1200;
 
         if(!Schema::hasTable($schema_name.'.'.'data_mart')) {
@@ -438,7 +472,7 @@ class UploadController extends Controller
             'processing_status' => 'ON QUEUE',
         ]);
 
-        $queue_name = 'QUEUE : '.$file->getClientOriginalName().';SCHEMA : '.$schema_name.';TIME UPLOAD : '.$uploaded_file->created_at;
+        $queue_name = 'QUEUE CASHBACK : '.$file->getClientOriginalName().';SCHEMA : '.$schema_name.';TIME UPLOAD : '.$uploaded_file->created_at;
 
         if($uploaded_file) {
             $existing_periode = Periode::where('code', $schema_name)->first();
@@ -460,8 +494,6 @@ class UploadController extends Controller
                 $period_id = $existing_periode->id;
             }
 
-            //  ->allowFailures()
-            // $jobs = [];
             $batch  = Bus::batch([])
             ->then(function (Batch $batch) use ($uploaded_file, $existing_periode, $count_csv) {
                 $uploaded_file->update([
@@ -471,6 +503,13 @@ class UploadController extends Controller
                     'count_row' => $existing_periode->count_row + $count_csv,
                     'status' => 'FINISHED',
                 ]);
+
+                ladmin()
+                ->notification()
+                    ->setTitle($uploaded_file->file_name.': CASHBACK Done Import!')
+                    ->setLink(route('ladmin.period.detail', $existing_periode->code))
+                    ->setDescription($uploaded_file->file_name." : Has finished imported")
+                ->send();
             })
             ->catch(function (Batch $batch, Throwable $e) use ($uploaded_file, $existing_periode, $count_csv) {
                 // First batch job failure detected...
@@ -478,6 +517,13 @@ class UploadController extends Controller
                 $existing_periode->update([
                     'status' => 'FAILED',
                 ]);
+
+                ladmin()
+                    ->notification()
+                        ->setTitle($uploaded_file->file_name.': CASHBACK Failed to import')
+                        ->setLink(route('ladmin.period.detail', $existing_periode->code))
+                        ->setDescription($uploaded_file->file_name." : Has failed to import!")
+                    ->send();
             })
             ->finally(function (Batch $batch) use ($uploaded_file, $existing_periode, $count_csv) {
                 $status = 'FINISHED '.$batch->progress().'%';
@@ -495,20 +541,15 @@ class UploadController extends Controller
 
                 ladmin()
                 ->notification()
-                    ->setTitle('Upload finished Executing')
-                    ->setLink(route('ladmin.period.detail', $uploaded_file->code))
-                    ->setDescription($status)
-                    // ->setImageLink('http://porject.test/icon-invoice.ong')
-                    // ->setGates(['ladmin.blog.reviewer', 'ladmin.blog.writer'])
+                    ->setTitle($uploaded_file->file_name.': CASHBACK '.$status)
+                    ->setLink(route('ladmin.period.detail', $existing_periode->code))
+                    ->setDescription($uploaded_file->file_name." : Has ".$status." imported ")
                 ->send();
-                // The batch has finished executing...
             })
             ->name($queue_name);
 
             foreach($chunks as $key => $chunk) {
-                $raw_before = $chunk;
-
-                $batch->add(new ProcessCSVDataOptimized($chunk, $schema_name, $uploaded_file, $raw_before, $timeout, $key, $period_id));
+                $batch->add(new ProcessCSVDataOptimized($chunk, $schema_name, $uploaded_file, $timeout, $key, $period_id));
                 // $jobs[] = new ProcessCSVDataOptimized($result, $schema_name, $uploaded_file, $raw_before, $timeout, $key, $period_id);
 
                 $existing_periode = Periode::where('code', $schema_name)->first();
@@ -517,47 +558,7 @@ class UploadController extends Controller
                 ]);
             }
 
-            // $batch  = Bus::batch($jobs)
-            // ->then(function (Batch $batch) use ($uploaded_file, $existing_periode, $count_csv) {
-            //     $uploaded_file->update([
-            //         'processing_status'=> 'FINISHED'
-            //     ]);
-            //     $done = $existing_periode->update([
-            //         'count_row' => $existing_periode->count_row + $count_csv,
-            //         'status' => 'FINISHED',
-            //     ]);
-            // })
-            // ->catch(function (Batch $batch, Throwable $e) use ($uploaded_file, $existing_periode, $count_csv) {
-            //     // First batch job failure detected...
-            //     $uploaded_file->update(['processing_status'=> 'FAILED']);
-            //     $existing_periode->update([
-            //         'status' => 'FAILED',
-            //     ]);
-            // })
-            // ->finally(function (Batch $batch) use ($uploaded_file, $existing_periode, $count_csv) {
-            //     $status = 'FINISHED '.$batch->progress().'%';
-            //     if($batch->failedJobs > 0) {
-            //        $status = 'NOT FULLY IMPORTED ('.$batch->progress().'% PROCESSED)';
-            //     }
-
-            //     $uploaded_file->update([
-            //         'processing_status'=> $status,
-            //     ]);
-
-            //     $existing_periode->update([
-            //         'status' => $status,
-            //     ]);
-            //     // The batch has finished executing...
-            // })
-            // ->name($queue_name)
             $batch->dispatch();
-
-
-
-            //  $batchId = $batch->id;
-
-            //  // Store the batchId in the session
-            //  session()->put('batchId', $batchId);
         }
 
         return redirect()->back();

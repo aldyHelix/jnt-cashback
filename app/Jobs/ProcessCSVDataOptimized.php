@@ -30,7 +30,6 @@ class ProcessCSVDataOptimized implements ShouldQueue
     public $schema_name;
     public $data;
     public $uploaded_file;
-    public $raw_before;
     public $period_id;
     public $timeout = 1200;
     public $maxTries = 1;
@@ -51,12 +50,11 @@ class ProcessCSVDataOptimized implements ShouldQueue
      *
      * @return void
      */
-    public function __construct($data, $schema_name, $uploaded_file, $raw_before, $timeout, $key, $period_id)
+    public function __construct($data, $schema_name, $uploaded_file,  $timeout, $key, $period_id)
     {
         $this->data = $data;
         $this->schema_name = $schema_name;
         $this->uploaded_file = $uploaded_file;
-        $this->raw_before = $raw_before;
         $this->timeout = $timeout;
         $this->key = $key;
         $this->period_id = $period_id;
@@ -72,8 +70,6 @@ class ProcessCSVDataOptimized implements ShouldQueue
 
         Redis::throttle('jnt_cashback_horizon')->block(30)->allow(60)->every(40)->then(function () {
             try {
-                // DB::beginTransaction();
-
                 $uploaded_file = UploadFile::find($this->uploaded_file->id);
                 $periode = Periode::find($this->period_id);
 
@@ -109,9 +105,23 @@ class ProcessCSVDataOptimized implements ShouldQueue
                     'kat'
                 ];
 
+
+                if($this->key == 0){
+                    unset($this->data[0]);
+                }
+
                 $last_result = count($this->data);
-                dump($this->data[$last_result-1]);
+
                 foreach($this->data as $index => $cell) {
+                    $original = $cell;
+                    if( substr_count($cell,";") > 24) {
+                        $this->data[$index] = preg_replace_callback('/"(.*?)";/', function($matches) {
+                            $cleanString = str_replace(';', ' ', $matches[1]);
+                            return '"' . $cleanString . '";';
+                        }, $cell);
+
+                        $cell = $this->data[$index];
+                    }
 
                     if($index < $last_result-1) {
                         // $new_string = get_string_between($cell, '"', '"');
@@ -120,40 +130,27 @@ class ProcessCSVDataOptimized implements ShouldQueue
                         $substr = substr_count($cell,";"); //15
                         $substr1 = substr_count($this->data[$index + 1],";"); //11
 
-                        if($substr > 25) {
-                            DB::table('log_resi')->insert([
-                                'periode_id' => $this->period_id,
-                                'batch_id' => $this->batch()->id,
-                                'resi' => substr($cell, 0, 12),
-                                'before_raw' => json_encode($cell),
-                                'after_raw' => json_encode($this->data[$index]),
-                                'type' => 'error row',
-                                'date' => now()
-                            ]);
-                            continue;
-                        }
-
-                        if ($substr < 25 && $substr1 < 25 && $substr1 != 0) {
-                            $this->data[$index] = str_replace("\r\n",'', $this->data[$index]);
-                            $this->data[$index] = str_replace('"','', $this->data[$index]);
-                            $this->data[$index] .= $this->data[$index+1];
+                        if ($substr < 24 && $substr1 < 24 && $substr1 != 0) {
+                            $cell = str_replace("\r\n",'', $cell);
+                            $cell = str_replace('"','', $cell);
+                            $cell .= $this->data[$index+1];
 
                             DB::table('log_resi')->insert([
                                 'periode_id' => $this->period_id,
                                 'batch_id' => $this->batch()->id,
                                 'resi' => substr($cell, 0, 12),
-                                'before_raw' => json_encode($cell),
-                                'after_raw' => json_encode($this->data[$index]),
+                                'before_raw' => $original,
+                                'after_raw' => $cell,
                                 'type' => 'invalid',
                                 'date' => now()
                             ]);
 
+                            $this->data[$index] = $cell;
                             unset($this->data[$index+1]);
                         }
                     }
                 }
 
-                dd($this->data);
                 $chunk = $this->data;
 
                 /**
@@ -194,10 +191,6 @@ class ProcessCSVDataOptimized implements ShouldQueue
                 $chunk = str_replace('?VIP', ',VIP', $chunk);
                 $chunk = str_replace('?WEBSITE', ',WEBSITE', $chunk);
 
-                // foreach ($replacements as $replacement) {
-                //     $chunk = str_replace($replacement[0], $replacement[1], $chunk);
-                // }
-
                 $chunk = str_replace("\xE2\x80\x8B", "", $chunk);
                 // Zero-width non-breakabke space
                 // See: https://en.wikipedia.org/wiki/Word_joiner
@@ -216,17 +209,10 @@ class ProcessCSVDataOptimized implements ShouldQueue
                  */
                 $result = array_map('str_getcsv', $chunk);
 
-                if($this->key == 0){
-                    unset($result[0]);
-                }
-
                 foreach ($result as $key2 => $item) {
-
                     $duplicates = DB::table($this->schema_name . '.data_mart')->where('no_waybill', $item[0])->first();
 
                     if ($duplicates) {
-                        // Kalau duplicate akan diupdate data barunya.
-                        //if biaya_kirim baru < $biaya kirim lama
                         if(intval($item[9]) < intval($duplicates->biaya_kirim)) {
                             DB::table('log_resi')->insert([
                                 'periode_id' => $this->period_id,
@@ -256,7 +242,6 @@ class ProcessCSVDataOptimized implements ShouldQueue
                                 $new_data['waktu_ttd'] = '01/01/1970 00:00';
                             }
 
-                            dd($new_data);
 
                             DB::table($this->schema_name . '.data_mart')->where('no_waybill', $item[0])->update($new_data);
                         }
@@ -268,98 +253,67 @@ class ProcessCSVDataOptimized implements ShouldQueue
                     unset($item[25]);
                     unset($item[26]);
 
-                    if (!(count($item) == count($header))) {
-                        // DB::table('log_resi')->insert([
-                        //     'periode_id' => $this->period_id,
-                        //     'batch_id' => $this->batch()->id,
-                        //     'resi' => $item[0],
-                        //     'before_raw' => '',
-                        //     'after_raw' => json_encode($item),
-                        //     'type' => 'invalid',
-                        //     'date' => '-'
-                        // ]);
-
-                        // $substr = substr_count($this->raw_before[$key2],";"); //15
-                        // $substr1 = substr_count($this->raw_before[$key2+1],";"); //11
-
-                        // if ($substr < 26 && $substr1 < 26 && $substr1 != 0) { //based on raw
-                        //     if ($substr > $substr1) { // true
-                        //         $next_item = explode(',', $result[$key2+1][0]);
-                        //         unset($next_item[0]);
-                        //         $item = array_merge($item, $next_item);
-                        //         unset($result[$key2+1]);
-                        //     }
-
-                        //     if ($substr < $substr1) {
-                        //         $item[count($item)-1] = $item[count($item)-1]."".$result[$key2+1][0];
-                        //         unset($result[$key2+1][0]);
-                        //         $item = array_merge($item, $result[$key2+1]);
-                        //         unset($result[$key2+1]);
-                        //     }
-                        // }
-
-                        // if($this->key != 0) {
-                        //     if (count($result[$key2-1]) > count($item)){
-                        //         continue;
-                        //     }
-
-                        //     if (count($item) > count($result[$key2-1])) {
-                        //         continue;
-                        //     }
-                        // }
-
-                        // unset($item[25]);
-                        // unset($item[26]);
-
-                        continue;
-                    }
-
-                    if (count($item) === count($header)) {
-                        $item = array_combine($header, $item);
-                        $item['cod'] = intval($item['cod']);
-                        $item['biaya_asuransi'] = intval($item['biaya_asuransi']);
-                        $item['biaya_kirim'] = intval($item['biaya_kirim']);
-                        $item['biaya_lainnya'] = intval($item['biaya_lainnya']);
-                        $item['total_biaya'] = intval($item['total_biaya']);
-                        $item['diskon'] = intval($item['diskon']);
-                        $item['total_biaya_setelah_diskon'] = intval($item['total_biaya_setelah_diskon']);
-
-                        if ($item['waktu_ttd'] === "") {
-                            $item['waktu_ttd'] = '01/01/1970 00:00';
-                        }
-
-                        $data_insert[] = $item;
-                        $dbInsert = DB::table($this->schema_name . '.data_mart')->insert($item);
-
-                        if(!$dbInsert) {
-                            // $this->fail($item['no_waybill'].' not inserted');
+                    if(isset($item[24])){
+                        if($item[24] == "") {
                             DB::table('log_resi')->insert([
                                 'periode_id' => $this->period_id,
                                 'batch_id' => $this->batch()->id,
-                                'resi' => $item['no_waybill'],
+                                'resi' => substr($cell, 0, 12),
+                                'before_raw' => json_encode($cell),
+                                'after_raw' => json_encode($this->data[$index]),
+                                'type' => 'error: row not inserted',
+                                'date' => now()
+                            ]);
+
+                            unset($result[$key2]);
+                            continue;
+                        }
+                    }
+
+                        if (count($item) === count($header)) {
+                            $item = array_combine($header, $item);
+                            $item['cod'] = intval($item['cod']);
+                            $item['biaya_asuransi'] = intval($item['biaya_asuransi']);
+                            $item['biaya_kirim'] = intval($item['biaya_kirim']);
+                            $item['biaya_lainnya'] = intval($item['biaya_lainnya']);
+                            $item['total_biaya'] = intval($item['total_biaya']);
+                            $item['diskon'] = intval($item['diskon']);
+                            $item['total_biaya_setelah_diskon'] = intval($item['total_biaya_setelah_diskon']);
+
+                            if ($item['waktu_ttd'] === "") {
+                                $item['waktu_ttd'] = '01/01/1970 00:00';
+                            }
+
+                            $data_insert[] = $item;
+                            $dbInsert = DB::table($this->schema_name . '.data_mart')->insert($item);
+
+                            if(!$dbInsert) {
+                                DB::table('log_resi')->insert([
+                                    'periode_id' => $this->period_id,
+                                    'batch_id' => $this->batch()->id,
+                                    'resi' => $item['no_waybill'],
+                                    'before_raw' => '',
+                                    'after_raw' => json_encode($item),
+                                    'type' => 'fail_insert',
+                                    'date' => $item['tgl_pengiriman'],
+                                    'created_at' => now()
+                                ]);
+                            }
+                            $inserted++;
+                        }
+                         else {
+                            DB::table('log_resi')->insert([
+                                'periode_id' => $this->period_id,
+                                'batch_id' => $this->batch()->id,
+                                'resi' => $item[0],
                                 'before_raw' => '',
                                 'after_raw' => json_encode($item),
-                                'type' => 'fail_insert',
-                                'date' => $item['tgl_pengiriman'],
-                                'created_at' => now()
+                                'type' => 'skiped row',
+                                'date' => $item[1]
                             ]);
                         }
-                        $inserted++;
-                    }
-                    //  else {
-                    //     DB::table('log_resi')->insert([
-                    //         'periode_id' => $this->period_id,
-                    //         'batch_id' => $this->batch()->id,
-                    //         'resi' => $item[0],
-                    //         'before_raw' => '',
-                    //         'after_raw' => json_encode($item),
-                    //         'type' => 'invalid',
-                    //         'date' => $item[1]
-                    //     ]);
-                    //     Log::info('Row skipped due to missing columns.');
-                    // }
-                }
 
+                }
 
                 $periode->update([
                     'inserted_row' => $periode->inserted_row + $inserted,
@@ -367,9 +321,7 @@ class ProcessCSVDataOptimized implements ShouldQueue
 
                 $uploaded_file->update(['processed_row' => $uploaded_file->processed_row + count($data_insert)]);
 
-                // DB::commit();
             } catch (\Exception $e) {
-                // DB::rollBack();
                 throw $e;
             }
         }, function () {
