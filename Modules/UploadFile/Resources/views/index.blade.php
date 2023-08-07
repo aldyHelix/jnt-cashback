@@ -10,6 +10,8 @@
             <div class="row">
                 <div class="col-6">
                     {{-- @livewire('queue-button') --}}
+                    {{-- button reload here --}}
+                    {{-- auto reload --}}
                 </div>
                 <div class="col-6">
                     <div class="container text-end">

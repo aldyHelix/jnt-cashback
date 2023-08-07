@@ -7,6 +7,18 @@ use Illuminate\Support\Facades\Schema;
 
 class CreateSchemaService {
 
+    public function runScript($schema, $script) {
+        //check if exist first
+        if(Schema::hasTable($schema.'.data_mart')) {
+            $run = DB::connection('pgsql')->unprepared(
+                "
+                SET search_path TO ".$schema.",  public; \n
+                ".$script);
+
+            return $run;
+        }
+    }
+
     public function createSchemaDelivery($month, $year) {
         //check if exist first
         if(Schema::hasTable('delivery_'.$month.'_'.$year.'.data_mart')) {
@@ -166,6 +178,14 @@ class CreateSchemaService {
             ".$this->createViewCPDPCashbackRekapGrading3($schema)."
 
             ".$this->createViewCPDPCashbackRekapDendaGrading3($schema)."
+
+            ".$this->createViewDPFCashbackRegulerGrading($schema)."
+
+            ".$this->createViewDPFCashbackCODGrading($schema)."
+
+            ".$this->createViewDPFCashbackNonCODGrading($schema)."
+
+            ".$this->createViewDPFCashbackRekapDendaGrading($schema)."
 
             ");
             // CREATE VIEW winners AS
@@ -1809,6 +1829,11 @@ class CreateSchemaService {
     }
 
     public function createViewCPDPCashbackRegulerGrading1($schema) {
+        $pph = '1.011';
+        $grade = 'A';
+        //create rate setting category //reguler, marketplace, cod, non-cod. pilihan, lain2.
+        $diskon_reguler = stringValue(25 / 100);
+
         return "
             CREATE OR REPLACE VIEW cp_dp_cashback_reguler_grading_1 AS
             SELECT
@@ -1828,7 +1853,7 @@ class CreateSchemaService {
                         COALESCE(rcs.sum, 0) +
                         COALESCE(dcs.sum, 0) +
                         COALESCE(scs.sum, 0) /
-                        1.011
+                        ".$pph."
                     )::BIGINT AS BIGINT
                 ) AS total_biaya_kirim_dikurangi_ppn,
                 CAST(
@@ -1838,7 +1863,7 @@ class CreateSchemaService {
                                     COALESCE(rcs.sum, 0) +
                                     COALESCE(dcs.sum, 0) +
                                     COALESCE(scs.sum, 0)
-                                ) / 1.011
+                                ) / ".$pph."
                         ) * 0.25
                     )::BIGINT AS BIGINT
                 ) AS amount_discount_25,
@@ -1860,7 +1885,7 @@ class CreateSchemaService {
                             COALESCE(sbk.ordivo, 0) +
                             COALESCE(sbk.evermosapi, 0) +
                             COALESCE(sbk.mengantar, 0)
-                        ) / 1.011
+                        ) / ".$pph."
                     )::BIGINT AS BIGINT
                 ) AS total_biaya_kirim_a_dikurangi_ppn,
                 CAST(
@@ -1871,7 +1896,7 @@ class CreateSchemaService {
                                 COALESCE(sbk.ordivo, 0) +
                                 COALESCE(sbk.evermosapi, 0) +
                                 COALESCE(sbk.mengantar, 0)
-                            )/ 1.011
+                            )/ ".$pph."
                     ) * 0.10
                     )::BIGINT AS BIGINT
                 ) AS amount_discount_10,
@@ -1882,7 +1907,7 @@ class CreateSchemaService {
                                 COALESCE(rcs.sum, 0) +
                                 COALESCE(dcs.sum, 0) +
                                 COALESCE(scs.sum, 0)
-                            ) / 1.011
+                            ) / ".$pph."
                         ) * 0.25 +
                         (
                             (
@@ -1890,7 +1915,7 @@ class CreateSchemaService {
                                 COALESCE(sbk.ordivo, 0) +
                                 COALESCE(sbk.evermosapi, 0) +
                                 COALESCE(sbk.mengantar, 0)
-                            ) / 1.011
+                            ) / ".$pph."
                         ) * 0.10
                     )::BIGINT AS BIGINT
                 ) AS total_cashback_reguler
@@ -2474,7 +2499,7 @@ class CreateSchemaService {
 
     public function createViewCPDPRekapDendaGrading1($schema){
         return "
-            CREATE OR REPLACE VIEW cp_dp_rekap_denda_cashback_grading_1 AS
+            CREATE OR REPLACE VIEW ".$schema.".cp_dp_rekap_denda_cashback_grading_1 AS
             SELECT
                 cp.kode_cp,
                 cp.nama_cp,
@@ -2527,7 +2552,7 @@ class CreateSchemaService {
                 LEFT JOIN
                     PUBLIC.master_periode pd ON pd.id = dgp.periode_id
                 WHERE
-                        dgp.grading_type = 'A' AND pd.code = '".$schema."'
+                        dgp.grading_type = '1' AND pd.code = '".$schema."'
 
                 ) AS dg ON dg.sprinter_pickup = cp.id
             WHERE
@@ -2738,7 +2763,7 @@ class CreateSchemaService {
 
     public function createViewCPDPCashbackRekapDendaGrading2($schema){
         return "
-            CREATE OR REPLACE VIEW cp_dp_rekap_denda_cashback_grading_2 AS
+            CREATE OR REPLACE VIEW ".$schema.".cp_dp_rekap_denda_cashback_grading_2 AS
             SELECT
                 cp.kode_cp,
                 cp.nama_cp,
@@ -2791,7 +2816,7 @@ class CreateSchemaService {
                 LEFT JOIN
                     PUBLIC.master_periode pd ON pd.id = dgp.periode_id
                 WHERE
-                        dgp.grading_type = 'B' AND pd.code = '".$schema."'
+                        dgp.grading_type = '2' AND pd.code = '".$schema."'
 
                 ) AS dg ON dg.sprinter_pickup = cp.id
             WHERE
@@ -3002,7 +3027,7 @@ class CreateSchemaService {
 
     public function createViewCPDPCashbackRekapDendaGrading3($schema){
         return "
-            CREATE OR REPLACE VIEW cp_dp_rekap_denda_cashback_grading_3 AS
+            CREATE OR REPLACE VIEW ".$schema.".cp_dp_rekap_denda_cashback_grading_3 AS
             SELECT
                 cp.kode_cp,
                 cp.nama_cp,
@@ -3055,7 +3080,7 @@ class CreateSchemaService {
                 LEFT JOIN
                     PUBLIC.master_periode pd ON pd.id = dgp.periode_id
                 WHERE
-                        dgp.grading_type = 'C' AND pd.code = '".$schema."'
+                        dgp.grading_type = '3' AND pd.code = '".$schema."'
 
                 ) AS dg ON dg.sprinter_pickup = cp.id
             WHERE

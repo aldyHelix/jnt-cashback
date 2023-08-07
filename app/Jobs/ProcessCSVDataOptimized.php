@@ -70,10 +70,12 @@ class ProcessCSVDataOptimized implements ShouldQueue
 
         Redis::throttle('jnt_cashback_horizon')->block(30)->allow(60)->every(40)->then(function () {
             try {
-                $uploaded_file = UploadFile::find($this->uploaded_file->id);
-                $periode = Periode::find($this->period_id);
+                $uploaded_file = DB::table('file_upload')->where('id', $this->uploaded_file->id);
+                $periode = DB::table('master_periode')->where('id', $this->period_id);
 
-                $uploaded_file->update(['processing_status' => 'ON PROCESSING ' . $this->batch()->progress]);
+                $uploaded_file->update([
+                    'processing_status' => 'ON PROCESSING ' . $this->batch()->progress
+                ]);
 
                 $data_insert = [];
                 $inserted = 0;
@@ -107,6 +109,15 @@ class ProcessCSVDataOptimized implements ShouldQueue
 
 
                 if($this->key == 0){
+                    $uploaded_file->update([
+                        'processing_status'=> 'STARTED',
+                        'start_processed_at' => now(),
+                    ]);
+
+                    $periode->update([
+                        'start_processed_at' => now(),
+                    ]);
+
                     unset($this->data[0]);
                 }
 
@@ -315,11 +326,13 @@ class ProcessCSVDataOptimized implements ShouldQueue
 
                 }
 
+                $periode_inserted_row = $periode->first()->inserted_row;
+
                 $periode->update([
-                    'inserted_row' => $periode->inserted_row + $inserted,
+                    'inserted_row' => $periode_inserted_row + $inserted,
                 ]);
 
-                $uploaded_file->update(['processed_row' => $uploaded_file->processed_row + count($data_insert)]);
+                $this->uploaded_file->update(['processed_row' => $uploaded_file->first()->processed_row + $inserted]);
 
             } catch (\Exception $e) {
                 throw $e;

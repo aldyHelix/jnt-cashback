@@ -19,6 +19,34 @@
             <div class="row">
                 <div class="container text-center">
                     <div class="row">
+                        <div class="col table-responsive">
+                            <h5>Grading</h5>
+                            <table class="table">
+                                <thead>
+                                  <tr>
+                                    <th scope="col">Kode</th>
+                                    <th scope="col">Nama</th>
+                                    <th scope="col">Count</th>
+                                    <th scope="col">Sum</th>
+                                  </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($cp_grading as $item)
+                                        <tr>
+                                            <td style="text-align: left">{{$item->kode_cp}}</td>
+                                            <td style="text-align: left">{{$item->nama_cp}}</td>
+                                            <td>{{decimal_format($item->count)}}</td>
+                                            <td>Rp{{rupiah_format($item->sum)}}</td>
+                                        </tr>
+                                    @endforeach
+                                    <tr class="font-weight-bold border">
+                                        <td style="text-align: left" colspan="2">Total</td>
+                                        <td>{{ decimal_format($cp_grading->sum('count')) }}</td>
+                                        <td>Rp{{ rupiah_format($cp_grading->sum('sum')) }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                      </div>
                       <div class="col">
                         <h5>All Count SUM CP DP</h5>
                         <table class="table">

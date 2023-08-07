@@ -35,33 +35,9 @@ class UploadController extends Controller
     {
         ladmin()->allows(['ladmin.uploadfile.index']);
 
-        // DB::connection('pgsql')->unprepared("
-        //     CREATE SCHEMA hollywood
-        //     CREATE TABLE films (title text, release date, awards text[])
-        //     CREATE VIEW winners AS
-        //         SELECT title, release FROM films WHERE awards IS NOT NULL;
-        // ");
-            /**
-         * Sometimes we need more than one table on a page.
-         * You can also create custom routes for rendering data from datatables.
-         * Ladmin uses the index route as a simple example.
-         *
-         * Look at the \Modules\Ladmin\Datatables\AdminDatatables file in the ajax method
-         */
         if( request()->has('datatables') ) {
             return UploadFileDatatables::renderData();
         }
-
-        // ladmin()
-        // ->notification()
-        //     ->setTitle('New Invoice')
-        //     ->setLink('/')
-        //     ->setDescription('abc')
-        // ->send();
-        // Inside your controller or other application logic
-
-        // Display an error toast with no title
-        // toastr()->error('Oops! Something went wrong!');
 
         return view('uploadfile::index');
     }
@@ -459,7 +435,7 @@ class UploadController extends Controller
 
         $file = $request->file('file');
 
-
+        //as logger
         $uploaded_file = UploadFile::create([
             'file_name' => $file->getClientOriginalName(),
             'month_period' => $request->month_period,
@@ -467,6 +443,7 @@ class UploadController extends Controller
             'count_row' => $count_csv,
             'file_size' => $file->getSize(),
             'table_name' => $schema_name.'.'.'data_mart',
+            'is_pivot_processing_done' => 1,
             'processed_by' => auth()->user()->id,
             'type_file' => 0, //0 cashback; 1 ttd;
             'processing_status' => 'ON QUEUE',
@@ -475,6 +452,7 @@ class UploadController extends Controller
         $queue_name = 'QUEUE CASHBACK : '.$file->getClientOriginalName().';SCHEMA : '.$schema_name.';TIME UPLOAD : '.$uploaded_file->created_at;
 
         if($uploaded_file) {
+            $count_db_dm = DB::table($schema_name.'.data_mart')->selectRaw('COUNT(no_waybill)')->first();
             $existing_periode = Periode::where('code', $schema_name)->first();
 
             if(!$existing_periode) {
@@ -489,7 +467,7 @@ class UploadController extends Controller
                 $period_id = $existing_periode->id;
             } else {
                 $existing_periode->update([
-                    'count_row' => $existing_periode->count_row + $count_csv
+                    'count_row' => $count_db_dm->count + $count_csv
                 ]);
                 $period_id = $existing_periode->id;
             }
@@ -500,7 +478,6 @@ class UploadController extends Controller
                     'processing_status'=> 'FINISHED'
                 ]);
                 $done = $existing_periode->update([
-                    'count_row' => $existing_periode->count_row + $count_csv,
                     'status' => 'FINISHED',
                 ]);
 
@@ -533,10 +510,12 @@ class UploadController extends Controller
 
                 $uploaded_file->update([
                     'processing_status'=> $status,
+                    'done_processed_at' => now(),
                 ]);
 
                 $existing_periode->update([
                     'status' => $status,
+                    'done_processed_at' => now(),
                 ]);
 
                 ladmin()
@@ -555,6 +534,7 @@ class UploadController extends Controller
                 $existing_periode = Periode::where('code', $schema_name)->first();
                 $existing_periode->update([
                     'processed_row'=> $existing_periode->processed_row + count($chunk),
+                    'start_processed_at' => now(),
                 ]);
             }
 

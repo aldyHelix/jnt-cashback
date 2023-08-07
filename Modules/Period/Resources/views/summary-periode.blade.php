@@ -96,6 +96,20 @@
                                     </tbody>
                                 </table>
                             </div>
+                            <div class="col-4" style="max-height: 100vh">
+                                Summary Sumber waybill
+                                <div class="table-responsive" style="height: 500px">
+                                    <table class="table">
+                                        <tbody>
+                                            @foreach ($sumber_waybill as $item)
+                                            <tr>
+                                                <td style="text-align: left;width: 300px;">{{ $item }} </td>
+                                            </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
                          </div>
                     </div>
                     <div class="tab-pane fade" id="rate-grading-tab-pane" role="tabpanel" aria-labelledby="rate-grading-tab" tabindex="0">
