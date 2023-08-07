@@ -8,15 +8,25 @@
     <meta name="url-home" content="{{ route('ladmin.index') }}">
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>{{ $metaTitle }}</title>
+    <link href="{{ asset('favicon.ico') }}" rel="icon" type="image/x-icon">
 
+    <link rel="stylesheet" href="/webfonts/css/all.css">
     @stack('before-styles')
     @vite('Modules/Ladmin/Resources/sass/ladmin.scss')
     {{ $styles ?? null }}
     @stack('after-styles')
 
+    @livewireStyles
+
+
 </head>
 
 <body class="ladmin">
+    <!-- Add the loading screen -->
+    <div id="loadingScreen" class="loading-screen">
+        <div class="loading-spinner"></div>
+    </div>
+
     <aside class="aside">
         <div class="bg-aside bg-body text-body">
 
@@ -99,7 +109,7 @@
             <x-ladmin-footer />
         </div>
     </div>
-    
+
     <!-- Modal -->
     <div class="modal" id="modal-logout" tabindex="-1" aria-labelledby="modal-logoutLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -128,10 +138,13 @@
         @csrf
     </form>
 
+
     @stack('before-scripts')
-    @vite('Modules/Ladmin/Resources/js/ladmin.js')
+    @vite(['resources/scss/app.scss', 'resources/js/app.js', 'Modules/Ladmin/Resources/js/ladmin.js'])
     {{ $scripts ?? null }}
     @stack('after-scripts')
+    @livewireScripts
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@2.8.2/dist/alpine.min.js" defer></script>
 </body>
 
 </html>

@@ -22,6 +22,7 @@ class PeriodeController extends Controller
 
     public function viewDetail($code) {
         $data['periode'] = Periode::where('code', $code)->first();
+        $data['sumber_waybill'] = DB::table($code.'.data_mart')->selectRaw('DISTINCT(sumber_waybill)')->orderBy('sumber_waybill')->pluck('sumber_waybill')->toArray();
         $data['row_total'] = DB::table($data['periode']->code.'.data_mart')->count();
         $data['cp_grade_a'] = DB::table('master_collection_point AS cp')->join($data['periode']->code.'.cp_dp_all_count_sum AS pivot', 'cp.drop_point_outgoing', '=', 'pivot.drop_point_outgoing')->select('cp.kode_cp', 'cp.nama_cp', 'pivot.count', 'pivot.sum')->where('cp.grading_pickup', 'A')->get();
         $data['cp_grade_b'] = DB::table('master_collection_point AS cp')->join($data['periode']->code.'.cp_dp_all_count_sum AS pivot', 'cp.drop_point_outgoing', '=', 'pivot.drop_point_outgoing')->select('cp.kode_cp', 'cp.nama_cp', 'pivot.count', 'pivot.sum')->where('cp.grading_pickup', 'B')->get();

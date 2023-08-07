@@ -2,8 +2,10 @@
 
 namespace Modules\UploadFile\Datatables;
 
+use DateTime;
 use Hexters\Ladmin\Datatables;
 use Illuminate\Support\Facades\Blade;
+use Modules\Period\Models\Period;
 use Modules\UploadFile\Models\UploadFile;
 
 class UploadFileDatatables extends Datatables
@@ -49,6 +51,16 @@ class UploadFileDatatables extends Datatables
                 return $row->created_at->format('d-m-Y h:i');
                 // date('d m Y h:i', strtotime($row->created_at));
             })
+            ->editColumn('est', function($row){
+                $datetime_1 = $row->start_processed_at ?? '';
+                $datetime_2 = $row->done_processed_at ?? '';
+
+                $start_datetime = new DateTime($datetime_1);
+                $diff = $start_datetime->diff(new DateTime($datetime_2));
+
+                $string = $diff->h.'h:'.$diff->i.'m:'.$diff->s.'s';
+                return $string;
+            })
             ->editColumn('type_file', function($row) {
                 return intval($row->type_file) ? 'TTD' : 'Cashback';
             })
@@ -57,8 +69,11 @@ class UploadFileDatatables extends Datatables
             });
     }
 
+
     public function actionButton($row){
-        return view('uploadfile::_partial.table-action', $row);
+        $data['related'] = UploadFile::where('table_name', $row->table_name)->get();
+        $data['file_upload'] = $row;
+        return view('uploadfile::_partial.table-action', $data);
     }
 
     /**
@@ -73,6 +88,7 @@ class UploadFileDatatables extends Datatables
             'Period',
             'Row',
             'Date uploaded',
+            'Est.',
             'Status',
             'Type',
             'Action' => ['class' => 'text-center'],
@@ -92,6 +108,7 @@ class UploadFileDatatables extends Datatables
             ['data' => 'period', 'class' => 'text-center'],
             ['data' => 'count_row', 'class' => 'text-center'],
             ['data' => 'created_at', 'class' => 'text-center'],
+            ['data' => 'est', 'class' => 'text-center'],
             ['data' => 'processing_status', 'class' => 'text-center'],
             ['data' => 'type_file', 'class' => 'text-center'],
             ['data' => 'action', 'class' => 'text-center', 'orderable' => false]

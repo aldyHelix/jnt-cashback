@@ -4,6 +4,7 @@ namespace Modules\CashbackPickup\Http\Controllers;
 
 use App\Exports\GradingExport;
 use App\Exports\GradingExports;
+use App\Facades\CreateSchema;
 use App\Facades\GradingProcess;
 use App\Models\Denda;
 use App\Facades\PivotTable;
@@ -68,6 +69,7 @@ class CashbackPickupController extends Controller
         $data['periode'] = Periode::where('code', $code)->first();
         $data['denda'] = Denda::where(['periode_id'=> $data['periode']->id, 'grading_type'=> $grade])->get();
         $data['filename'] = strtoupper($data['periode']->month).'-'.$data['periode']->year.'-GRADING-'.$grade.'.xlsx';
+        $data['cp_grading'] = DB::table('master_collection_point AS cp')->join($data['periode']->code.'.cp_dp_all_count_sum AS pivot', 'cp.drop_point_outgoing', '=', 'pivot.drop_point_outgoing')->select('cp.kode_cp', 'cp.nama_cp', 'pivot.count', 'pivot.sum')->where('cp.grading_pickup', grading_map($grade))->get();
         $data['cp_dp_all_count_sum'] = PivotTable::getPivotAllCountSumCPDP($code);
         $data['cp_dp_reguler_count_sum'] = PivotTable::getPivotRegulerCountSumCPDP($code);
         $data['cp_dp_dfod_count_sum'] = PivotTable::getPivotDfodCountSumCPDP($code);
@@ -155,6 +157,33 @@ class CashbackPickupController extends Controller
 
         GradingProcess::generateGrading($id, $grade);
 
+        //generate  grading
+
+        //reprocess grading with denda
+        switch ($grade) {
+            case 1:
+                $script = CreateSchema::createViewCPDPRekapDendaGrading1($code);
+                CreateSchema::runScript($code, $script);
+
+                //process dengan rate setting juga disini nanti
+                //perlu melakukan query dengan data rate setting dan general setting.
+
+                // update CPDPMPSumBiayaKirim ke sumber_waybill yg telah di distinct
+                break;
+            case 2:
+                $script = CreateSchema::createViewCPDPCashbackRekapDendaGrading2($code);
+
+                CreateSchema::runScript($code, $script);
+                break;
+            case 3:
+                $script = CreateSchema::createViewCPDPCashbackRekapDendaGrading3($code);
+
+                CreateSchema::runScript($code, $script);
+                break;
+            default:
+
+                break;
+        }
         /**
          * process description
          * first of all
