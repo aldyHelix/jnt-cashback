@@ -41,7 +41,7 @@ class CollectionPointRequest extends FormRequest
             'nama_rekening' => $this->nama_rekening
         ]);
 
-        session()->flash('success', 'Collection point has been created');
+        toastr()->success('Data Collection point has been created successfully!', 'Congrats');
 
         return redirect()->route('ladmin.collectionpoint.index');
     }
@@ -61,6 +61,8 @@ class CollectionPointRequest extends FormRequest
         ]);
 
         session()->flash('success', 'Collection point has been updated');
+        toastr()->success('Data Collection point has been updated successfully!', 'Congrats');
+
 
         return redirect()->back();
     }

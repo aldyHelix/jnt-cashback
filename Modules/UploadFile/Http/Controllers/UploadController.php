@@ -210,9 +210,13 @@ class UploadController extends Controller
             $batch->dispatch();
         }
 
+            toastr()->success('Data Raw has been uploaded successfully! please wait the data to be processed!', 'Congrats');
             return redirect()->back();
         } catch (\Throwable $th) {
-            throw $th;
+            //throw $th;
+            toastr()->error('The raw data maybe not valid, please check log resi instead!', 'Opps!');
+            return redirect()->back();
+
         }
     }
 
@@ -541,9 +545,12 @@ class UploadController extends Controller
             $batch->dispatch();
         }
 
+        toastr()->success('Data Raw has been uploaded successfully! please wait the data to be processed!', 'Congrats');
         return redirect()->back();
         } catch (\Throwable $th) {
-            throw $th;
+            //throw $th;
+            toastr()->error('The raw data maybe not valid, please check log resi instead!', 'Opps!');
+            return redirect()->back();
         }
     }
 }

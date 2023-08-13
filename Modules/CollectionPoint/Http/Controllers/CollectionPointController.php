@@ -54,9 +54,9 @@ class CollectionPointController extends Controller
         $cp = CollectionPoint::findOrFail($id);
 
         if ($cp->delete()) {
-            session()->flash('success', 'Collection point has been deleted!');
+            toastr()->success('Data Collection point has been deleted successfully!', 'Congrats');
         } else {
-            session()->flash('danger', 'The collection point cannot be deleted, because it is still used by some users!');
+            toastr()->error('The collection point cannot be deleted, because it is still used by some users!', 'Opps!');
         }
 
         return redirect()->back();

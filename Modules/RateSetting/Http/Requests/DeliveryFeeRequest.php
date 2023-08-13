@@ -34,7 +34,7 @@ class DeliveryFeeRequest extends FormRequest
             'tarif' => $this->tarif
         ]);
 
-        session()->flash('success', 'Delivery Fee has been created');
+        toastr()->success('Data Delivery Fee has been created successfully!', 'Congrats');
 
         return redirect()->route('ladmin.ratesetting.delivery.index');
     }
@@ -46,6 +46,8 @@ class DeliveryFeeRequest extends FormRequest
         ]);
 
         session()->flash('success', 'Rate Setting Delivery Fee has ben updated');
+        toastr()->success('Data Rate Setting Delivery Fee has ben updated successfully!', 'Congrats');
+
 
         return redirect()->back();
     }
