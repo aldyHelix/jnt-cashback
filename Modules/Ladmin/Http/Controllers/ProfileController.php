@@ -2,12 +2,17 @@
 
 namespace Modules\Ladmin\Http\Controllers;
 
+use App\Models\Periode;
+use DateTime;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Response;
+use Illuminate\Support\Facades\DB;
 use Ladmin\Engine\Models\Admin;
+use Modules\CollectionPoint\Models\CollectionPoint;
 use Modules\Ladmin\Http\Controllers\Controller;
 use Modules\Ladmin\Http\Requests\ProfileRequest;
+use Modules\UploadFile\Models\UploadFile;
 use Ramsey\Uuid\Type\Integer;
 
 class ProfileController extends Controller
@@ -26,6 +31,13 @@ class ProfileController extends Controller
 
         $data['user'] = auth()->user();
         $data['inspire'] = Inspiring::quote();
+
+        $data['period'] = [];
+        $data_periode = Periode::get();
+        foreach($data_periode as $periode) {
+            $sum = DB::table($periode->code.'.data_mart')->select('biaya_kirim')->sum('biaya_kirim');
+            $data['period'][$periode->month.'-'.$periode->year] = $sum;
+        }
         return ladmin()->view('profile.index', $data);
     }
 
@@ -75,6 +87,7 @@ class ProfileController extends Controller
         return Admin::where('online_at', '>', now())->count();
     }
 
+
     /**
      * Get total admin
      *
@@ -83,6 +96,78 @@ class ProfileController extends Controller
     protected function total_admin()
     {
         return Admin::count();
+    }
+
+
+    protected function avg_processing()
+    {
+        $data = UploadFile::selectRaw('start_processed_at, done_processed_at')->get();
+        if (empty($data)){
+            return '0h: 0m: 0s';
+        } else {
+            $sum_h = 0;
+            $sum_m = 0;
+            $sum_s = 0;
+            $count_total_sum_s = 0;
+            $count_total_sum_m = 0;
+            $count_total_sum_h = 0;
+
+            foreach ($data as $key => $row){
+                $datetime_1 = $row->start_processed_at ?? '';
+                $datetime_2 = $row->done_processed_at ?? '';
+
+                $start_datetime = new DateTime($datetime_1);
+                $diff = $start_datetime->diff(new DateTime($datetime_2));
+
+                $sum_h += $diff->h;
+                $sum_m += $diff->i;
+                $sum_s += $diff->s;
+            }
+
+            $sum_total_seconds = $sum_h * 3600 + $sum_m * 60 + $sum_s;
+
+            $count_total_sum_h = floor($sum_total_seconds / 3600);
+            $sum_total_seconds %= 3600;
+
+            $count_total_sum_m = floor($sum_total_seconds / 60);
+            $count_total_sum_s = $sum_total_seconds % 60;
+
+            $string = $count_total_sum_h . 'h:' . $count_total_sum_m . 'm:' . $count_total_sum_s . 's';
+            return $string;
+        }
+    }
+
+    protected function latest_upload_file()
+    {
+        $data = UploadFile::orderBy('created_at', 'desc')->first();
+        return $data ? $data->file_name : '-';
+    }
+
+    protected function total_period()
+    {
+        return Periode::get()->count();
+    }
+
+
+    protected function total_collection_point()
+    {
+        return CollectionPoint::get()->count();
+    }
+
+    protected function total_file_uploaded()
+    {
+        return UploadFile::get()->count();
+    }
+
+    protected function get_sum_total_period()
+    {
+        $data = [];
+        $data_periode = Periode::get();
+        foreach($data_periode as $periode) {
+            $sum = DB::table($periode->code.'.cp_dp_all_count_sum')->select('sum')->sum('sum');
+            $data[$periode->month.'-'.$periode->year] = $sum;
+        }
+        return $data;
     }
 
     /**
@@ -124,6 +209,49 @@ class ProfileController extends Controller
         return number_format($this->total_admin(), 0);
     }
 
+    /**
+     * Response total admin
+     *
+     * @param Request $request
+     * @return Response
+     */
+    protected function load_avg_processing(Request $request)
+    {
+        return $this->avg_processing();
+    }
+
+    /**
+     * Response total admin
+     *
+     * @param Request $request
+     * @return Response
+     */
+    protected function load_total_period(Request $request)
+    {
+        return number_format($this->total_period(), 0);
+    }
+
+     /**
+     * Response total admin
+     *
+     * @param Request $request
+     * @return Response
+     */
+    protected function load_total_collection_point(Request $request)
+    {
+        return number_format($this->total_collection_point(), 0);
+    }
+
+         /**
+     * Response total admin
+     *
+     * @param Request $request
+     * @return Response
+     */
+    protected function load_total_file_upload(Request $request)
+    {
+        return number_format($this->total_file_uploaded(), 0);
+    }
 
     /**
      * Response table coworkers
