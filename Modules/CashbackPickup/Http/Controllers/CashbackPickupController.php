@@ -132,7 +132,7 @@ class CashbackPickupController extends Controller
             }
         }
 
-        session()->flash('success', 'Denda has been saved');
+        toastr()->success('Data Denda has been saved successfully!', 'Congrats');
 
         return redirect()->route('ladmin.cashbackpickup.index', $request->grading_type);
 
@@ -149,6 +149,8 @@ class CashbackPickupController extends Controller
     }
 
     public function process($code, $grade, $id) {
+
+        Periode::where('code', $code)->first();
         /**
          * $code = cashback-code periode
          * $grade = cashback grade
@@ -171,7 +173,8 @@ class CashbackPickupController extends Controller
                 // update CPDPMPSumBiayaKirim ke sumber_waybill yg telah di distinct
                 break;
             case 2:
-                $script = CreateSchema::createViewCPDPCashbackRekapDendaGrading2($code);
+                $script = CreateSchema::createViewCPDPCashbackRekapDendaGrading2($code
+            );
 
                 CreateSchema::runScript($code, $script);
                 break;
@@ -198,6 +201,7 @@ class CashbackPickupController extends Controller
          * if locked process button will disabled
          * alert on done.
          */
+        toastr()->success('Data Period has been processed successfully!', 'Congrats');
         return redirect()->back();
     }
 

@@ -41,6 +41,38 @@
 
                 </x-slot>
             </x-ladmin-card>
+
+            <x-ladmin-card class="mb-3">
+                <x-slot name="body">
+                    <h5 class="card-title">Total Time Processing</h5>
+
+                    <div class="d-flex align-items-center">
+                        <div class="mx-3">
+                            <i class="fa-solid fa-clock fa-3x text-primary"></i>
+                        </div>
+                        <div data-role="ajax"
+                            data-route="{{ route('ladmin.index', ['ajax' => 'load_avg_processing']) }}">
+                        </div>
+                    </div>
+
+                </x-slot>
+            </x-ladmin-card>
+
+            <x-ladmin-card class="mb-3">
+                <x-slot name="body">
+                    <h5 class="card-title">Last Uploaded File</h5>
+
+                    <div class="d-flex align-items-center">
+                        <div class="mx-3">
+                            <i class="fa-solid fa-upload fa-3x text-primary"></i>
+                        </div>
+                        <div data-role="ajax"
+                            data-route="{{ route('ladmin.index', ['ajax' => 'latest_upload_file']) }}">
+                        </div>
+                    </div>
+
+                </x-slot>
+            </x-ladmin-card>
         </div>
         <div class="col-lg-9">
             <x-ladmin-card class="mb-3">
@@ -94,6 +126,61 @@
                 </div>
             </div>
 
+            <div class="row mb-3">
+                <div class="col-lg-4">
+                    <x-ladmin-card class="mb-3">
+                        <x-slot name="body">
+                            <h5 class="card-title">Periode Created</h5>
+
+                            <div class="d-flex align-items-center">
+                                <div class="mx-3">
+                                    <i class="fa-solid fa-line-chart fa-3x text-primary"></i>
+                                </div>
+                                <div class="mx-3 flex-grow-1">
+                                    <h1 data-role="ajax"
+                                        data-route="{{ route('ladmin.index', ['ajax' => 'load_total_period']) }}">
+                                    </h1>
+                                </div>
+                            </div>
+
+                        </x-slot>
+                    </x-ladmin-card>
+                </div>
+                <div class="col-lg-4">
+                    <x-ladmin-card class="mb-3">
+                        <x-slot name="body">
+                            <h5 class="card-title">Collection Point </h5>
+                            <div class="d-flex align-items-center">
+                                <div class="mx-3">
+                                    <i class="fa-solid fa-map-pin fa-3x text-primary"></i>
+                                </div>
+                                <div class="mx-3 flex-grow-1">
+                                    <h1 data-role="ajax"
+                                        data-route="{{ route('ladmin.index', ['ajax' => 'load_total_collection_point']) }}">
+                                    </h1>
+                                </div>
+                            </div>
+                        </x-slot>
+                    </x-ladmin-card>
+                </div>
+                <div class="col-lg-4">
+                    <x-ladmin-card class="mb-3">
+                        <x-slot name="body">
+                            <h5 class="card-title">File Uploaded</h5>
+                            <div class="d-flex align-items-center">
+                                <div class="mx-3">
+                                    <i class="fa-solid fa-file-upload fa-3x text-primary"></i>
+                                </div>
+                                <div class="mx-3 flex-grow-1">
+                                <h1 data-role="ajax"
+                                    data-route="{{ route('ladmin.index', ['ajax' => 'load_total_file_upload']) }}"></h1>
+                                </div>
+                            </div>
+                        </x-slot>
+                    </x-ladmin-card>
+                </div>
+            </div>
+
             <div class="mb-3">
                 <x-ladmin-card class="mb-3">
                     <x-slot name="body">
@@ -107,10 +194,78 @@
                 </x-ladmin-card>
             </div>
 
+            <div class="mb-3">
+                <x-ladmin-card class="mb-3">
+                    <x-slot name="body">
+                        <h5 class="card-title">Period chart</h5>
+
+                        <div>
+                            <div id="myChart"></div>
+                          </div>
+                    </x-slot>
+                </x-ladmin-card>
+            </div>
         </div>
     </div>
 
 
 
+    <x-slot name="scripts">
+        <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>
+
+        <script>
+        const ctx = document.getElementById('myChart');
+        var monthNames = @json(array_keys($period));
+        var monthValues = @json(array_values($period));
+        var options = {
+            chart: {
+                type: 'line'
+            },
+            series: [{
+                name: 'Total biaya kirim',
+                data: monthValues
+            }],
+            xaxis: {
+                categories: monthNames
+            },
+            yaxis: {
+                labels: {
+                    formatter: function (value) {
+                        return formatCurrency(value);
+                    }
+                }
+            },
+            tooltip: {
+                            style: {
+                                fontSize: '12px'
+                            },
+                            y: {
+                                formatter: function (val) {
+                                    return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumSignificantDigits: 12 }).format(val) ;
+                                }
+                            }
+                        },
+            };
+
+            var chart = new ApexCharts(document.querySelector("#myChart"), options);
+
+            chart.render();
+
+
+
+        function formatCurrency(value) {
+                if (value >= 1000000000) {
+                    return (value / 1000000000).toFixed(1) + ' m';
+                } else if (value >= 1000000) {
+                    return (value / 1000000).toFixed(1) + ' jt';
+                } else if (value >= 1000) {
+                    return (value / 1000).toFixed(1) + ' rb';
+                } else {
+                    return value;
+                }
+            }
+        </script>
+
+    </x-slot>
 
 </x-ladmin-auth-layout>

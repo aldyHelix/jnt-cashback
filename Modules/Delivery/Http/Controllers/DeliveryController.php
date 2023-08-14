@@ -35,6 +35,8 @@ class DeliveryController extends Controller
 
     public function process($code, $id) {
         GradingProcess::generateGradingDelivery($id, $code);
+        toastr()->success('Data Delivery has been processed successfully!', 'Congrats');
+
         return redirect()->back();
     }
 
@@ -85,7 +87,7 @@ class DeliveryController extends Controller
             }
         }
 
-        session()->flash('success', 'Denda has been saved');
+        toastr()->success('Data Denda Delivery has been saved successfully!', 'Congrats');
 
         return redirect()->route('ladmin.delivery.index');
 

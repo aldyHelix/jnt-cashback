@@ -35,7 +35,8 @@ class RateSettingRequest extends FormRequest
             'fee' => $this->fee,
         ]);
 
-        session()->flash('success', 'Rate Setting has been created');
+        toastr()->success('Data Rate Setting has been created successfully!', 'Congrats');
+
 
         return redirect()->route('ladmin.ratesetting.grade-'.strtolower($this->grade).'.index');
      }
@@ -47,7 +48,7 @@ class RateSettingRequest extends FormRequest
             'fee' => $this->fee,
         ]);
 
-        session()->flash('success', 'Rate Setting has been updated');
+        toastr()->success('Data Rate Setting has been updated successfully!', 'Congrats');
 
         return redirect()->back();
      }
