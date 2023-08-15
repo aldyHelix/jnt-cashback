@@ -30,6 +30,9 @@
                     <li class="nav-item" role="presentation">
                       <button class="nav-link" id="delivery-tab" data-bs-toggle="tab" data-bs-target="#delivery-tab-pane" type="button" role="tab" aria-controls="delivery-tab-pane" aria-selected="false">Summary Delivery Fee</button>
                     </li>
+                    <li class="nav-item" role="presentation">
+                        <button class="nav-link" id="resi-error" data-bs-toggle="tab" data-bs-target="#resi-error-pane" type="button" role="tab" aria-controls="resi-error-pane" aria-selected="false">Resi Error</button>
+                    </li>
                   </ul>
                   <div class="tab-content" id="myTabContent">
                     <div class="tab-pane fade show active" id="periode-tab-pane" role="tabpanel" aria-labelledby="periode-tab" tabindex="0">
@@ -108,6 +111,55 @@
                                             @endforeach
                                         </tbody>
                                     </table>
+                                </div>
+                            </div>
+                            <div class="col-4" style="max-height: 100vh">
+                                Summary Klien pengiriman
+                                <div class="table-responsive" style="height: 500px">
+                                    <form action="{{ route('ladmin.period.update-klien', $periode->id) }}" method="POST">
+                                        @csrf
+                                        @method('POST')
+                                    <table class="table">
+                                        <thead>
+                                            <tr>
+                                                <td>Klien</td>
+                                                <td>Reguler</td>
+                                                <td>DFOD</td>
+                                                <td>SUPER</td>
+                                            </tr>
+                                        </thead>
+                                            <tbody>
+                                                @foreach ($klien_pengiriman as $key => $item)
+                                                <input type="hidden" name="klien[{{$key}}][item]" value="{{ $item->klien_pengiriman }}">
+                                                <tr>
+                                                    <td style="text-align: left;width: 300px;">{{ $item->klien_pengiriman ?? '(blank)' }} </td>
+                                                    <td>
+                                                        <div class="form-check">
+                                                            <input type="hidden" name="klien[{{$key}}][reguler]" value=0>
+                                                            <input class="form-check-input" type="checkbox" name="klien[{{$key}}][reguler]" value=1 id="flexCheckDefaultReguler" {{ $item->is_reguler ? 'checked' : ''}}>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="form-check">
+                                                            <input type="hidden" name="klien[{{$key}}][dfod]" value=0>
+                                                            <input class="form-check-input" type="checkbox" name="klien[{{$key}}][dfod]" value=1 id="flexCheckDefaultDfod" {{ $item->is_dfod ? 'checked' : ''}}>
+                                                        </div>
+                                                    </td>
+                                                    <td>
+                                                        <div class="form-check">
+                                                            <input type="hidden" name="klien[{{$key}}][super]" value=0>
+                                                            <input class="form-check-input" type="checkbox" name="klien[{{$key}}][super]" value=1 id="flexCheckDefaultSuper" {{ $item->is_super ? 'checked' : ''}}>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                                @endforeach
+                                            </tbody>
+
+                                        </table>
+
+                                        <button class="btn btn-primary" type="submit">Save</button>
+                                    </form>
+
                                 </div>
                             </div>
                          </div>
@@ -213,6 +265,37 @@
                         <div class="row" style="margin-bottom: 10px;">
                             <h5>Summary DPF</h5>
                             @include('period::summary-dpf')
+                        </div>
+                    </div>
+                    <div class="tab-pane fade" id="resi-error-pane" role="tabpanel" aria-labelledby="resi-error" tabindex="0">
+                        <div class="row" style="margin-bottom: 10px;">
+                            <div class="col-12 table-responsive">
+                                <span>
+                                    this data may not inserted, please check the following RESI and re upload for sure. dont forget to write down current total and compare the existing with new uploaded data. thank you.
+                                </span>
+                                <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">RESI</th>
+                                            <th scope="col">ERROR</th>
+                                            <th scope="col">BEFORE</th>
+                                            <th scope="col">AFTER</th>
+                                            <th scope="col">DATE AT</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        @foreach ($log_resi as $item)
+                                        <tr>
+                                            <td style="text-align: left">{{$item->resi ?? '-'}}</td>
+                                            <td>{{ $item->type }}</td>
+                                            <td>{{ $item->before_raw ?? '-'}}</td>
+                                            <td>{{ $item->after_raw ?? '-'}}</td>
+                                            <td>{{ $item->created_at ?? '-'}}</td>
+                                        </tr>
+                                        @endforeach
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>

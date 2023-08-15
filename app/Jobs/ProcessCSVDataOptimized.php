@@ -153,7 +153,8 @@ class ProcessCSVDataOptimized implements ShouldQueue
                                 'before_raw' => $original,
                                 'after_raw' => $cell,
                                 'type' => 'invalid',
-                                'date' => now()
+                                'date' => now(),
+                                'created_at' => now(),
                             ]);
 
                             $this->data[$index] = $cell;
@@ -233,7 +234,8 @@ class ProcessCSVDataOptimized implements ShouldQueue
                                 'after_raw' => json_encode($item),
                                 'type' => 'duplicate',
                                 'date' => $item[1],
-                                'created_at' => now()
+                                'created_at' => now(),
+                                'updated_at' => now(),
                             ]);
 
                             unset($item[25]);
@@ -273,7 +275,8 @@ class ProcessCSVDataOptimized implements ShouldQueue
                                 'before_raw' => json_encode($cell),
                                 'after_raw' => json_encode($this->data[$index]),
                                 'type' => 'error: row not inserted',
-                                'date' => now()
+                                'date' => now(),
+                                'created_at' => now(),
                             ]);
 
                             unset($result[$key2]);
@@ -320,7 +323,8 @@ class ProcessCSVDataOptimized implements ShouldQueue
                                 'before_raw' => '',
                                 'after_raw' => json_encode($item),
                                 'type' => 'skiped row',
-                                'date' => $item[1]
+                                'date' => isset($item[1]) ? $item[1] : now(),
+                                'created_at' => now(),
                             ]);
                         }
 

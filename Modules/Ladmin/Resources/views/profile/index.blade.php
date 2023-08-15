@@ -34,8 +34,8 @@
                         <div class="mx-3">
                             <i class="fa-solid fa-cogs fa-3x text-primary"></i>
                         </div>
-                        <div class="mx-3 flex-grow-1">
-                            @livewire('queue-status')
+                        <div data-role="ajax"
+                            data-route="{{ route('ladmin.index', ['ajax' => 'queue_status']) }}">
                         </div>
                     </div>
 
@@ -68,6 +68,22 @@
                         </div>
                         <div data-role="ajax"
                             data-route="{{ route('ladmin.index', ['ajax' => 'latest_upload_file']) }}">
+                        </div>
+                    </div>
+
+                </x-slot>
+            </x-ladmin-card>
+
+            <x-ladmin-card class="mb-3">
+                <x-slot name="body">
+                    <h5 class="card-title">Pending Jobs</h5>
+
+                    <div class="d-flex align-items-center">
+                        <div class="mx-3">
+                            <i class="fa-solid fa-upload fa-3x text-primary"></i>
+                        </div>
+                        <div data-role="ajax"
+                            data-route="{{ route('ladmin.index', ['ajax' => 'total_pending_jobs']) }}">
                         </div>
                     </div>
 

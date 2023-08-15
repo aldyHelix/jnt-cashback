@@ -25,6 +25,7 @@ ladmin()->route(function() {
         Route::get('/edit/{id}', [PeriodeController::class, 'edit'])->name('edit');
         Route::put('/update/{id}', [PeriodeController::class, 'update'])->name('update');
         Route::delete('/delete/{id}', [PeriodeController::class, 'destroy'])->name('destroy');
+        Route::post('/update-klien/{id}', [PeriodeController::class, 'updateKlien'])->name('update-klien');
     });
 
 });

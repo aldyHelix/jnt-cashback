@@ -91,9 +91,10 @@ class CashbackPickupController extends Controller
     public function saveDenda(Request $request) {
         $denda = $request->data;
 
+
         foreach($denda as $item) {
             foreach($item as $key => $data) {
-                $item[$key] = intval($data);
+                $item[$key] = intval(str_replace('.', '', $data));
             }
 
             $exist = Denda::where(['id' => $item['denda_id']])->first();
@@ -156,6 +157,8 @@ class CashbackPickupController extends Controller
          * $grade = cashback grade
          * $id = periode id
          */
+        //update view table
+        CreateSchema::updateView($code);
 
         GradingProcess::generateGrading($id, $grade);
 
