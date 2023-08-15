@@ -82,11 +82,11 @@
                                         </tr>
                                         <tr>
                                             <td style="text-align: left">Proccesed at</td>
-                                            <td style="text-align: left;width: 200px;">: {{ $periode->start_proccesed_at ?? 'Not Started' }} </td>
+                                            <td style="text-align: left;width: 200px;">: {{ $periode->start_processed_at ?? 'Not Started' }} </td>
                                         </tr>
                                         <tr>
                                             <td style="text-align: left">Done Proccesed at</td>
-                                            <td style="text-align: left;width: 200px;">: {{ $periode->done_proccesed_at ?? 'Undone' }} </td>
+                                            <td style="text-align: left;width: 200px;">: {{ $periode->done_processed_at ?? 'Undone' }} </td>
                                         </tr>
                                         <tr>
                                             <td style="text-align: left">Periode Created at</td>
