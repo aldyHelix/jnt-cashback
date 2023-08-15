@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Foundation\Inspiring;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Queue;
 use Ladmin\Engine\Models\Admin;
 use Modules\CollectionPoint\Models\CollectionPoint;
 use Modules\Ladmin\Http\Controllers\Controller;
@@ -96,6 +97,28 @@ class ProfileController extends Controller
     protected function total_admin()
     {
         return Admin::count();
+    }
+
+     /**
+     * Get total admin
+     *
+     * @return Integer
+     */
+    protected function queue_status()
+    {
+       return $this->total_pending_jobs() > 0 ? 'Queue is active, job is running' : 'Queue is not active, no job running';
+    }
+
+    /**
+     * Get total admin
+     *
+     * @return Integer
+     */
+    protected function total_pending_jobs()
+    {
+        $connection = config('queue.default');
+        $queue = Queue::connection($connection)->size('default');
+        return $queue;
     }
 
 

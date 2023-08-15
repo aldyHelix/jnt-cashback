@@ -19,6 +19,210 @@ class CreateSchemaService {
         }
     }
 
+    public function updateViewPivot($schema, $item){
+        //check if exist first
+        if(Schema::hasTable($schema.'.data_mart')) {
+            $run = DB::connection('pgsql')->unprepared(
+                "
+                SET search_path TO ".$schema.", public; \n
+
+                ".$this->UpdateCPDPRegulerCountSum($schema, $item['reguler']).";
+
+                ".$this->UpdateCPDPDfodCountSum($schema, $item['dfod']).";
+
+                ".$this->UpdateCPDPSuperCountSum($schema, $item['super']).";
+            ");
+        };
+
+        return $run;
+    }
+
+    public function UpdateCPDPRegulerCountSum($schema, $item) {
+        return "
+            CREATE OR REPLACE VIEW cp_dp_reguler_count_sum AS
+                SELECT DISTINCT data_mart.drop_point_outgoing,
+                    count(data_mart.no_waybill) AS count,
+                    sum(data_mart.biaya_kirim) AS sum
+                    FROM ".$schema.".data_mart
+                WHERE
+                (data_mart.kat = 'CP' OR data_mart.kat = 'DP')
+                AND
+                (data_mart.metode_pembayaran = 'PP_PM' OR data_mart.metode_pembayaran = 'PP_CASH' OR data_mart.metode_pembayaran = '')
+                AND
+                (data_mart.klien_pengiriman IN (
+                    '',
+                    NULL,
+                    ".$item."
+                    )
+                )
+                GROUP BY data_mart.drop_point_outgoing";
+    }
+
+    public function UpdateCPDPDfodCountSum($schema, $item) {
+        return "
+        CREATE OR REPLACE VIEW cp_dp_dfod_count_sum AS
+            SELECT DISTINCT data_mart.drop_point_outgoing,
+                count(data_mart.no_waybill) AS count,
+                sum(data_mart.biaya_kirim) AS SUM
+            FROM ".$schema.".data_mart
+            WHERE (data_mart.kat = 'CP' OR data_mart.kat = 'DP')
+            AND (data_mart.metode_pembayaran ='CC_CASH')
+            AND
+                (data_mart.klien_pengiriman IN (
+                    '',
+                    NULL,
+                    ".$item."
+                    )
+                )
+                GROUP BY data_mart.drop_point_outgoing";
+                // --AND (data_mart.klien_pengiriman IN ('ALWAHHIJAB', 'BLIBLIAPI', 'MAULAGI', 'TRIES', 'WEEKENDBGR', 'BITESHIP', NULL, ''))
+            }
+
+    public function UpdateCPDPSuperCountSum($schema, $item) {
+        return "
+        CREATE OR REPLACE VIEW cp_dp_super_count_sum AS
+            SELECT DISTINCT data_mart.drop_point_outgoing,
+                count(data_mart.no_waybill) AS count,
+                sum(data_mart.biaya_kirim) AS SUM
+            FROM ".$schema.".data_mart
+            WHERE (data_mart.kat = 'CP' OR data_mart.kat = 'DP')
+            AND (data_mart.metode_pembayaran ='CC_CASH'
+                    AND data_mart.klien_pengiriman IN (".$item."))
+            GROUP BY data_mart.drop_point_outgoing";
+    }
+
+    public function updateView($schema){
+        //check if exist first
+        if(Schema::hasTable($schema.'.data_mart')) {
+            $run = DB::connection('pgsql')->unprepared(
+                "
+                SET search_path TO ".$schema.", public; \n
+
+                ".$this->allSumBiayaKirim($schema).";
+
+                ".$this->CPDPAllCountSum($schema).";
+
+                ".$this->CPDPRegulerCountSum($schema).";
+
+                ".$this->CPDPDfodCountSum($schema).";
+
+                ".$this->CPDPSuperCountSum($schema).";
+
+                ".$this->CPDPMPCountWaybill($schema).";
+
+                ".$this->CPDPMPSumBiayaKirim($schema).";
+
+                ".$this->CPDPMPReturCountWaybill($schema).";
+
+                ".$this->CPDPMPReturSumBiayaKirim($schema).";
+
+                ".$this->DPFAllCountSum($schema).";
+
+                ".$this->DPFRegulerCountSum($schema).";
+
+                ".$this->DPFDfodCountSum($schema).";
+
+                ".$this->DPFSuperCountSum($schema).";
+
+                ".$this->DPFMPCountWaybill($schema).";
+
+                ".$this->DPFMPSumBiayaKirim($schema).";
+
+                ".$this->DPFMPReturCountWaybill($schema).";
+
+                ".$this->DPFMPReturSumBiayaKirim($schema).";
+
+                ".$this->ZonasiAllCountSum($schema).";
+
+                ".$this->ZonasiRegulerCountSum($schema).";
+
+                ".$this->ZonasiDfodCountSum($schema).";
+
+                ".$this->ZonasiSuperCountSum($schema).";
+
+                ".$this->ZonasiMPCountWaybill($schema).";
+
+                ".$this->ZonasiMPSumBiayaKirim($schema).";
+
+                ".$this->ZonasiMPReturCountWaybill($schema).";
+
+                ".$this->ZonasiMPReturSumBiayaKirim($schema).";
+
+                ".$this->DCAllCountSum($schema).";
+
+                ".$this->DCRegulerCountSum($schema).";
+
+                ".$this->DCDfodCountSum($schema).";
+
+                ".$this->DCSuperCountSum($schema).";
+
+                ".$this->DCMPCountWaybill($schema).";
+
+                ".$this->DCMPSumBiayaKirim($schema).";
+
+                ".$this->DCMPReturCountWaybill($schema).";
+
+                ".$this->DCMPReturSumBiayaKirim($schema).";
+
+                ".$this->DCAllCountSum($schema).";
+
+                ".$this->DCRegulerCountSum($schema).";
+
+                ".$this->DCDfodCountSum($schema).";
+
+                ".$this->DCSuperCountSum($schema).";
+
+                ".$this->DCMPCountWaybill($schema).";
+
+                ".$this->DCMPSumBiayaKirim($schema).";
+
+                ".$this->DCMPReturCountWaybill($schema).";
+
+                ".$this->DCMPReturSumBiayaKirim($schema).";
+
+                ".$this->createViewRekapZonasi($schema).";
+
+                ".$this->createViewCPDPCashbackRegulerGrading1($schema).";
+
+                ".$this->createViewCPDPCashbackRegulerGrading2($schema).";
+
+                ".$this->createViewCPDPCashbackRegulerGrading3($schema).";
+
+                ".$this->createViewCPDPCashbackCODGrading1($schema).";
+
+                ".$this->createViewCPDPCashbackNonCODGrading1($schema).";
+
+                ".$this->createViewCPDPCashbackRekapGrading1($schema).";
+
+                ".$this->createViewCPDPRekapDendaGrading1($schema).";
+
+                ".$this->createViewCPDPCashbackAWBGrading2($schema).";
+
+                ".$this->createViewCPDPCashbackRekapGrading2($schema).";
+
+                ".$this->createViewCPDPCashbackRekapDendaGrading2($schema).";
+
+                ".$this->createViewCPDPCashbackAWBGrading3($schema).";
+
+                ".$this->createViewCPDPCashbackRekapGrading3($schema).";
+
+                ".$this->createViewCPDPCashbackRekapDendaGrading3($schema).";
+
+                ".$this->createViewDPFCashbackRegulerGrading($schema).";
+
+                ".$this->createViewDPFCashbackCODGrading($schema).";
+
+                ".$this->createViewDPFCashbackNonCODGrading($schema).";
+
+                ".$this->createViewDPFCashbackRekapGrading($schema).";
+
+                ".$this->createViewDPFCashbackRekapDendaGrading($schema).";"
+            );
+
+            return $run;
+        }
+    }
+
     public function createSchemaDelivery($month, $year) {
         //check if exist first
         if(Schema::hasTable('delivery_'.$month.'_'.$year.'.data_mart')) {
@@ -185,6 +389,8 @@ class CreateSchemaService {
 
             ".$this->createViewDPFCashbackNonCODGrading($schema)."
 
+            ".$this->createViewDPFCashbackRekapGrading($schema)."
+
             ".$this->createViewDPFCashbackRekapDendaGrading($schema)."
 
             ");
@@ -196,9 +402,8 @@ class CreateSchemaService {
     public function allSumBiayaKirim($schema) {
         return "
             CREATE OR REPLACE VIEW sum_all_biaya_kirim AS
-            SELECT SUM(data_mart.biaya_kirim)
-            FROM ".$schema.".data_mart
-        ";
+                SELECT SUM(data_mart.biaya_kirim)
+                FROM ".$schema.".data_mart";
     }
 
     public function CPDPAllCountSum($schema) {
@@ -220,7 +425,33 @@ class CreateSchemaService {
                 WHERE
                 (data_mart.kat = 'CP' OR data_mart.kat = 'DP')
                 AND
-                (data_mart.metode_pembayaran = 'PP_PM' OR data_mart.metode_pembayaran = 'PP_CASH')
+                (data_mart.metode_pembayaran = 'PP_PM' OR data_mart.metode_pembayaran = 'PP_CASH' OR data_mart.metode_pembayaran = '')
+                AND
+                (data_mart.klien_pengiriman IN (
+                    'BITESHIP',
+                    'BLIBLIAPI',
+                    'CLODEOHQ',
+                    'COOGEE-HQ-VIP',
+                    'CP CISEENG',
+                    'CV. DWI PUTRA SIANTAR',
+                    'DOCTORSHIP',
+                    'IPB PRESS',
+                    'JENIBOT',
+                    'MAULAGI',
+                    'PARAMA',
+                    'PLUGO',
+                    'RETURNKEY',
+                    'SAWOJAJAR',
+                    'SHOPEECB',
+                    'SIRCLOSTORE',
+                    'TRIES',
+                    'WEEKENDBGR',
+                    'WEHELPYOU',
+                    '',
+                    NULL,
+                    'GRAMEDIA'
+                    )
+                )
                 GROUP BY data_mart.drop_point_outgoing";
     }
 
@@ -233,9 +464,35 @@ class CreateSchemaService {
             FROM ".$schema.".data_mart
             WHERE (data_mart.kat = 'CP' OR data_mart.kat = 'DP')
             AND (data_mart.metode_pembayaran ='CC_CASH')
-                    AND (data_mart.klien_pengiriman IN ('ALWAHHIJAB', 'BLIBLIAPI', 'MAULAGI', 'TRIES', 'WEEKENDBGR', 'BITESHIP', NULL))
-            GROUP BY data_mart.drop_point_outgoing";
-    }
+            AND
+                (data_mart.klien_pengiriman IN (
+                    'BITESHIP',
+                    'BLIBLIAPI',
+                    'CLODEOHQ',
+                    'COOGEE-HQ-VIP',
+                    'CP CISEENG',
+                    'CV. DWI PUTRA SIANTAR',
+                    'DOCTORSHIP',
+                    'IPB PRESS',
+                    'JENIBOT',
+                    'MAULAGI',
+                    'PARAMA',
+                    'PLUGO',
+                    'RETURNKEY',
+                    'SAWOJAJAR',
+                    'SHOPEECB',
+                    'SIRCLOSTORE',
+                    'TRIES',
+                    'WEEKENDBGR',
+                    'WEHELPYOU',
+                    '',
+                    NULL,
+                    'GRAMEDIA'
+                    )
+                )
+                GROUP BY data_mart.drop_point_outgoing";
+                // --AND (data_mart.klien_pengiriman IN ('ALWAHHIJAB', 'BLIBLIAPI', 'MAULAGI', 'TRIES', 'WEEKENDBGR', 'BITESHIP', NULL, ''))
+            }
 
     public function CPDPSuperCountSum($schema) {
         return "
@@ -246,7 +503,7 @@ class CreateSchemaService {
             FROM ".$schema.".data_mart
             WHERE (data_mart.kat = 'CP' OR data_mart.kat = 'DP')
             AND (data_mart.metode_pembayaran ='CC_CASH'
-                    AND data_mart.klien_pengiriman IN ('SUPERINJND', 'SUPEROUT'))
+                    AND data_mart.klien_pengiriman IN ('SUPERINJND', 'SUPERINJSD', 'SUPEROUT', 'JNDSUPER'))
             GROUP BY data_mart.drop_point_outgoing";
     }
 
@@ -1371,6 +1628,10 @@ class CreateSchemaService {
     }
 
     public function createViewGradingA($schema) {
+        //parameter
+        //ppn
+        //diskon 25%
+        //diskon 10%
         return "
         CREATE OR REPLACE VIEW cp_dp_raw_grading_1 AS
             SELECT
@@ -1832,7 +2093,7 @@ class CreateSchemaService {
         $pph = '1.011';
         $grade = 'A';
         //create rate setting category //reguler, marketplace, cod, non-cod. pilihan, lain2.
-        $diskon_reguler = stringValue(25 / 100);
+        // $diskon_reguler = stringValue(25 / 100);
 
         return "
             CREATE OR REPLACE VIEW cp_dp_cashback_reguler_grading_1 AS

@@ -2,7 +2,10 @@
 
 namespace Modules\Period\Http\Controllers;
 
+use App\Facades\CreateSchema;
 use App\Facades\PivotTable;
+use App\Models\KlienPengiriman;
+use App\Models\LogResi;
 use App\Models\Periode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -23,6 +26,9 @@ class PeriodeController extends Controller
     public function viewDetail($code) {
         $data['periode'] = Periode::where('code', $code)->first();
         $data['sumber_waybill'] = DB::table($code.'.data_mart')->selectRaw('DISTINCT(sumber_waybill)')->orderBy('sumber_waybill')->pluck('sumber_waybill')->toArray();
+        $data['klien_pengiriman'] = DB::table($code.'.data_mart')->selectRaw('DISTINCT(data_mart.klien_pengiriman), master_klien_pengiriman_setting.is_reguler, master_klien_pengiriman_setting.is_dfod, master_klien_pengiriman_setting.is_super')->orderBy('data_mart.klien_pengiriman')->leftJoin('master_klien_pengiriman_setting', 'master_klien_pengiriman_setting.klien_pengiriman', '=', 'data_mart.klien_pengiriman')->where('master_klien_pengiriman_setting.periode_id', $data['periode']->id)->get();
+
+        // dd($data['klien_pengiriman'], $data['klien_pengiriman_kat'], array_($data['klien_pengiriman'], $data['klien_pengiriman_kat']));
         $data['row_total'] = DB::table($data['periode']->code.'.data_mart')->count();
         $data['cp_grade_a'] = DB::table('master_collection_point AS cp')->join($data['periode']->code.'.cp_dp_all_count_sum AS pivot', 'cp.drop_point_outgoing', '=', 'pivot.drop_point_outgoing')->select('cp.kode_cp', 'cp.nama_cp', 'pivot.count', 'pivot.sum')->where('cp.grading_pickup', 'A')->get();
         $data['cp_grade_b'] = DB::table('master_collection_point AS cp')->join($data['periode']->code.'.cp_dp_all_count_sum AS pivot', 'cp.drop_point_outgoing', '=', 'pivot.drop_point_outgoing')->select('cp.kode_cp', 'cp.nama_cp', 'pivot.count', 'pivot.sum')->where('cp.grading_pickup', 'B')->get();
@@ -68,6 +74,58 @@ class PeriodeController extends Controller
             'grade_c_summary_total_count' => $data['cp_grade_c']->sum('count'),
             'grade_c_summary_total_sum' => $data['cp_grade_c']->sum('sum'),
         ];
+        $data['log_resi'] = LogResi::where('periode_id', $data['periode']->id)->get();
         return view('period::summary-periode', $data);
+    }
+
+    public function updateKlien(Request $request, $id) {
+        $periode = Periode::where('id', $id)->first();
+
+        $is_reguler = [];
+        $is_dfod = [];
+        $is_super = [];
+
+        foreach($request['klien'] as $item) {
+            $exist = KlienPengiriman::where(['periode_id' => $id, 'klien_pengiriman' => $item['item']])->first();
+
+            if($exist) {
+                $exist->update([
+                    'is_reguler' => $item['reguler'],
+                    'is_dfod' => $item['dfod'],
+                    'is_super' => $item['super'],
+                ]);
+            } else {
+                KlienPengiriman::create([
+                    'periode_id' => $id,
+                    'klien_pengiriman' => $item['item'],
+                    'is_reguler' => intval($item['reguler']),
+                    'is_dfod' => intval($item['dfod']),
+                    'is_super' => intval($item['super'])
+                ]);
+            }
+
+            if(intval($item['reguler'])) {
+                $is_reguler[] = "'".$item['item']."'";
+            }
+
+            if (intval($item['dfod'])) {
+                $is_dfod[] = "'".$item['item']."'";
+            }
+
+            if (intval($item['super'])) {
+                $is_super[] = "'".$item['item']."'";
+            }
+        }
+
+        $string['reguler'] = implode(',', $is_reguler);
+        $string['dfod'] = implode(',', $is_dfod);
+        $string['super'] = implode(',', $is_super);
+
+        //update pivot here
+
+        CreateSchema::updateViewPivot($periode->code, $string);
+
+        toastr()->success('Data setting klien pengiriman succesfully saved', 'Success');
+        return redirect()->back();
     }
 }
