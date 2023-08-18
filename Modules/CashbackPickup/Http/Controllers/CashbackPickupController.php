@@ -69,7 +69,7 @@ class CashbackPickupController extends Controller
         $data['periode'] = Periode::where('code', $code)->first();
         $data['denda'] = Denda::where(['periode_id'=> $data['periode']->id, 'grading_type'=> $grade])->get();
         $data['filename'] = strtoupper($data['periode']->month).'-'.$data['periode']->year.'-GRADING-'.$grade.'.xlsx';
-        $data['cp_grading'] = DB::table('master_collection_point AS cp')->join($data['periode']->code.'.cp_dp_all_count_sum AS pivot', 'cp.drop_point_outgoing', '=', 'pivot.drop_point_outgoing')->select('cp.kode_cp', 'cp.nama_cp', 'pivot.count', 'pivot.sum')->where('cp.grading_pickup', grading_map($grade))->get();
+        $data['cp_grading'] = DB::table($data['periode']->code.'.cp_dp_raw_grading_1')->get();
         $data['cp_dp_all_count_sum'] = PivotTable::getPivotAllCountSumCPDP($code);
         $data['cp_dp_reguler_count_sum'] = PivotTable::getPivotRegulerCountSumCPDP($code);
         $data['cp_dp_dfod_count_sum'] = PivotTable::getPivotDfodCountSumCPDP($code);
@@ -158,7 +158,7 @@ class CashbackPickupController extends Controller
          * $id = periode id
          */
         //update view table
-        CreateSchema::updateView($code);
+        CreateSchema::updateView($code, $id);
 
         GradingProcess::generateGrading($id, $grade);
 

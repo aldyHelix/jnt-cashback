@@ -50,6 +50,9 @@ class Grading1Datatables extends Datatables
             ->addColumn('denda', function ($row) {
                 return $this->setDenda($row);
             })
+            ->addColumn('setting', function ($row) {
+                return $this->viewSetting($row);
+            })
             ->addColumn('detail', function ($row) {
                 return $this->viewDetail($row);
             })
@@ -68,6 +71,12 @@ class Grading1Datatables extends Datatables
         $data['code'] = $data->code;
         $data['grading'] = 1;
         return view('cashbackpickup::_parts._view-detail', $data);
+    }
+
+    public function viewSetting($data) {
+        $data['code'] = $data->code;
+        $data['grading'] = 1;
+        return view('cashbackpickup::_parts._view-setting', $data);
     }
 
     public function action($data)
@@ -94,9 +103,10 @@ class Grading1Datatables extends Datatables
         return [
             'Code',
             'Periode',
-            'Denda',
             'Status',
             'Update Terakhir',
+            'Denda',
+            'Setting',
             'Tampilkan Detail',
             'Aksi' => ['class' => 'text-center'],
         ];
@@ -113,9 +123,10 @@ class Grading1Datatables extends Datatables
         return [
             ['data' => 'code', 'class' => 'text-center'],
             ['data' => 'periode', 'class' => 'text-center'],
-            ['data' => 'denda', 'class' => 'text-center'],
             ['data' => 'status', 'class' => 'text-center'],
             ['data' => 'updated_at', 'class' => 'text-center'],
+            ['data' => 'denda', 'class' => 'text-center'],
+            ['data' => 'setting', 'class' => 'text-center'],
             ['data' => 'detail', 'class' => 'text-center'],
             ['data' => 'action', 'class' => 'text-center', 'orderable' => false]
         ];
