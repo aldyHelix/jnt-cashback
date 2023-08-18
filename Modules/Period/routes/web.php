@@ -22,10 +22,12 @@ ladmin()->route(function() {
         Route::get('/', [PeriodeController::class, 'index'])->name('index');
         Route::post('/store', [PeriodeController::class, 'store'])->name('store');
         Route::get('/detail/{code}', [PeriodeController::class, 'viewDetail'])->name('detail');
+        Route::get('/setting/{code}', [PeriodeController::class, 'viewSetting'])->name('setting');
         Route::get('/edit/{id}', [PeriodeController::class, 'edit'])->name('edit');
         Route::put('/update/{id}', [PeriodeController::class, 'update'])->name('update');
         Route::delete('/delete/{id}', [PeriodeController::class, 'destroy'])->name('destroy');
         Route::post('/update-klien/{id}', [PeriodeController::class, 'updateKlien'])->name('update-klien');
+        Route::post('/setting-dp/{id}', [PeriodeController::class, 'updateSettingDP'])->name('setting-dp');
     });
 
 });

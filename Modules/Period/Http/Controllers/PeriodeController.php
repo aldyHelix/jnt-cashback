@@ -7,6 +7,7 @@ use App\Facades\PivotTable;
 use App\Models\KlienPengiriman;
 use App\Models\LogResi;
 use App\Models\Periode;
+use App\Models\SettingDpPeriode;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Modules\Period\Datatables\PeriodDatatables;
@@ -23,10 +24,48 @@ class PeriodeController extends Controller
         return view('period::index');
     }
 
+    public function viewSetting($code) {
+        $data['periode'] = Periode::where('code', $code)->first();
+
+        $data['dp_data_mart'] = DB::table($code.'.data_mart')->selectRaw('DISTINCT(drop_point_outgoing)')
+        ->orderBy('drop_point_outgoing')->get();
+
+        $data['dp'] = DB::table($code.'.data_mart')
+            ->selectRaw('DISTINCT(data_mart.drop_point_outgoing), COALESCE(setting_dp_periode.id, 0) as id , COALESCE(setting_dp_periode.pengurangan_total, 0) as pengurangan_total, COALESCE(setting_dp_periode.penambahan_total, 0) as penambahan_total, COALESCE(setting_dp_periode.diskon_cod, 0) as diskon_cod')
+            ->leftJoin('setting_dp_periode', function ($join) use ($data) {
+                $join->on('setting_dp_periode.drop_point_outgoing', '=', 'data_mart.drop_point_outgoing')
+                    ->where('setting_dp_periode.periode_id', $data['periode']->id);
+            })
+            ->orderBy('data_mart.drop_point_outgoing')
+            ->get();
+
+
+        $data['sumber_waybill'] = DB::table($code.'.data_mart')->selectRaw('DISTINCT(sumber_waybill)')->orderBy('sumber_waybill')->pluck('sumber_waybill')->toArray();
+
+        $data['klien_pengiriman'] = DB::table($code.'.data_mart'
+        )->selectRaw('DISTINCT(data_mart.klien_pengiriman), COALESCE(master_klien_pengiriman_setting.is_reguler, 0) as is_reguler, COALESCE(master_klien_pengiriman_setting.is_dfod, 0) as is_dfod, COALESCE(master_klien_pengiriman_setting.is_super, 0) as is_super')
+        ->leftJoin('master_klien_pengiriman_setting', function ($join) use ($data) {
+            $join->on('master_klien_pengiriman_setting.klien_pengiriman', '=', 'data_mart.klien_pengiriman')
+                ->where('master_klien_pengiriman_setting.periode_id', $data['periode']->id);
+        })
+        ->orderBy('data_mart.klien_pengiriman')
+        ->get();
+
+        return view('period::setting-dp', $data);
+
+    }
+
     public function viewDetail($code) {
         $data['periode'] = Periode::where('code', $code)->first();
         $data['sumber_waybill'] = DB::table($code.'.data_mart')->selectRaw('DISTINCT(sumber_waybill)')->orderBy('sumber_waybill')->pluck('sumber_waybill')->toArray();
-        $data['klien_pengiriman'] = DB::table($code.'.data_mart')->selectRaw('DISTINCT(data_mart.klien_pengiriman), master_klien_pengiriman_setting.is_reguler, master_klien_pengiriman_setting.is_dfod, master_klien_pengiriman_setting.is_super')->orderBy('data_mart.klien_pengiriman')->leftJoin('master_klien_pengiriman_setting', 'master_klien_pengiriman_setting.klien_pengiriman', '=', 'data_mart.klien_pengiriman')->where('master_klien_pengiriman_setting.periode_id', $data['periode']->id)->get();
+        $data['klien_pengiriman'] = DB::table($code.'.data_mart'
+        )->selectRaw('DISTINCT(data_mart.klien_pengiriman), COALESCE(master_klien_pengiriman_setting.is_reguler, 0) as is_reguler, COALESCE(master_klien_pengiriman_setting.is_dfod, 0) as is_dfod, COALESCE(master_klien_pengiriman_setting.is_super, 0) as is_super')
+        ->leftJoin('master_klien_pengiriman_setting', function ($join) use ($data) {
+            $join->on('master_klien_pengiriman_setting.klien_pengiriman', '=', 'data_mart.klien_pengiriman')
+                ->where('master_klien_pengiriman_setting.periode_id', $data['periode']->id);
+        })
+        ->orderBy('data_mart.klien_pengiriman')
+        ->get();
 
         // dd($data['klien_pengiriman'], $data['klien_pengiriman_kat'], array_($data['klien_pengiriman'], $data['klien_pengiriman_kat']));
         $data['row_total'] = DB::table($data['periode']->code.'.data_mart')->count();
@@ -76,6 +115,39 @@ class PeriodeController extends Controller
         ];
         $data['log_resi'] = LogResi::where('periode_id', $data['periode']->id)->get();
         return view('period::summary-periode', $data);
+    }
+
+    public function updateSettingDP(Request $request, $id) {
+        $periode = Periode::where('id', $id)->first();
+        foreach($request['dp'] as $item) {
+            if(intval($item['is_import'])) {
+                $exist = SettingDpPeriode::where(['periode_id' => $id, 'drop_point_outgoing' => $item['drop_point_outgoing']])->first();
+
+                if($exist) {
+                    $exist->update([
+                        "pengurangan_total" => intval($item['pengurangan_total']),
+                        "penambahan_total" => intval($item['penambahan_total']),
+                        "diskon_cod" => intval($item['diskon_cod']),
+                    ]);
+                } else {
+                    SettingDpPeriode::create([
+                        'periode_id' => $id,
+                        'drop_point_outgoing' => $item['drop_point_outgoing'],
+                        "pengurangan_total" => intval($item['pengurangan_total']),
+                        "penambahan_total" => intval($item['penambahan_total']),
+                        "diskon_cod" => intval($item['diskon_cod']),
+                    ]);
+                }
+            }
+
+        }
+
+        //update schema->cp_dp_cashback_reguler_grading_1 , cp_dp_cashback_non_cod_grading_1 -> update pengurangan_total,
+        //penambahan_total ->
+        CreateSchema::runUpdateDiskonPenguranganPenambahan($periode->code, $id);
+
+        toastr()->success('Data setting klien pengiriman succesfully saved', 'Success');
+        return redirect()->back();
     }
 
     public function updateKlien(Request $request, $id) {

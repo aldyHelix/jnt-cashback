@@ -69,7 +69,7 @@ class CashbackPickupController extends Controller
         $data['periode'] = Periode::where('code', $code)->first();
         $data['denda'] = Denda::where(['periode_id'=> $data['periode']->id, 'grading_type'=> $grade])->get();
         $data['filename'] = strtoupper($data['periode']->month).'-'.$data['periode']->year.'-GRADING-'.$grade.'.xlsx';
-        $data['cp_grading'] = DB::table('master_collection_point AS cp')->join($data['periode']->code.'.cp_dp_all_count_sum AS pivot', 'cp.drop_point_outgoing', '=', 'pivot.drop_point_outgoing')->select('cp.kode_cp', 'cp.nama_cp', 'pivot.count', 'pivot.sum')->where('cp.grading_pickup', grading_map($grade))->get();
+        $data['cp_grading'] = DB::table($data['periode']->code.'.cp_dp_raw_grading_1')->get();
         $data['cp_dp_all_count_sum'] = PivotTable::getPivotAllCountSumCPDP($code);
         $data['cp_dp_reguler_count_sum'] = PivotTable::getPivotRegulerCountSumCPDP($code);
         $data['cp_dp_dfod_count_sum'] = PivotTable::getPivotDfodCountSumCPDP($code);
@@ -151,14 +151,14 @@ class CashbackPickupController extends Controller
 
     public function process($code, $grade, $id) {
 
-        Periode::where('code', $code)->first();
+        $periode = Periode::where('code', $code)->first();
         /**
          * $code = cashback-code periode
          * $grade = cashback grade
          * $id = periode id
          */
         //update view table
-        CreateSchema::updateView($code);
+        CreateSchema::updateView($code, $id);
 
         GradingProcess::generateGrading($id, $grade);
 
@@ -174,17 +174,28 @@ class CashbackPickupController extends Controller
                 //perlu melakukan query dengan data rate setting dan general setting.
 
                 // update CPDPMPSumBiayaKirim ke sumber_waybill yg telah di distinct
+                $periode->processed_grade_1 = 1;
+                $periode->processed_grade_1_by = auth()->user()->id;
+                $periode->updated_at = now();
                 break;
             case 2:
                 $script = CreateSchema::createViewCPDPCashbackRekapDendaGrading2($code
             );
 
                 CreateSchema::runScript($code, $script);
+
+                $periode->processed_grade_2 = 1;
+                $periode->processed_grade_2_by = auth()->user()->id;
+                $periode->updated_at = now();
                 break;
             case 3:
                 $script = CreateSchema::createViewCPDPCashbackRekapDendaGrading3($code);
 
                 CreateSchema::runScript($code, $script);
+
+                $periode->processed_grade_3 = 1;
+                $periode->processed_grade_3_by = auth()->user()->id;
+                $periode->updated_at = now();
                 break;
             default:
 
@@ -204,14 +215,41 @@ class CashbackPickupController extends Controller
          * if locked process button will disabled
          * alert on done.
          */
+
+        $periode->save();
         toastr()->success('Data Period has been processed successfully!', 'Congrats');
         return redirect()->back();
     }
 
-    public function lock() {
+    public function lock($code, $grade, $id) {
+        $periode = Periode::where('code', $code)->first();
+
+        switch ($grade) {
+            case 1:
+                $periode->locked_grade_1 = 1;
+                $periode->processed_grade_1_by = auth()->user()->id;
+                $periode->updated_at = now();
+                break;
+            case 2:
+                $periode->locked_grade_2 = 1;
+                $periode->processed_grade_2_by = auth()->user()->id;
+                $periode->updated_at = now();
+                break;
+            case 3:
+                $periode->locked_grade_3 = 1;
+                $periode->processed_grade_3_by = auth()->user()->id;
+                $periode->updated_at = now();
+                break;
+            default:
+
+                break;
+        }
         /**
          * disabled and lock button on locked
          */
+        $periode->save();
+
+        toastr()->success('Data Period has been locked successfully!', 'Congrats');
         return redirect()->back();
     }
 
