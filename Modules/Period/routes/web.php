@@ -28,6 +28,8 @@ ladmin()->route(function() {
         Route::delete('/delete/{id}', [PeriodeController::class, 'destroy'])->name('destroy');
         Route::post('/update-klien/{id}', [PeriodeController::class, 'updateKlien'])->name('update-klien');
         Route::post('/setting-dp/{id}', [PeriodeController::class, 'updateSettingDP'])->name('setting-dp');
+        Route::get('/resi-checker', [PeriodeController::class, 'viewResiChecker'])->name('resi-checker');
+        Route::post('/resi-checker/process', [PeriodeController::class, 'resiCheckerProcess'])->name('resi-checker-process');
     });
 
 });

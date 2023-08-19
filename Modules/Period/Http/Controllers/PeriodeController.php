@@ -200,4 +200,40 @@ class PeriodeController extends Controller
         toastr()->success('Data setting klien pengiriman succesfully saved', 'Success');
         return redirect()->back();
     }
+
+    public function viewResiChecker(){
+        $data['periode'] = Periode::get();
+        return view('period::resi-checker', $data);
+    }
+
+    public function resiCheckerProcess(Request $request){
+        ini_set("memory_limit", "-1");
+
+        $file = $request->file('file');
+        $periode = $request->input('periode');
+
+        // Open and read the file line by line
+        $handle = fopen($file, 'r');
+        if (!$handle) {
+            return response()->json(['error' => 'Unable to open file'], 500);
+        }
+
+        $nonExistingIds = [];
+
+        while (($line = fgets($handle)) !== false) {
+            // Process each shipping ID in $line
+
+            // Example: Check if shipping ID exists
+            $exists = DB::table($periode.'.data_mart')->where('no_waybill', trim($line))->exists();
+
+            if (!$exists) {
+                $nonExistingIds[] = trim($line);
+            }
+        }
+
+        fclose($handle);
+
+        return response()->json(['non_existing_ids' => $nonExistingIds]);
+
+    }
 }

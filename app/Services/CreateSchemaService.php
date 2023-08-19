@@ -83,11 +83,10 @@ class CreateSchemaService {
         CREATE OR REPLACE VIEW cp_dp_super_count_sum AS
             SELECT DISTINCT data_mart.drop_point_outgoing,
                 count(data_mart.no_waybill) AS count,
-                sum(data_mart.biaya_kirim) AS SUM
+                sum(data_mart.total_biaya_setelah_diskon) AS SUM
             FROM ".$schema.".data_mart
             WHERE (data_mart.kat = 'CP' OR data_mart.kat = 'DP')
-            AND (data_mart.metode_pembayaran ='CC_CASH'
-                    AND data_mart.klien_pengiriman IN (".$item."))
+            AND data_mart.klien_pengiriman IN (".$item.")
             GROUP BY data_mart.drop_point_outgoing";
     }
 
@@ -97,16 +96,6 @@ class CreateSchemaService {
             $run = DB::connection('pgsql')->unprepared(
                 "
                 SET search_path TO ".$schema.", public; \n
-
-                ".$this->allSumBiayaKirim($schema).";
-
-                ".$this->CPDPAllCountSum($schema).";
-
-                ".$this->CPDPRegulerCountSum($schema).";
-
-                ".$this->CPDPDfodCountSum($schema).";
-
-                ".$this->CPDPSuperCountSum($schema).";
 
                 ".$this->CPDPMPCountWaybill($schema).";
 
@@ -1846,10 +1835,10 @@ class CreateSchemaService {
         CREATE OR REPLACE VIEW cp_dp_super_count_sum AS
             SELECT DISTINCT data_mart.drop_point_outgoing,
                 count(data_mart.no_waybill) AS count,
-                sum(data_mart.biaya_kirim) AS SUM
+                sum(data_mart.total_biaya_setelah_diskon) AS SUM
             FROM ".$schema.".data_mart
             WHERE (data_mart.kat = 'CP' OR data_mart.kat = 'DP')
-                AND data_mart.klien_pengiriman IN ('SUPERINJND', 'SUPERINJSD', 'SUPEROUT', 'JNDSUPER')
+            AND data_mart.klien_pengiriman IN ('SUPERINJND', 'SUPERINJSD', 'SUPEROUT', 'JNDSUPER')
             GROUP BY data_mart.drop_point_outgoing";
     }
 
@@ -2039,11 +2028,10 @@ class CreateSchemaService {
         CREATE OR REPLACE VIEW dpf_super_count_sum AS
             SELECT DISTINCT data_mart.drop_point_outgoing,
                 count(data_mart.no_waybill) AS count,
-                sum(data_mart.biaya_kirim) AS SUM
+                sum(data_mart.total_biaya_setelah_diskon) AS SUM
             FROM ".$schema.".data_mart
             WHERE (data_mart.kat = 'DPF')
-            AND (data_mart.metode_pembayaran ='CC_CASH'
-                    AND data_mart.klien_pengiriman IN ('SUPERINJND', 'SUPEROUT'))
+            AND data_mart.klien_pengiriman IN ('SUPERINJND', 'SUPERINJSD', 'SUPEROUT', 'JNDSUPER')
             GROUP BY data_mart.drop_point_outgoing";
     }
 
@@ -2230,11 +2218,10 @@ class CreateSchemaService {
         CREATE OR REPLACE VIEW Zonasi_super_count_sum AS
             SELECT DISTINCT data_mart.drop_point_outgoing,
                 count(data_mart.no_waybill) AS count,
-                sum(data_mart.biaya_kirim) AS SUM
+                sum(data_mart.total_biaya_setelah_diskon) AS SUM
             FROM ".$schema.".data_mart
             WHERE (data_mart.kat = 'ZONASI')
-            AND (data_mart.metode_pembayaran ='CC_CASH'
-                    AND data_mart.klien_pengiriman IN ('SUPERINJND', 'SUPEROUT'))
+            AND data_mart.klien_pengiriman IN ('SUPERINJND', 'SUPERINJSD', 'SUPEROUT', 'JNDSUPER')
             GROUP BY data_mart.drop_point_outgoing";
     }
 
@@ -2421,11 +2408,10 @@ class CreateSchemaService {
         CREATE OR REPLACE VIEW dc_super_count_sum AS
             SELECT DISTINCT data_mart.drop_point_outgoing,
                 count(data_mart.no_waybill) AS count,
-                sum(data_mart.biaya_kirim) AS SUM
+                sum(data_mart.total_biaya_setelah_diskon) AS SUM
             FROM ".$schema.".data_mart
             WHERE (data_mart.kat = 'DC')
-            AND (data_mart.metode_pembayaran ='CC_CASH'
-                    AND data_mart.klien_pengiriman IN ('SUPERINJND', 'SUPEROUT'))
+            AND data_mart.klien_pengiriman IN ('SUPERINJND', 'SUPERINJSD', 'SUPEROUT', 'JNDSUPER')
             GROUP BY data_mart.drop_point_outgoing";
     }
 
@@ -2612,11 +2598,10 @@ class CreateSchemaService {
         CREATE OR REPLACE VIEW na_super_count_sum AS
             SELECT DISTINCT data_mart.drop_point_outgoing,
                 count(data_mart.no_waybill) AS count,
-                sum(data_mart.biaya_kirim) AS SUM
+                sum(data_mart.total_biaya_setelah_diskon) AS SUM
             FROM ".$schema.".data_mart
             WHERE (data_mart.kat = '#N/A')
-            AND (data_mart.metode_pembayaran ='CC_CASH'
-                    AND data_mart.klien_pengiriman IN ('SUPERINJND', 'SUPEROUT'))
+            AND data_mart.klien_pengiriman IN ('SUPERINJND', 'SUPERINJSD', 'SUPEROUT', 'JNDSUPER')
             GROUP BY data_mart.drop_point_outgoing";
     }
 

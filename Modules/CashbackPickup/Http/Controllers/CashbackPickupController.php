@@ -162,6 +162,9 @@ class CashbackPickupController extends Controller
 
         GradingProcess::generateGrading($id, $grade);
 
+        //update klien pengiriman
+        //CreateSchema::updateViewPivot($periode->code, $string);
+
         //generate  grading
 
         //reprocess grading with denda
