@@ -2,7 +2,10 @@
 
 namespace Modules\RateSetting\Http\Controllers;
 
+use App\Models\DeliveryZone;
 use Illuminate\Http\Request;
+use Modules\CollectionPoint\Models\CollectionPoint;
+use Modules\RateSetting\Models\DeliveryFee as ModelsDeliveryFee;
 use Modules\RateSetting\Datatables\DeliveryFeeDatatables;
 use Modules\RateSetting\Http\Requests\DeliveryFeeRequest;
 use Modules\RateSetting\Models\DeliveryFee;
@@ -14,11 +17,17 @@ class DeliveryFeeController extends Controller
      public function index() {
         ladmin()->allows(['ladmin.ratesetting.deliferyfee.index']);
 
+        $data['collection_point'] = CollectionPoint::selectRaw('master_collection_point.*, delivery_zone.drop_point_ttd, delivery_zone.kpi_target_count, delivery_zone.kpi_reduce_not_achievement, delivery_zone.is_show')->leftJoin('delivery_zone', function ($join) {
+            $join->on('master_collection_point.id', '=', 'delivery_zone.collection_point_id');
+        })->get();
+
+        $data['zona'] = ModelsDeliveryFee::get()->pluck('zona', 'zona')->toArray();
+
         if( request()->has('datatables') ) {
             return DeliveryFeeDatatables::renderData();
         }
 
-        return view('ratesetting::delivery-index');
+        return view('ratesetting::delivery-index', $data);
     }
 
     public function create() {
@@ -60,6 +69,37 @@ class DeliveryFeeController extends Controller
             session()->flash('danger', 'Something went wrong while deleting the rate setting delivery fee.');
         }
 
+        return redirect()->back();
+    }
+
+    public function settingZona(Request $request){
+        foreach($request->cp as $item){
+            if($item["is_show"]) {
+
+                $exist = DeliveryZone::where(['collection_point_id' => $item['id'], 'drop_point_outgoing' => $item['drop_point_outgoing']])->first();
+
+                if($exist) {
+                    //update
+                    $exist->update([
+                        'drop_point_ttd' => $item['drop_point_ttd'],
+                        'kpi_target_count' => $item['kpi_target_count'],
+                        'kpi_reduce_not_achievement' => $item['kpi_reduce_not_achievement'],
+                        'is_show' => 1,
+                    ]);
+                } else {
+                    //create
+                    DeliveryZone::create([
+                        'collection_point_id' => $item['id'],
+                        'drop_point_outgoing' => $item['drop_point_outgoing'],
+                        'drop_point_ttd' => $item['drop_point_ttd'],
+                        'kpi_target_count' => $item['kpi_target_count'],
+                        'kpi_reduce_not_achievement' => $item['kpi_reduce_not_achievement'],
+                        'is_show' => 1,
+                    ]);
+                }
+            }
+        }
+        toastr()->success('Delivery fee setting has been succesfully saved!');
         return redirect()->back();
     }
 }

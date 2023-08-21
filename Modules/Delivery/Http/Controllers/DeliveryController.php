@@ -2,12 +2,14 @@
 
 namespace Modules\Delivery\Http\Controllers;
 
+use App\Facades\CreateSchema;
 use App\Facades\GradingProcess;
 use App\Facades\PivotTable;
 use App\Models\DendaDelivery;
 use App\Models\PeriodeDelivery;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use Modules\CollectionPoint\Models\CollectionPoint;
 use Modules\Delivery\Datatables\DeliveryDatatables;
 
 class DeliveryController extends Controller
@@ -34,6 +36,14 @@ class DeliveryController extends Controller
     }
 
     public function process($code, $id) {
+        CreateSchema::DeliveryPivot($code);
+        // process count waybill per ttd
+        //get ttd list first
+        $ttd = DB::table($code.".ttd_list")->get()->pluck('drop_point_ttd')->toArray();
+        foreach($ttd as $name){
+            CreateSchema::createPivotPerTTD($code, $name);
+        }
+
         GradingProcess::generateGradingDelivery($id, $code);
         toastr()->success('Data Delivery has been processed successfully!', 'Congrats');
 
@@ -46,43 +56,32 @@ class DeliveryController extends Controller
 
     public function saveDenda(Request $request) {
         $denda = $request->data;
+        $periode = PeriodeDelivery::where('id', $request->periode_id)->first();
 
         foreach($denda as $item) {
-            foreach($item as $key => $data) {
-                $item[$key] = intval($data);
-            }
+            $exist = DendaDelivery::where(['id' => $item['id']])->first();
+            $get_total_awb = DB::table($periode->code.".delivery_fee_summary")->where('drop_point', $item['drop_point_outgoing'])->first();
 
-            $exist = DendaDelivery::where(['id' => $item['denda_id']])->first();
             if ($exist) {
                 $exist->update([
-                    'sprinter_pickup' => $item['sprinter_pickup'],
-                    'transit_fee' => $item['transit_fee'],
-                    'denda_void' => $item['denda_void'],
-                    'denda_dfod' => $item['denda_dfod'],
-                    'denda_pusat' => $item['denda_pusat'],
-                    'denda_selisih_berat' => $item['denda_selisih_berat'],
-                    'denda_lost_scan_kirim' => $item['denda_lost_scan_kirim'],
-                    'denda_auto_claim' => $item['denda_auto_claim'],
-                    'denda_sponsorship' => $item['denda_sponsorship'],
-                    'denda_late_pickup_ecommerce' => $item['denda_late_pickup_ecommerce'],
-                    'potongan_pop' => $item['potongan_pop'],
-                    'denda_lainnya' => $item['denda_lainnya'],
+                    'denda_lost_scan_kirim' => intval($item['denda_lost_scan_kirim']),
+                    'denda_late_pickup_reg' => intval($item['denda_late_pickup_reg']),
+                    'denda_auto_claim' => intval($item['denda_auto_claim']),
+                    'tarif' => intval($item['tarif']),
+                    'admin_bank' => intval( $item['admin_bank']),
+                    'dpp' => intval($get_total_awb->total_delivery_setelah_ppn),
                 ]);
             } else {
                 $collection_point = DendaDelivery::create([
-                    'periode_id' => $request->periode_id,
-                    'sprinter_pickup' => $item['sprinter_pickup'],
-                    'transit_fee' => $item['transit_fee'],
-                    'denda_void' => $item['denda_void'],
-                    'denda_dfod' => $item['denda_dfod'],
-                    'denda_pusat' => $item['denda_pusat'],
-                    'denda_selisih_berat' => $item['denda_selisih_berat'],
-                    'denda_lost_scan_kirim' => $item['denda_lost_scan_kirim'],
-                    'denda_auto_claim' => $item['denda_auto_claim'],
-                    'denda_sponsorship' => $item['denda_sponsorship'],
-                    'denda_late_pickup_ecommerce' => $item['denda_late_pickup_ecommerce'],
-                    'potongan_pop' => $item['potongan_pop'],
-                    'denda_lainnya' => $item['denda_lainnya'],
+                    'delivery_periode_id' => $request->periode_id,
+                    'collection_point_id' => $item['collection_point_id'],
+                    'drop_point_outgoing' => $item['drop_point_outgoing'],
+                    'denda_late_pickup_reg' => intval($item['denda_late_pickup_reg']),
+                    'denda_lost_scan_kirim' => intval($item['denda_lost_scan_kirim']),
+                    'denda_auto_claim' => intval($item['denda_auto_claim']),
+                    'tarif' => intval($item['tarif']),
+                    'admin_bank' => intval($item['admin_bank']),
+                    'dpp' => intval($get_total_awb->total_delivery_setelah_ppn),
                 ]);
             }
         }

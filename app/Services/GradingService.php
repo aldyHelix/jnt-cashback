@@ -17,14 +17,10 @@ use Maatwebsite\Excel\Facades\Excel;
 class GradingService {
     public function generateGradingDelivery($id, $code){
         $get_periode = PeriodeDelivery::findOrFail($id);
-        $schema = 'cashback_'.strtolower($get_periode->month).'_'.$get_periode->year;
+        $schema = 'delivery_'.strtolower($get_periode->month).'_'.$get_periode->year;
 
-        $data['dpf_reguler'] = DB::table($schema.'.dpf_cashback_reguler_grading')->get()->toArray();
-        $data['dpf_cod'] = DB::table($schema.'.dpf_cashback_cod_grading')->get()->toArray();
-        $data['dpf_non_cod'] = DB::table($schema.'.dpf_cashback_non_cod_grading')->get()->toArray();
-        $data['dpf_rekap'] = DB::table($schema.'.dpf_rekap_cashback_grading')->get()->toArray();
-        $data['dpf_rekap_sprinter'] = DB::table($code.'.mp_delivery_count_sprinter')->get()->toArray();
-        // $data['dpf_rekap_denda'] = DB::table($schema.'.dpf_rekap_denda_cashback_grading_1')->get()->toArray();
+        $data['delivery_fee_summary'] = DB::table($schema.'.delivery_fee_summary')->get()->toArray();
+        $data['rekap_denda_delivery_fee_summary'] = DB::table($schema.'.rekap_denda_delivery_fee_summary')->get()->toArray();
 
         $this->exportFileGradeDelivery($data, $get_periode->month, $get_periode->year);
     }
