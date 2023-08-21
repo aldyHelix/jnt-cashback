@@ -36,6 +36,7 @@ ladmin()->route(function() {
         Route::post('deliveryfee/store', [DeliveryFeeController::class, 'store'])->name('delivery.store');
         Route::put('deliveryfee/update/{id}', [DeliveryFeeController::class, 'update'])->name('delivery.update');
         Route::delete('deliveryfee/delete/{id}', [DeliveryFeeController::class, 'delete'])->name('delivery.destroy');
+        Route::post('deliveryfee/setting', [DeliveryFeeController::class, 'settingZona'])->name('delivery.setting');
     });
 
 });

@@ -2,6 +2,7 @@
 
 namespace Modules\Delivery\Datatables;
 
+use App\Models\DeliveryZone;
 use App\Models\Denda;
 use App\Models\DendaDelivery;
 use App\Models\Periode;
@@ -46,15 +47,15 @@ class DeliveryDatatables extends Datatables
     public function handle()
     {
         return $this->eloquent($this->query)
-            ->addColumn('pickup_fee', function($row) {
-                return $this->setDeliveryFee($row);
-            })
+            // ->addColumn('pickup_fee', function($row) {
+            //     return $this->setDeliveryFee($row);
+            // })
             ->addColumn('periode', function ($row) {
                 return $row->month.'/'.$row->year;
             })
-            // ->addColumn('denda', function ($row) {
-            //     return $this->setDenda($row);
-            // })
+            ->addColumn('denda', function ($row) {
+                return $this->setDenda($row);
+            })
             ->addColumn('detail', function ($row) {
                 return $this->viewDetail($row);
             })
@@ -64,8 +65,9 @@ class DeliveryDatatables extends Datatables
     }
 
     public function setDenda($data) {
-        $exist = DendaDelivery::where(['periode_id' => $data->id])->first();
-        $data['cp'] = CollectionPoint::get();
+        $exist = DendaDelivery::where(['delivery_periode_id' => $data->id])->first();
+        $data['delivery_zone'] = DeliveryZone::selectRaw('denda_delivery_periode.*, master_collection_point.zona_delivery, master_collection_point.nama_cp, delivery_zone.drop_point_ttd ,delivery_zone.is_show, delivery_zone.collection_point_id')->leftJoin('denda_delivery_periode','denda_delivery_periode.drop_point_outgoing', '=', 'delivery_zone.drop_point_outgoing')->
+        leftJoin('master_collection_point', 'master_collection_point.id', 'delivery_zone.collection_point_id')->get();
         $data['grading'] = 1;
         $data['denda'] = $exist ?? new Denda();
         return view('delivery::_parts._form-denda', $data);
@@ -103,8 +105,8 @@ class DeliveryDatatables extends Datatables
             'Periode',
             'Update Terakhir',
             'Status',
-            // 'Denda',
-            'Setting Pickup Fee',
+            'Denda',
+            // 'Setting Pickup Fee',
             'Tampilkan Detail',
             'Aksi' => ['class' => 'text-center'],
         ];
@@ -123,8 +125,8 @@ class DeliveryDatatables extends Datatables
             ['data' => 'periode', 'class' => 'text-center'],
             ['data' => 'status', 'class' => 'text-center'],
             ['data' => 'updated_at', 'class' => 'text-center'],
-            ['data' => 'pickup_fee', 'class' => 'text-center'],
-            // ['data' => 'denda', 'class' => 'text-center'],
+            // ['data' => 'pickup_fee', 'class' => 'text-center'],
+            ['data' => 'denda', 'class' => 'text-center'],
             ['data' => 'detail', 'class' => 'text-center'],
             ['data' => 'action', 'class' => 'text-center', 'orderable' => false]
         ];
