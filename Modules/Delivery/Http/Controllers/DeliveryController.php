@@ -32,6 +32,7 @@ class DeliveryController extends Controller
         $data['periode'] = PeriodeDelivery::where('code', $code)->first();
         $data['summary_sprinter'] = PivotTable::getDeliverySprinter($code);
         $data['row_total'] = DB::table($data['periode']->code.'.data_mart')->count();
+        $data['filename'] = strtoupper($data['periode']->month).'-'.$data['periode']->year.'-DELIVERY.xlsx';
         return view('delivery::summary-delivery', $data);
     }
 
@@ -91,4 +92,24 @@ class DeliveryController extends Controller
         return redirect()->route('ladmin.delivery.index');
 
     }
+
+    public function downloadExcel($filename){
+        // Replace 'path/to/your/excel_file.xlsx' with the actual path to your Excel file.
+        $filePath = storage_path('app/public/'.$filename);
+        // Check if the file exists and is readable
+        if (file_exists($filePath) && is_readable($filePath)) {
+            // Set the appropriate headers to initiate the file download
+            // header('Content-Type: application/octet-stream');
+            // header('Content-Disposition: attachment; filename="' . basename($filePath) . '"');
+            // header('Content-Length: ' . filesize($filePath));
+
+            // Read the file and send its contents to the browser
+            return response()->download($filePath);
+            exit;
+        } else {
+            // If the file does not exist or is not readable, display an error message
+            die('File not found or not accessible.');
+        }
+    }
+
 }

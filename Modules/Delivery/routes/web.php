@@ -25,7 +25,7 @@ ladmin()->route(function() {
         Route::get('/detail/{code}', [DeliveryController::class, 'viewDetail'])->name('detail');
         Route::get('/process/{code}/{id}', [DeliveryController::class, 'process'])->name('process');
         Route::get('/lock/{code}/{id}', [DeliveryController::class, 'lock'])->name('lock');
-
+        Route::get('/download/{filename}', [DeliveryController::class, 'downloadExcel'])->name('download');
     });
 
 });
