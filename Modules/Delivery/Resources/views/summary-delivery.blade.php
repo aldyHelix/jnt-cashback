@@ -78,34 +78,6 @@
                             </table>
                         </div>
                       </div>
-                      <div class="col">
-                        <h3>delivery Summary</h3>
-                        <div>
-                            <table class="table">
-                                <thead>
-                                  <tr>
-                                    <th scope="col">Sprinter</th>
-                                    <th scope="col">Count</th>
-                                    <th scope="col">Fee Condition</th>
-                                  </tr>
-                                </thead>
-                                <tbody>
-                                    @foreach ($summary_sprinter as $item)
-                                        <tr>
-                                            <td style="text-align: left">{{$item->sprinter}}</td>
-                                            <td>{{$item->count}}</td>
-                                            <td>{{$item->fee_condition_value}} %</td>
-                                        </tr>
-                                    @endforeach
-                                    <tr class="font-weight-bold border">
-                                        <td style="text-align: left">Total</td>
-                                        <td>{{ $summary_sprinter->sum('count') }}</td>
-                                        <td></td>
-                                    </tr>
-                                </tbody>
-                            </table>
-                        </div>
-                      </div>
                     </div>
                 </div>
             </div>

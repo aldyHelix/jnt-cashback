@@ -32,6 +32,17 @@ class DeliveryController extends Controller
         $data['periode'] = PeriodeDelivery::where('code', $code)->first();
         $data['summary_sprinter'] = PivotTable::getDeliverySprinter($code);
         $data['row_total'] = DB::table($data['periode']->code.'.data_mart')->count();
+        $ttd_list = DB::table($data['periode']->code.'.ttd_list')->get()->pluck('drop_point_ttd')->toArray();
+        $data['direct_fee'] = DB::table($data['periode']->code.'.direct_fee')->get();
+        $data['total_awb_by_ttd'] = DB::table($data['periode']->code.'.total_awb_by_ttd')->get();
+        $data['delivery_fee_summary'] = DB::table($data['periode']->code.'.delivery_fee_summary')->get();
+        $data['rekap_denda_delivery_fee_summary'] = DB::table($data['periode']->code.'.rekap_denda_delivery_fee_summary')->get();
+        $data['pivot'] = [];
+
+        foreach($ttd_list as $ttd) {
+            $data['pivot'][strtolower($ttd)] = DB::table($data['periode']->code.'.mp_'.strtolower($ttd))->get();
+        }
+
         $data['filename'] = strtoupper($data['periode']->month).'-'.$data['periode']->year.'-DELIVERY.xlsx';
         return view('delivery::summary-delivery', $data);
     }
