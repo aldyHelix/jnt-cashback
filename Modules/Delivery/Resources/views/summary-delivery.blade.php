@@ -78,12 +78,77 @@
                             </table>
                         </div>
                       </div>
-                    </div>
+                      <div class="col">
+                        <div class="accordion" id="accordionExample">
+                            <div class="accordion-item">
+                              <h2 class="accordion-header">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseOne" aria-expanded="true" aria-controls="collapseOne">
+                                  Total AWB
+                                </button>
+                              </h2>
+                              <div id="collapseOne" class="accordion-collapse collapse show" data-bs-parent="#accordionExample">
+                                <div class="accordion-body">
+                                    <table class="table">
+                                        <thead>
+                                          <tr>
+                                            <th scope="col">Nama TTD</th>
+                                            <th scope="col">Count</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($total_awb_by_ttd as $item)
+                                            <tr>
+                                                <td>{{ $item->drop_point_ttd}}</td>
+                                                <td>{{ $item->count}}</td>
+                                            </tr>
+                                            @endforeach
+                                            <tr>
+                                              <td>Total</td>
+                                              <td>{{ $total_awb_by_ttd->sum('count') }}</td>
+                                            </tr>
+                                        </tbody>
+                                      </table>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="accordion-item">
+                              <h2 class="accordion-header">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseThree" aria-expanded="false" aria-controls="collapseThree">
+                                  Sprinter Counter
+                                </button>
+                              </h2>
+                              <div id="collapseThree" class="accordion-collapse collapse" data-bs-parent="#accordionExample">
+                                <div class="accordion-body">
+                                    <table class="table">
+                                        <thead>
+                                          <tr>
+                                            <th scope="col">Sprinter</th>
+                                            <th scope="col">Count</th>
+                                          </tr>
+                                        </thead>
+                                        <tbody>
+                                            @foreach ($summary_sprinter as $item)
+                                            <tr>
+                                                <td>{{ $item->sprinter}}</td>
+                                                <td>{{ $item->count}}</td>
+                                            </tr>
+                                            @endforeach
+                                            <tr>
+                                              <td>Total</td>
+                                              <td>{{ $summary_sprinter->sum('count') }}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                      </div>
                 </div>
             </div>
         </div>
-        <div class="container text-center">
-
+        <div class="row">
+            {{-- {!! $direct_fee !!} --}}
         </div>
         </x-slot>
     </x-ladmin-card>

@@ -85,8 +85,8 @@ class DeliveryDatatables extends Datatables
     public function action($data)
     {
         $period_delivery = PeriodeDelivery::where('code', $data->code)->first();
-        $cashback_schema = 'cashback_'.strtolower($period_delivery->month).'_'.$period_delivery->year;
-        $period_cashback = Periode::where('code', $cashback_schema)->get();
+        $cashback_schema = 'delivery_'.strtolower($period_delivery->month).'_'.$period_delivery->year;
+        $period_cashback = PeriodeDelivery::where('code', $cashback_schema)->get();
         $data['code'] = $data->code;
         $data['is_locked'] = $data->is_locked;
         $data['process_available'] = $period_cashback->count() > 0 ? true : false;

@@ -19,7 +19,7 @@ class DeliveryFeeController extends Controller
 
         $data['collection_point'] = CollectionPoint::selectRaw('master_collection_point.*, delivery_zone.drop_point_ttd, delivery_zone.kpi_target_count, delivery_zone.kpi_reduce_not_achievement, delivery_zone.is_show')->leftJoin('delivery_zone', function ($join) {
             $join->on('master_collection_point.id', '=', 'delivery_zone.collection_point_id');
-        })->get();
+        })->orderBy('master_collection_point.drop_point_outgoing', 'ASC')->get();
 
         $data['zona'] = ModelsDeliveryFee::get()->pluck('zona', 'zona')->toArray();
 
