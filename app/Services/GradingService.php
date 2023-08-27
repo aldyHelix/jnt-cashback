@@ -20,6 +20,11 @@ class GradingService {
         $schema = 'delivery_'.strtolower($get_periode->month).'_'.$get_periode->year;
 
         $data['delivery_fee_summary'] = DB::table($schema.'.delivery_fee_summary')->get()->toArray();
+
+        if($data['delivery_fee_summary'] == []){
+            return toastr()->error('Data not generated, please check data.', 'Error');
+        }
+
         $data['rekap_denda_delivery_fee_summary'] = DB::table($schema.'.rekap_denda_delivery_fee_summary')->get()->toArray();
 
         $this->exportFileGradeDelivery($data, $get_periode->month, $get_periode->year);
