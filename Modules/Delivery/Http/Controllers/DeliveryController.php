@@ -54,6 +54,19 @@ class DeliveryController extends Controller
         return view('delivery::summary-delivery', $data);
     }
 
+    public function viewDetailPivot($code) {
+        $data['periode'] = PeriodeDelivery::where('code', $code)->first();
+        $ttd_list = DB::table($data['periode']->code.'.ttd_list')->get()->pluck('drop_point_ttd')->toArray();
+
+        $data['pivot'] = [];
+
+        foreach($ttd_list as $ttd) {
+            $data['pivot'][strtolower($ttd)] = DB::table($data['periode']->code.'.mp_'.strtolower($ttd))->get();
+        }
+
+        return view('delivery::summary-pivot-ttd', $data);
+    }
+
     public function process($code, $id) {
         CreateSchema::DeliveryPivot($code);
         // process count waybill per ttd
