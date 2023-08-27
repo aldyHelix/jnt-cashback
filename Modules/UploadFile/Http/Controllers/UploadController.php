@@ -428,6 +428,10 @@ class UploadController extends Controller
             $cell = mb_check_encoding($cell, 'UTF-8') ? $cell : '';
 
             $csv[$cellIndex] = $cell;
+            //remove empty rows
+            if($cell == ";;;;;;;;;;;;;;;;;;;;;;;;;;\r\n"){
+                unset($csv[$cellIndex]);
+            }
         }
 
         $chunks = array_chunk($csv, 500);
