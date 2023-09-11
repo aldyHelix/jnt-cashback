@@ -23,6 +23,7 @@ ladmin()->route(function() {
         Route::get('/', [DeliveryController::class, 'index'])->name('index');
         Route::post('/denda', [DeliveryController::class, 'saveDenda'])->name('denda');
         Route::get('/detail/{code}', [DeliveryController::class, 'viewDetail'])->name('detail');
+        Route::get('/detail/pivot/{code}', [DeliveryController::class, 'viewDetailPivot'])->name('detail.pivot');
         Route::get('/process/{code}/{id}', [DeliveryController::class, 'process'])->name('process');
         Route::get('/lock/{code}/{id}', [DeliveryController::class, 'lock'])->name('lock');
         Route::get('/download/{filename}', [DeliveryController::class, 'downloadExcel'])->name('download');

@@ -184,6 +184,7 @@ class UploadController extends Controller
                 // See: https://en.wikipedia.org/wiki/Zero-width_space
                 $chunk = preg_replace('/[^(\x20-\x7F)]*/','', $chunk);
 
+                $chunk = str_replace(';;;;;;;;;;;;;;;;;;;;;;;;;;', '', $chunk);
                 $chunk = str_replace('\r\n', '', $chunk);
                 $chunk = str_replace('\n";', '";', $chunk);
 
@@ -427,6 +428,10 @@ class UploadController extends Controller
             $cell = mb_check_encoding($cell, 'UTF-8') ? $cell : '';
 
             $csv[$cellIndex] = $cell;
+            //remove empty rows
+            if($cell == ";;;;;;;;;;;;;;;;;;;;;;;;;;\r\n"){
+                unset($csv[$cellIndex]);
+            }
         }
 
         $chunks = array_chunk($csv, 500);

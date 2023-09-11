@@ -19,7 +19,7 @@ class CashbackGrading1Export implements FromCollection
                 $array[$key] = get_object_vars($item);
             }
             // get headers for current dataset
-            $output[] = array_keys($array[0]);
+            // $output[] = array_keys($array[0]);
             // store values for each row
             foreach ($array as $row) {
                 $output[] = array_values($row);

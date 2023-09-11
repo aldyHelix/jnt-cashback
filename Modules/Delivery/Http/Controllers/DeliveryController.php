@@ -6,11 +6,13 @@ use App\Facades\CreateSchema;
 use App\Facades\GradingProcess;
 use App\Facades\PivotTable;
 use App\Models\DendaDelivery;
+use App\Models\DirectFee;
 use App\Models\PeriodeDelivery;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Modules\CollectionPoint\Models\CollectionPoint;
 use Modules\Delivery\Datatables\DeliveryDatatables;
+use Modules\Delivery\Datatables\DeliveryFeeDatatables;
 
 class DeliveryController extends Controller
 {
@@ -30,10 +32,39 @@ class DeliveryController extends Controller
 
     public function viewDetail($code) {
         $data['periode'] = PeriodeDelivery::where('code', $code)->first();
+        $direct_fee = New DirectFee();
+        $query = $direct_fee->setTable($data['periode']->code.'.direct_fee')->query();
+        if( request()->has('datatables') ) {
+            return DeliveryFeeDatatables::renderData(['query' => $query, 'code' => $data['periode']->code]);
+        }
         $data['summary_sprinter'] = PivotTable::getDeliverySprinter($code);
         $data['row_total'] = DB::table($data['periode']->code.'.data_mart')->count();
+        $ttd_list = DB::table($data['periode']->code.'.ttd_list')->get()->pluck('drop_point_ttd')->toArray();
+        $data['direct_fee'] = DeliveryFeeDatatables::view('delivery::delivery-fee-datatables', ['query' => $query, 'code' => $data['periode']->code]);
+        $data['total_awb_by_ttd'] = DB::table($data['periode']->code.'.total_awb_by_ttd')->get();
+        $data['delivery_fee_summary'] = DB::table($data['periode']->code.'.delivery_fee_summary')->get();
+        $data['rekap_denda_delivery_fee_summary'] = DB::table($data['periode']->code.'.rekap_denda_delivery_fee_summary')->get();
+        $data['pivot'] = [];
+
+        foreach($ttd_list as $ttd) {
+            $data['pivot'][strtolower($ttd)] = DB::table($data['periode']->code.'.mp_'.strtolower($ttd))->get();
+        }
+
         $data['filename'] = strtoupper($data['periode']->month).'-'.$data['periode']->year.'-DELIVERY.xlsx';
         return view('delivery::summary-delivery', $data);
+    }
+
+    public function viewDetailPivot($code) {
+        $data['periode'] = PeriodeDelivery::where('code', $code)->first();
+        $ttd_list = DB::table($data['periode']->code.'.ttd_list')->get()->pluck('drop_point_ttd')->toArray();
+
+        $data['pivot'] = [];
+
+        foreach($ttd_list as $ttd) {
+            $data['pivot'][strtolower($ttd)] = DB::table($data['periode']->code.'.mp_'.strtolower($ttd))->get();
+        }
+
+        return view('delivery::summary-pivot-ttd', $data);
     }
 
     public function process($code, $id) {
@@ -70,7 +101,7 @@ class DeliveryController extends Controller
                     'denda_auto_claim' => intval($item['denda_auto_claim']),
                     'tarif' => intval($item['tarif']),
                     'admin_bank' => intval( $item['admin_bank']),
-                    'dpp' => intval($get_total_awb->total_delivery_setelah_ppn),
+                    'dpp' => intval($get_total_awb->total_delivery_setelah_ppn ?? 0),
                 ]);
             } else {
                 $collection_point = DendaDelivery::create([
@@ -82,7 +113,7 @@ class DeliveryController extends Controller
                     'denda_auto_claim' => intval($item['denda_auto_claim']),
                     'tarif' => intval($item['tarif']),
                     'admin_bank' => intval($item['admin_bank']),
-                    'dpp' => intval($get_total_awb->total_delivery_setelah_ppn),
+                    'dpp' => intval($get_total_awb->total_delivery_setelah_ppn ?? 0),
                 ]);
             }
         }

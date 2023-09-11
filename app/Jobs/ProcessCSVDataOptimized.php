@@ -168,6 +168,7 @@ class ProcessCSVDataOptimized implements ShouldQueue
                 /**
                  * cleansing csv
                  */
+                $chunk = str_replace(';;;;;;;;;;;;;;;;;;;;;;;;;;\r\n', '', $chunk);
                 $chunk = str_replace(',', '.', $chunk);
                 $chunk = str_replace(';', ',', $chunk);
 
