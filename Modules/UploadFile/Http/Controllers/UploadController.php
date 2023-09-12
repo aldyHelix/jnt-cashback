@@ -432,6 +432,10 @@ class UploadController extends Controller
             if($cell == ";;;;;;;;;;;;;;;;;;;;;;;;;;\r\n"){
                 unset($csv[$cellIndex]);
             }
+
+            if($cell == ";;;;;;;;;;;;;;;;;;;;;;;;;;"){
+                unset($csv[$cellIndex]);
+            }
         }
 
         $chunks = array_chunk($csv, 500);
