@@ -168,6 +168,7 @@ class ProcessCSVDataOptimized implements ShouldQueue
                 /**
                  * cleansing csv
                  */
+                $chunk = str_replace(';;;;;;;;;;;;;;;;;;;;;;;;;;', '', $chunk);
                 $chunk = str_replace(';;;;;;;;;;;;;;;;;;;;;;;;;;\r\n', '', $chunk);
                 $chunk = str_replace(',', '.', $chunk);
                 $chunk = str_replace(';', ',', $chunk);
@@ -244,13 +245,13 @@ class ProcessCSVDataOptimized implements ShouldQueue
 
                             $new_data = array_combine($header, $item);
 
-                            $new_data['cod'] = intval($new_data['cod']);
-                            $new_data['biaya_asuransi'] = intval($new_data['biaya_asuransi']);
-                            $new_data['biaya_kirim'] = intval($new_data['biaya_kirim']);
-                            $new_data['biaya_lainnya'] = intval($new_data['biaya_lainnya']);
-                            $new_data['total_biaya'] = intval($new_data['total_biaya']);
-                            $new_data['diskon'] = intval($new_data['diskon']);
-                            $new_data['total_biaya_setelah_diskon'] = intval($new_data['total_biaya_setelah_diskon']);
+                            $new_data['cod'] = rupiah_to_int($new_data['cod']);
+                            $new_data['biaya_asuransi'] = rupiah_to_int($new_data['biaya_asuransi']);
+                            $new_data['biaya_kirim'] = rupiah_to_int($new_data['biaya_kirim']);
+                            $new_data['biaya_lainnya'] = rupiah_to_int($new_data['biaya_lainnya']);
+                            $new_data['total_biaya'] = rupiah_to_int($new_data['total_biaya']);
+                            $new_data['diskon'] = rupiah_to_int($new_data['diskon']);
+                            $new_data['total_biaya_setelah_diskon'] = rupiah_to_int($new_data['total_biaya_setelah_diskon']);
 
                             if ($new_data['waktu_ttd'] === "") {
                                 $new_data['waktu_ttd'] = '01/01/1970 00:00';
@@ -287,13 +288,13 @@ class ProcessCSVDataOptimized implements ShouldQueue
 
                         if (count($item) === count($header)) {
                             $item = array_combine($header, $item);
-                            $item['cod'] = intval($item['cod']);
-                            $item['biaya_asuransi'] = intval($item['biaya_asuransi']);
-                            $item['biaya_kirim'] = intval($item['biaya_kirim']);
-                            $item['biaya_lainnya'] = intval($item['biaya_lainnya']);
-                            $item['total_biaya'] = intval($item['total_biaya']);
-                            $item['diskon'] = intval($item['diskon']);
-                            $item['total_biaya_setelah_diskon'] = intval($item['total_biaya_setelah_diskon']);
+                            $item['cod'] = rupiah_to_int($item['cod']);
+                            $item['biaya_asuransi'] = rupiah_to_int($item['biaya_asuransi']);
+                            $item['biaya_kirim'] = rupiah_to_int($item['biaya_kirim']);
+                            $item['biaya_lainnya'] = rupiah_to_int($item['biaya_lainnya']);
+                            $item['total_biaya'] = rupiah_to_int($item['total_biaya']);
+                            $item['diskon'] = rupiah_to_int($item['diskon']);
+                            $item['total_biaya_setelah_diskon'] = rupiah_to_int($item['total_biaya_setelah_diskon']);
 
                             if ($item['waktu_ttd'] === "") {
                                 $item['waktu_ttd'] = '01/01/1970 00:00';

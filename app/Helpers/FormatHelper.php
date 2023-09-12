@@ -14,6 +14,12 @@ if (!function_exists('decimal_format')) {
     }
 }
 
+if (!function_exists('rupiah_to_int')) {
+    function rupiah_to_int($rupiah_format){
+        return intval(preg_replace("/[^0-9]/", '', $rupiah_format));
+    }
+}
+
 if (!function_exists('file_size_format')) {
     function file_size_format($bytes, $decimals = 2){
         $size = array('B','kB','MB','GB','TB','PB','EB','ZB','YB');
