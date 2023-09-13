@@ -125,6 +125,7 @@ class ProcessCSVDataOptimized implements ShouldQueue
 
                 foreach($this->data as $index => $cell) {
                     $original = $cell;
+                    $invalid = false;
                     if( substr_count($cell,";") > 24) {
                         $this->data[$index] = preg_replace_callback('/"(.*?)";/', function($matches) {
                             $cleanString = str_replace(';', ' ', $matches[1]);
@@ -146,7 +147,7 @@ class ProcessCSVDataOptimized implements ShouldQueue
                             $cell = str_replace('"','', $cell);
                             $cell .= $this->data[$index+1];
 
-                            DB::table('log_resi')->insert([
+                            $invalid = DB::table('log_resi')->insert([
                                 'periode_id' => $this->period_id,
                                 'batch_id' => $this->batch()->id,
                                 'resi' => substr($cell, 0, 12),
@@ -315,6 +316,11 @@ class ProcessCSVDataOptimized implements ShouldQueue
                                     'created_at' => now()
                                 ]);
                             }
+
+                            if ($invalid) {
+                                $invalid->update(['type' => 'invalid : success inserted']);
+                            }
+
                             $inserted++;
                         }
                          else {
