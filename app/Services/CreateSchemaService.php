@@ -1795,6 +1795,8 @@ class CreateSchemaService {
 
             ".$this->createViewRekapZonasi($schema)."
 
+            ".$this->createViewGradingA($schema)."
+
             ".$this->createViewCPDPCashbackRegulerGrading1($schema)."
 
             ".$this->createViewCPDPCashbackRegulerGrading2($schema)."
