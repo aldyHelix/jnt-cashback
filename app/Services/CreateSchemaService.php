@@ -1703,6 +1703,128 @@ class CreateSchemaService {
             CREATE SCHEMA ".$schema."
             CREATE TABLE data_mart (no_waybill varchar unique, tgl_pengiriman date, drop_point_outgoing varchar, sprinter_pickup text,tempat_tujuan text,keterangan text, berat_yang_ditagih float, cod integer, biaya_asuransi integer, biaya_kirim integer, biaya_lainnya integer, total_biaya integer, klien_pengiriman text, metode_pembayaran text, nama_pengirim text, sumber_waybill text, paket_retur text, waktu_ttd timestamp, layanan text, diskon integer, total_biaya_setelah_diskon integer, agen_tujuan text, nik text, kode_promo text, kat text)
 
+            ".$this->allSumBiayaKirim($schema)."
+
+            ".$this->CPDPAllCountSum($schema)."
+
+            ".$this->CPDPRegulerCountSum($schema)."
+
+            ".$this->CPDPDfodCountSum($schema)."
+
+            ".$this->CPDPSuperCountSum($schema)."
+
+            ".$this->CPDPMPCountWaybill($schema)."
+
+            ".$this->CPDPMPSumBiayaKirim($schema)."
+
+            ".$this->CPDPMPReturCountWaybill($schema)."
+
+            ".$this->CPDPMPReturSumBiayaKirim($schema)."
+
+            ".$this->DPFAllCountSum($schema)."
+
+            ".$this->DPFRegulerCountSum($schema)."
+
+            ".$this->DPFDfodCountSum($schema)."
+
+            ".$this->DPFSuperCountSum($schema)."
+
+            ".$this->DPFMPCountWaybill($schema)."
+
+            ".$this->DPFMPSumBiayaKirim($schema)."
+
+            ".$this->DPFMPReturCountWaybill($schema)."
+
+            ".$this->DPFMPReturSumBiayaKirim($schema)."
+
+            ".$this->ZonasiAllCountSum($schema)."
+
+            ".$this->ZonasiRegulerCountSum($schema)."
+
+            ".$this->ZonasiDfodCountSum($schema)."
+
+            ".$this->ZonasiSuperCountSum($schema)."
+
+            ".$this->ZonasiMPCountWaybill($schema)."
+
+            ".$this->ZonasiMPSumBiayaKirim($schema)."
+
+            ".$this->ZonasiMPReturCountWaybill($schema)."
+
+            ".$this->ZonasiMPReturSumBiayaKirim($schema)."
+
+            ".$this->DCAllCountSum($schema)."
+
+            ".$this->DCRegulerCountSum($schema)."
+
+            ".$this->DCDfodCountSum($schema)."
+
+            ".$this->DCSuperCountSum($schema)."
+
+            ".$this->DCMPCountWaybill($schema)."
+
+            ".$this->DCMPSumBiayaKirim($schema)."
+
+            ".$this->DCMPReturCountWaybill($schema)."
+
+            ".$this->DCMPReturSumBiayaKirim($schema)."
+
+            ".$this->DCAllCountSum($schema)."
+
+            ".$this->DCRegulerCountSum($schema)."
+
+            ".$this->DCDfodCountSum($schema)."
+
+            ".$this->DCSuperCountSum($schema)."
+
+            ".$this->DCMPCountWaybill($schema)."
+
+            ".$this->DCMPSumBiayaKirim($schema)."
+
+            ".$this->DCMPReturCountWaybill($schema)."
+
+            ".$this->DCMPReturSumBiayaKirim($schema)."
+
+            ".$this->createViewRekapZonasi($schema)."
+
+            ".$this->createViewGradingA($schema)."
+
+            ".$this->createViewCPDPCashbackRegulerGrading1($schema)."
+
+            ".$this->createViewCPDPCashbackRegulerGrading2($schema)."
+
+            ".$this->createViewCPDPCashbackRegulerGrading3($schema)."
+
+            ".$this->createViewCPDPCashbackCODGrading1($schema)."
+
+            ".$this->createViewCPDPCashbackNonCODGrading1($schema)."
+
+            ".$this->createViewCPDPCashbackRekapGrading1($schema)."
+
+            ".$this->createViewCPDPRekapDendaGrading1($schema)."
+
+            ".$this->createViewCPDPCashbackAWBGrading2($schema)."
+
+            ".$this->createViewCPDPCashbackRekapGrading2($schema)."
+
+            ".$this->createViewCPDPCashbackRekapDendaGrading2($schema)."
+
+            ".$this->createViewCPDPCashbackAWBGrading3($schema)."
+
+            ".$this->createViewCPDPCashbackRekapGrading3($schema)."
+
+            ".$this->createViewCPDPCashbackRekapDendaGrading3($schema)."
+
+            ".$this->createViewDPFCashbackRegulerGrading($schema)."
+
+            ".$this->createViewDPFCashbackCODGrading($schema)."
+
+            ".$this->createViewDPFCashbackNonCODGrading($schema)."
+
+            ".$this->createViewDPFCashbackRekapGrading($schema)."
+
+            ".$this->createViewDPFCashbackRekapDendaGrading($schema)."
+
             ");
 
             // ".$this->allSumBiayaKirim($schema)."
