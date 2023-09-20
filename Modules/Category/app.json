@@ -1,0 +1,10 @@
+{
+    "name": "category",
+    "namespace": "Modules\\Category\\",
+    "providers": [
+        "Modules\\Category\\Providers\\CategoryServiceProvider",
+        "Modules\\Category\\Providers\\EventServiceProvider",
+        "Modules\\Category\\Providers\\RouteServiceProvider"
+    ],
+    "status": "enabled"
+}

@@ -11,9 +11,9 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('master_delivery_fee', function (Blueprint $table) {
-            $table->integer('target_kpi_percent')->default(92);
-            $table->integer('reduce_not_achievement')->default(100);
+        Schema::table('master_klien_pengiriman_setting', function (Blueprint $table) {
+            $table->tinyInteger('is_marketplace_reguler')->default(0);
+            $table->tinyInteger('is_vip')->default(0);
         });
     }
 
@@ -23,8 +23,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('master_delivery_fee', function (Blueprint $table) {
-            $table->dropColumn('target_kpi_percent');
-            $table->dropColumn('reduce_not_achievement');
+            $table->dropColumn('is_marketplace_reguler');
+            $table->dropColumn('is_vip');
         });
     }
 };
