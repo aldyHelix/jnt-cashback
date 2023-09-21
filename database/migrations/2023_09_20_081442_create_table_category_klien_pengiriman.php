@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('master_category', function (Blueprint $table) {
             $table->id();
             $table->string('nama_kategori')->nullable();
+            $table->string('kode_kategori')->nullable();
             $table->timestamps();
         });
 
@@ -22,7 +23,7 @@ return new class extends Migration
             $table->integer('klien_pengiriman_id')->unsigned();
             $table->foreign('category_id')->references('id')->on('master_category')
                 ->onDelete('cascade');
-            $table->foreign('klien_pengiriman_id')->references('id')->on('master_klien_pengiriman_setting')
+            $table->foreign('klien_pengiriman_id')->references('id')->on('global_klien_pengiriman')
                 ->onDelete('cascade');
         });
     }

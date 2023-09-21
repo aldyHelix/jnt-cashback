@@ -1,14 +1,12 @@
 <?php
 
-namespace Modules\RateSetting\Menus;
+namespace Modules\Category\Menus;
 
 use Ladmin\Engine\Contracts\MenuDivider;
 use Ladmin\Engine\Menus\Gate;
 use Ladmin\Engine\Supports\BaseMenu;
-use Modules\Category\Menus\CategoryKlienPengiriman;
-use Modules\CollectionPoint\Menus\CollectionPointMenu;
 
-class MasterMenu extends BaseMenu
+class CategoryKlienPengiriman extends BaseMenu
 {
 
     /**
@@ -16,28 +14,28 @@ class MasterMenu extends BaseMenu
      *
      * @var string
      */
-    protected $gate = 'master.index';
+    protected $gate = 'ladmin.category.index';
 
     /**
      * Name of menu
      *
      * @var string
      */
-    protected $name = 'Master data';
+    protected $name = 'Category Klien Pengiriman';
 
     /**
      * Font icons
      *
      * @var string
      */
-    protected $icon = 'fa fa-book'; // fontawesome
+    protected $icon = 'fa fa-regular fa-square-check'; // fontawesome
 
     /**
      * Menu description
      *
      * @var string
      */
-    protected $description = 'User can access master data';
+    protected $description = 'User can access module category klien pengiriman';
 
     /**
      * Inspecting The Request Path / Route active
@@ -62,7 +60,7 @@ class MasterMenu extends BaseMenu
      */
     protected function route()
     {
-        return null;
+        return ['ladmin.category.index'];
     }
 
     /**
@@ -74,6 +72,9 @@ class MasterMenu extends BaseMenu
     {
         return [
             // new Gate(gate: 'gate.menu.uniq', title: 'Gate Title', description: 'Description of gate'),
+            new Gate(gate: 'ladmin.category.create', title: 'Create New Klien Pengiriman', description: 'User can create new klien pengiriman data'),
+            new Gate(gate: 'ladmin.category.update', title: 'Update Klien Pengiriman', description: 'User can update klien pengiriman'),
+            new Gate(gate: 'ladmin.category.delete', title: 'Delete Klien Pengiriman', description: 'User can update klien pengiriman'),
         ];
     }
 
@@ -86,12 +87,6 @@ class MasterMenu extends BaseMenu
     {
         return [
             // OtherMenu::class
-            CategoryKlienPengiriman::class,
-            CollectionPointMenu::class,
-            RateTarifGradeAMenu::class,
-            RateTarifGradeBMenu::class,
-            RateTarifGradeCMenu::class,
-            RateTarifDeliveryFeeMenu::class
         ];
     }
 }
