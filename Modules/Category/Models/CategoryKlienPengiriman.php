@@ -10,7 +10,7 @@ class CategoryKlienPengiriman extends Model
     use HasFactory;
 
     protected $table = 'master_category';
-    protected $fillable = ['nama_kategori', 'kode_kategori'];
+    protected $fillable = ['nama_kategori', 'kode_kategori', 'metode_pembayaran', 'kat'];
     /**
      * CategoryKlienPengiriman Factory
      *

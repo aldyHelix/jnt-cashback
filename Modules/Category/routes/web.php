@@ -27,7 +27,12 @@ ladmin()->route(function() {
         Route::delete('/delete/{id}', [CategoryKlienPengirimanController::class, 'destroy'])->name('destroy');
 
         Route::post('/sync', [CategoryKlienPengirimanController::class, 'syncKlienPengiriman'])->name('sync');
+        Route::post('/sync-metode-pembayaran', [CategoryKlienPengirimanController::class, 'syncMetodePembayaran'])->name('sync.metode-pembayaran');
+        Route::post('/sync-kat', [CategoryKlienPengirimanController::class, 'syncKategoriResi'])->name('sync.kategori-resi');
         Route::post('/save-setting', [CategoryKlienPengirimanController::class, 'saveSetting'])->name('savesetting');
+        Route::post('/add-kategori', [CategoryKlienPengirimanController::class, 'storeKategori'])->name('add.kategori');
+        Route::post('/update-kategori', [CategoryKlienPengirimanController::class, 'updateKategori'])->name('update.kategori');
+        Route::post('/add-klien-pengiriman', [CategoryKlienPengirimanController::class, 'storeKlienPengiriman'])->name('add.klien-pengiriman');
     });
 
 });
