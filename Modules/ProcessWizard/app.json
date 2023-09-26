@@ -1,0 +1,10 @@
+{
+    "name": "processwizard",
+    "namespace": "Modules\\ProcessWizard\\",
+    "providers": [
+        "Modules\\ProcessWizard\\Providers\\ProcessWizardServiceProvider",
+        "Modules\\ProcessWizard\\Providers\\EventServiceProvider",
+        "Modules\\ProcessWizard\\Providers\\RouteServiceProvider"
+    ],
+    "status": "enabled"
+}

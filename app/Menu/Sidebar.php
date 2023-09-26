@@ -7,6 +7,7 @@ use Modules\Ladmin\Menus\Access;
 use Modules\Ladmin\Menus\System;
 use Modules\Ladmin\Menus\Home;
 use Modules\Period\Menus\PeriodeMenu;
+use Modules\ProcessWizard\Menus\WizardMenu;
 use Modules\RateSetting\Menus\MasterMenu;
 use Modules\UploadFile\Menus\UploadMenu;
 
@@ -16,6 +17,8 @@ use Modules\UploadFile\Menus\UploadMenu;
 
 return [
     Home::class,
+
+    WizardMenu::class,
 
     UploadMenu::class,
 
