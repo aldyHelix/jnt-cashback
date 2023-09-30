@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 use Modules\Category\Models\CategoryKlienPengiriman;
 
 class GeneratePivotTableService {
-    public function createPivot($schema, $periode_id) {
+    public function createOrReplacePivot($schema, $periode_id) {
         //get category
         $category = CategoryKlienPengiriman::get();
         $query = "";

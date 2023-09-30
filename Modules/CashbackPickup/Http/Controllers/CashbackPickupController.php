@@ -162,6 +162,9 @@ class CashbackPickupController extends Controller
 
         GradingProcess::generateGrading($id, $grade);
 
+        //update Category Klien Pengiriman
+        GeneratePivot::createOrReplacePivot($code, $id);
+
         //update klien pengiriman
         //CreateSchema::updateViewPivot($periode->code, $string);
 

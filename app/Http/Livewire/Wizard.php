@@ -358,7 +358,7 @@ class Wizard extends Component
         // process queue import
         // process pivot
 
-        GeneratePivot::createPivot($this->schema_name, $this->periode_id);
+        GeneratePivot::createOrReplacePivot($this->schema_name, $this->periode_id);
         // process grading
         // process report
     }
