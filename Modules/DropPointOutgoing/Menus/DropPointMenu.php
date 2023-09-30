@@ -1,12 +1,12 @@
 <?php
 
-namespace Modules\ProcessWizard\Menus;
+namespace Modules\DropPointOutgoing\Menus;
 
 use Ladmin\Engine\Contracts\MenuDivider;
 use Ladmin\Engine\Menus\Gate;
 use Ladmin\Engine\Supports\BaseMenu;
 
-class WizardMenu extends BaseMenu
+class DropPointMenu extends BaseMenu
 {
 
     /**
@@ -14,28 +14,28 @@ class WizardMenu extends BaseMenu
      *
      * @var string
      */
-    protected $gate = 'ladmin.processwizard.index';
+    protected $gate = 'ladmin.droppointoutgoing.index';
 
     /**
      * Name of menu
      *
      * @var string
      */
-    protected $name = 'Wizard';
+    protected $name = 'Drop Point Outgoing';
 
     /**
      * Font icons
      *
      * @var string
      */
-    protected $icon = 'fa fa-magic'; // fontawesome
+    protected $icon = 'fa fa-regular fa-pin-o'; // fontawesome
 
     /**
      * Menu description
      *
      * @var string
      */
-    protected $description = 'User can access module name';
+    protected $description = 'User can access drop point outgoing';
 
     /**
      * Inspecting The Request Path / Route active
@@ -60,7 +60,7 @@ class WizardMenu extends BaseMenu
      */
     protected function route()
     {
-        return ['ladmin.processwizard.index'];
+        return ['ladmin.droppointoutgoing.index'];
     }
 
     /**
@@ -71,9 +71,10 @@ class WizardMenu extends BaseMenu
     protected function gates()
     {
         return [
-            new Gate(gate: 'ladmin.processwizard.create', title: 'Create New process wizard', description: 'User can create new process wizard data'),
-            new Gate(gate: 'ladmin.processwizard.update', title: 'Update process wizard', description: 'User can update process wizard'),
-            new Gate(gate: 'ladmin.processwizard.delete', title: 'Delete process wizard', description: 'User can update process wizard'),
+            // new Gate(gate: 'gate.menu.uniq', title: 'Gate Title', description: 'Description of gate'),
+            new Gate(gate: 'ladmin.droppointoutgoing.create', title: 'Create New drop point outgoing', description: 'User can create new drop point outgoing data'),
+            new Gate(gate: 'ladmin.droppointoutgoing.update', title: 'Update drop point outgoing', description: 'User can update drop point outgoing'),
+            new Gate(gate: 'ladmin.droppointoutgoing.delete', title: 'Delete drop point outgoing', description: 'User can update drop point outgoing'),
         ];
     }
 

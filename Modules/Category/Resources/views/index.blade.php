@@ -1,6 +1,6 @@
 <x-ladmin-auth-layout>
     <x-slot name="title">Master Kategori Klien Pengiriman</x-slot>
-    @can(['ladmin.collectionpoint.create'])
+    @can(['ladmin.category.create'])
     <x-slot name="button">
         <a data-bs-toggle="modal" data-bs-target="#modal-add-klien-pengiriman"  class="btn btn-primary">&plus; Tambah Klien Pengiriman</a>
         <a data-bs-toggle="modal" data-bs-target="#modal-add-kategori-klien-pengiriman"  class="btn btn-primary">&plus; Tambah Kategori Klien Pengiriman</a>

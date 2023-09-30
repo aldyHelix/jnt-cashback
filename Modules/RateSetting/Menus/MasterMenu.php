@@ -7,6 +7,7 @@ use Ladmin\Engine\Menus\Gate;
 use Ladmin\Engine\Supports\BaseMenu;
 use Modules\Category\Menus\CategoryKlienPengiriman;
 use Modules\CollectionPoint\Menus\CollectionPointMenu;
+use Modules\DropPointOutgoing\Menus\DropPointMenu;
 
 class MasterMenu extends BaseMenu
 {
@@ -87,6 +88,7 @@ class MasterMenu extends BaseMenu
         return [
             // OtherMenu::class
             CategoryKlienPengiriman::class,
+            DropPointMenu::class,
             CollectionPointMenu::class,
             RateTarifGradeAMenu::class,
             RateTarifGradeBMenu::class,

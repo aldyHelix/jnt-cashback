@@ -13,7 +13,7 @@
     @vite('Modules/Ladmin/Resources/sass/ladmin.scss')
     {{ $styles ?? null }}
     @stack('after-styles')
-
+    @livewireStyles
 </head>
 
 <body class="ladmin">
@@ -99,7 +99,7 @@
             <x-ladmin-footer />
         </div>
     </div>
-    
+
     <!-- Modal -->
     <div class="modal" id="modal-logout" tabindex="-1" aria-labelledby="modal-logoutLabel" aria-hidden="true">
         <div class="modal-dialog">
@@ -132,6 +132,8 @@
     @vite('Modules/Ladmin/Resources/js/ladmin.js')
     {{ $scripts ?? null }}
     @stack('after-scripts')
+
+    @livewireScripts
 </body>
 
 </html>
