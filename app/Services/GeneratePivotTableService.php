@@ -19,6 +19,11 @@ class GeneratePivotTableService {
                 FROM ".$schema.".data_mart;";
 
         foreach($category as $cat) {
+            $sum_column = 'biaya_kirim';
+
+            if($cat->kode_kategori == 'super') {
+                $sum_column = 'total_biaya_setelah_diskon';
+            }
             //get periode klien pengiriman
             $periode_klien_pengiriman = PeriodeKlienPengiriman::with('klien_pengiriman')->where(['periode_id' => $periode_id, 'category_id'=> $cat->id])->get()->pluck('klien_pengiriman.klien_pengiriman')->toArray();
 
@@ -44,7 +49,7 @@ class GeneratePivotTableService {
                 CREATE OR REPLACE VIEW cp_dp_".$cat->kode_kategori."_count_sum AS
                     SELECT DISTINCT data_mart.drop_point_outgoing,
                         count(data_mart.no_waybill) AS count,
-                        sum(data_mart.biaya_kirim) AS sum
+                        sum(data_mart.$sum_column) AS sum
                         FROM ".$schema.".data_mart
                     WHERE
                     ($kat)
@@ -56,8 +61,6 @@ class GeneratePivotTableService {
 
             ";
         }
-
-        dd($query);
 
         //check if exist first
         if(Schema::hasTable($schema.'.data_mart')) {

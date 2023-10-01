@@ -188,8 +188,8 @@ class CategoryKlienPengirimanController extends Controller
         return redirect()->back();
     }
 
-    public function updateKategori(Request $request){
-        $data = CategoryKlienPengiriman::where('id', $request->id)->first();
+    public function updateKategori(Request $request, $id){
+        $data = CategoryKlienPengiriman::where('id', $id)->first();
 
         $saveSetting = $data->update([
             'nama_kategori' => strtoupper($request->nama_kategori),

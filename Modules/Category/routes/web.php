@@ -31,7 +31,7 @@ ladmin()->route(function() {
         Route::post('/sync-kat', [CategoryKlienPengirimanController::class, 'syncKategoriResi'])->name('sync.kategori-resi');
         Route::post('/save-setting', [CategoryKlienPengirimanController::class, 'saveSetting'])->name('savesetting');
         Route::post('/add-kategori', [CategoryKlienPengirimanController::class, 'storeKategori'])->name('add.kategori');
-        Route::post('/update-kategori', [CategoryKlienPengirimanController::class, 'updateKategori'])->name('update.kategori');
+        Route::post('/update-kategori/{id}', [CategoryKlienPengirimanController::class, 'updateKategori'])->name('update.kategori');
         Route::post('/add-klien-pengiriman', [CategoryKlienPengirimanController::class, 'storeKlienPengiriman'])->name('add.klien-pengiriman');
         Route::post('/import/klien-pengiriman', [CategoryKlienPengirimanController::class, 'importKlienPengiriman'])->name('import.klien-pengiriman');
     });

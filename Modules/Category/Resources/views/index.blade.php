@@ -283,46 +283,46 @@
                     <x-ladmin-modal id="modal-setting-klien-pengiriman-{{ $cat->id }}" class="text-start">
                             <x-slot name="title">Setting Kategori Pengiriman {{ $cat->nama_kategori }}</x-slot>
                             <x-slot name="body">
-                                <form action="{{ route('ladmin.category.update.kategori') }}" method="POST">
+                                <form action="{{ route('ladmin.category.update.kategori', ['id' => $cat->id]) }}" method="POST">
                                     @csrf
-                                    <input type="hidden" name="id" value="{{ $cat->id }}">
-                                <div class="row d-flex align-items-center">
+                                    <input type="hidden" name="category_id" value="{{ $cat->id }}">
                                     <div class="row d-flex align-items-center">
-                                        <label for="name" class="form-label col-lg-5">Nama Kategori<span class="text-danger">*</span></label>
-                                        <x-ladmin-input id="nama_kategori" type="text" class="mb-3 col" required name="nama_kategori"
-                                            value="{{ old('nama_kategori') }}" value="{{ $cat->nama_kategori }}" placeholder="Nama Kategori" />
-                                    </div>
-
-                                    <div class="row d-flex align-items-center">
-                                        <label for="name" class="form-label col-lg-5">Metode Pembayaran<span class="text-danger">*</span></label>
-                                        <div>
-                                            @foreach ($metode_pembayaran_list as $i)
-                                                <div class="form-check form-check-inline">
-                                                    <input class="form-check-input" type="checkbox" id="metode_pembayaran" name="metode_pembayaran[]" value="{{ $i != "" ? $i : '(blank)'}}" {{ in_array(($i != "" ? $i : '(blank)' ), explode(";" ,$cat->metode_pembayaran)) ? "checked" : "" }}>
-                                                    <label class="form-check-label" for="inlineCheckbox1">{{ $i != "" ? $i : '(blank)'}}</label>
-                                                </div>
-                                            @endforeach
+                                        <div class="row d-flex align-items-center">
+                                            <label for="name" class="form-label col-lg-5">Nama Kategori<span class="text-danger">*</span></label>
+                                            <x-ladmin-input id="nama_kategori" type="text" class="mb-3 col" required name="nama_kategori"
+                                                value="{{ old('nama_kategori') }}" value="{{ $cat->nama_kategori }}" placeholder="Nama Kategori" />
                                         </div>
-                                    </div>
 
-                                    <div class="row d-flex align-items-center">
-                                        <label for="name" class="form-label col-lg-3">Kategori Resi<span class="text-danger">*</span></label>
-                                        <div>
-                                            @foreach ($kat_list as $j)
-                                            <div class="form-check form-check-inline">
-                                                <input class="form-check-input" type="checkbox" id="metode_pembayaran" name="kat[]" value="{{ $j }}" {{ in_array($j, explode(";" ,$cat->kat)) ? "checked" : ""}}>
-                                                <label class="form-check-label" for="inlineCheckbox1">{{ $j }}</label>
+                                        <div class="row d-flex align-items-center">
+                                            <label for="name" class="form-label col-lg-5">Metode Pembayaran<span class="text-danger">*</span></label>
+                                            <div>
+                                                @foreach ($metode_pembayaran_list as $i)
+                                                    <div class="form-check form-check-inline">
+                                                        <input class="form-check-input" type="checkbox" id="metode_pembayaran" name="metode_pembayaran[]" value="{{ $i != "" ? $i : '(blank)'}}" {{ in_array(($i != "" ? $i : '(blank)' ), explode(";" ,$cat->metode_pembayaran)) ? "checked" : "" }}>
+                                                        <label class="form-check-label" for="inlineCheckbox1">{{ $i != "" ? $i : '(blank)'}}</label>
+                                                    </div>
+                                                @endforeach
                                             </div>
-                                            @endforeach
+                                        </div>
+
+                                        <div class="row d-flex align-items-center">
+                                            <label for="name" class="form-label col-lg-3">Kategori Resi<span class="text-danger">*</span></label>
+                                            <div>
+                                                @foreach ($kat_list as $j)
+                                                <div class="form-check form-check-inline">
+                                                    <input class="form-check-input" type="checkbox" id="metode_pembayaran" name="kat[]" value="{{ $j }}" {{ in_array($j, explode(";" ,$cat->kat)) ? "checked" : ""}}>
+                                                    <label class="form-check-label" for="inlineCheckbox1">{{ $j }}</label>
+                                                </div>
+                                                @endforeach
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
 
-                                <x-ladmin-button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batalkan
-                                </x-ladmin-button>
-                                <x-ladmin-button type="submit" class="text-white" color="danger">Simpan</x-ladmin-button>
+                                    <x-ladmin-button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batalkan
+                                    </x-ladmin-button>
+                                    <x-ladmin-button type="submit" class="text-white" color="danger">Simpan</x-ladmin-button>
+                                </form>
                             </x-slot>
-                        </form>
                     </x-ladmin-modal>
                 @endforeach
             </div>
