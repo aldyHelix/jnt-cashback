@@ -5,6 +5,7 @@ namespace Modules\CashbackPickup\Http\Controllers;
 use App\Exports\GradingExport;
 use App\Exports\GradingExports;
 use App\Facades\CreateSchema;
+use App\Facades\GeneratePivot;
 use App\Facades\GradingProcess;
 use App\Models\Denda;
 use App\Facades\PivotTable;

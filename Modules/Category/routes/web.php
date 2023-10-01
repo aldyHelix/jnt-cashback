@@ -33,6 +33,7 @@ ladmin()->route(function() {
         Route::post('/add-kategori', [CategoryKlienPengirimanController::class, 'storeKategori'])->name('add.kategori');
         Route::post('/update-kategori', [CategoryKlienPengirimanController::class, 'updateKategori'])->name('update.kategori');
         Route::post('/add-klien-pengiriman', [CategoryKlienPengirimanController::class, 'storeKlienPengiriman'])->name('add.klien-pengiriman');
+        Route::post('/import/klien-pengiriman', [CategoryKlienPengirimanController::class, 'importKlienPengiriman'])->name('import.klien-pengiriman');
     });
 
 });

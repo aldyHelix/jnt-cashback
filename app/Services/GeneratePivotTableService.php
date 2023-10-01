@@ -57,6 +57,8 @@ class GeneratePivotTableService {
             ";
         }
 
+        dd($query);
+
         //check if exist first
         if(Schema::hasTable($schema.'.data_mart')) {
             $run = DB::connection('pgsql')->unprepared(

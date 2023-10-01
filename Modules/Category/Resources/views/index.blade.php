@@ -4,6 +4,7 @@
     <x-slot name="button">
         <a data-bs-toggle="modal" data-bs-target="#modal-add-klien-pengiriman"  class="btn btn-primary">&plus; Tambah Klien Pengiriman</a>
         <a data-bs-toggle="modal" data-bs-target="#modal-add-kategori-klien-pengiriman"  class="btn btn-primary">&plus; Tambah Kategori Klien Pengiriman</a>
+        <a data-bs-toggle="modal" data-bs-target="#modal-import-to-periode"  class="btn btn-primary"><i class="fas fa-upload"></i> Import to periode</a>
     </x-slot>
     @endcan
     <x-ladmin-card>
@@ -255,6 +256,27 @@
                             <x-ladmin-button type="submit" class="text-white" color="danger">Simpan</x-ladmin-button>
                         </x-slot>
                     </form>
+                </x-ladmin-modal>
+
+                <x-ladmin-modal id="modal-import-to-periode" class="text-start">
+
+                        <x-slot name="title">Import klien pengiriman ke periode</x-slot>
+                        <x-slot name="body">
+                            <form action="{{ route('ladmin.category.import.klien-pengiriman') }}" method="POST">
+                                @csrf
+                                <div class="row d-flex align-items-center">
+                                    <label for="name" class="form-label col-lg-3">Periode<span class="text-danger">*</span></label>
+                                    <select name="periode_id" id="" class="form-control">
+                                        @foreach ($periode as $item)
+                                            <option value="{{ $item->id }}">{{ $item->month }} {{ $item->year}}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <x-ladmin-button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batalkan
+                                </x-ladmin-button>
+                                <x-ladmin-button type="submit" class="text-white" color="danger">Simpan</x-ladmin-button>
+                            </form>
+                        </x-slot>
                 </x-ladmin-modal>
 
                 @foreach ($category as $cat)

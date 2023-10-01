@@ -7,6 +7,7 @@ use App\Models\GlobalKlienPengiriman;
 use App\Models\GlobalMetodePembayaran;
 use App\Models\KlienPengiriman;
 use App\Models\Periode;
+use App\Models\PeriodeKlienPengiriman;
 use Illuminate\Http\Request;
 use Modules\Category\Datatables\KlienPengirimanDatatables;
 use DB;
@@ -68,6 +69,23 @@ class CategoryKlienPengirimanController extends Controller
         return redirect()->back()->with('success', 'Sukses mengsinkronasikan klien pengiriman');
     }
 
+    public function importKlienPengiriman(Request $request){
+        $periode_id = $request->periode_id;
+        $get_global_klien_pengiriman = DB::table('category_klien_pengiriman')->get();
+
+        $periode_klien_pengiriman = $get_global_klien_pengiriman->map(function ($data) use ($periode_id){
+            return [
+                'periode_id' => intval($periode_id),
+                'category_id' => $data->category_id,
+                'klien_pengiriman_id' => $data->klien_pengiriman_id
+            ];
+        });
+
+        PeriodeKlienPengiriman::insert($periode_klien_pengiriman->toArray());
+
+        return redirect()->back()->with('success', 'Sukses import klien pengiriman');
+    }
+
     public function index(){
         ladmin()->allows(['ladmin.category.index']);
 
@@ -104,6 +122,7 @@ class CategoryKlienPengirimanController extends Controller
         $data['metode_pembayaran_not_sync'] = array_diff($metode_pembayaran, $data['metode_pembayaran_list']->toArray());
         $data['kat_not_sync'] = array_diff($kat_resi, $data['kat_list']->toArray());
         $data['category'] = CategoryKlienPengiriman::with('klien_pengiriman')->get();
+        $data['periode'] = $periode;
 
         return view('category::index', $data);
     }
