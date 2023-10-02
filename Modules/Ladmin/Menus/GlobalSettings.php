@@ -1,48 +1,47 @@
 <?php
 
-namespace Modules\RateSetting\Menus;
+namespace Modules\Ladmin\Menus;
 
-use Ladmin\Engine\Contracts\MenuDivider;
 use Ladmin\Engine\Menus\Gate;
 use Ladmin\Engine\Supports\BaseMenu;
 use Modules\Category\Menus\CategoryKlienPengiriman;
-use Modules\CollectionPoint\Menus\CollectionPointMenu;
 use Modules\DropPointOutgoing\Menus\DropPointMenu;
+use Modules\Ladmin\Menus\Submenus\Permission;
+use Modules\Ladmin\Menus\Submenus\Role;
 
-class MasterMenu extends BaseMenu
+class GlobalSettings extends BaseMenu
 {
 
     /**
-     * Gate name for accessing module
+     * Gate of default menu
      *
      * @var string
      */
-    protected $gate = 'master.index';
+    protected $gate = 'global-setting.index';
 
     /**
-     * Name of menu
+     * Menu title
      *
      * @var string
      */
-    protected $name = 'Master data';
+    protected $name = 'Global Settings';
 
     /**
-     * Font icons
+     * Menu Font icon
      *
      * @var string
      */
-    protected $icon = 'fa fa-book'; // fontawesome
+    protected $icon = 'fa-solid fa-globe'; // fontawesome
 
     /**
-     * Menu description
+     * Menu Description
      *
      * @var string
      */
-    protected $description = 'User can access master data';
+    protected $description = 'User can access menu global setting';
 
     /**
-     * Inspecting The Request Path / Route active
-     * https://laravel.com/docs/master/requests#inspecting-the-request-path
+     * Status active menu
      *
      * @var string
      */
@@ -58,10 +57,10 @@ class MasterMenu extends BaseMenu
     /**
      * Route name
      *
-     * @return Array|string|null
+     * @return Array|null
      * @example ['route.name', ['uuid', 'foo' => 'bar']]
      */
-    protected function route()
+    protected function route(): ?array
     {
         return null;
     }
@@ -79,21 +78,29 @@ class MasterMenu extends BaseMenu
     }
 
     /**
-     * Other menus
+     * Submenu
      *
      * @return void
      */
     protected function submenus()
     {
         return [
-            // OtherMenu::class
-            // CategoryKlienPengiriman::class,
-            // DropPointMenu::class,
-            CollectionPointMenu::class,
-            RateTarifGradeAMenu::class,
-            RateTarifGradeBMenu::class,
-            RateTarifGradeCMenu::class,
-            RateTarifDeliveryFeeMenu::class
+
+            CategoryKlienPengiriman::class,
+
+            DropPointMenu::class,
+
+            //SumberWaybill::class,
+
+            //PivotGrading::class
+
+            //Count Sumber Waybill
+
+            //Sum Sumber Waybill
+
+            //Count Retur Sumber Waybill
+
+            //Sum Retur Sumber Waybill
         ];
     }
 }

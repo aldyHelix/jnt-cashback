@@ -309,7 +309,9 @@ class Wizard extends Component
 
        $this->state = $create_state;
 
-        $this->currentStep = 8;
+       GeneratePivot::createOrReplacePivot($this->schema_name, $this->periode_id);
+
+       $this->currentStep = 8;
     }
 
     public function eighthStepSubmit()
@@ -356,9 +358,6 @@ class Wizard extends Component
     public function process() {
 
         // process queue import
-        // process pivot
-
-        GeneratePivot::createOrReplacePivot($this->schema_name, $this->periode_id);
         // process grading
         // process report
     }

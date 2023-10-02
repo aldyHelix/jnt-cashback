@@ -1,5 +1,6 @@
 <?php
 
+use Modules\Ladmin\Menus\GlobalSettings;
 use Modules\CashbackPickup\Menus\CashbackMenu;
 use Modules\Delivery\Menus\DeliveryMenu;
 use Modules\Ladmin\Menus\Account;
@@ -17,6 +18,8 @@ use Modules\UploadFile\Menus\UploadMenu;
 
 return [
     Home::class,
+
+    GlobalSettings::class,
 
     WizardMenu::class,
 

@@ -3099,6 +3099,7 @@ class CreateSchemaService {
                     )::BIGINT AS BIGINT
                 ) AS amount_discount_25,
                 --reguler
+
                 COALESCE(sbk.akulakuob, 0) AS akulaku,
                 COALESCE(sbk.ordivo, 0) AS ordivo,
                 COALESCE(sbk.evermosapi, 0) AS evermos,

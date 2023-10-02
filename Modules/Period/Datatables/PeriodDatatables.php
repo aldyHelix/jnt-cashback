@@ -12,7 +12,6 @@ use Illuminate\Support\Facades\Schema;
 
 class PeriodDatatables extends Datatables
 {
-
     /**
      * Page title
      *
@@ -51,11 +50,9 @@ class PeriodDatatables extends Datatables
                 return $row->month.'/'.$row->year;
             })
             ->addColumn('total_biaya_kirim', function($row){
-                if(Schema::hasTable($row->code.'.'.'sum_all_biaya_kirim')) {
-                    return 'Rp'.rupiah_format(DB::table($row->code.'.sum_all_biaya_kirim')->first()->sum ?? 0) ;
-                }
+                // return Schema::hasTable('cashback_may_2023.sum_all_biaya_kirim');
+                return 'Rp'.rupiah_format(DB::table($row->code.'.sum_all_biaya_kirim')->first()->sum ?? 0) ;
 
-                return 'Rp 0';
             })
             ->editColumn('processed_row', function($row){
                 return decimal_format($row->processed_row ?? 0);
