@@ -22,6 +22,9 @@ return new class extends Migration
      */
     public function down(): void
     {
-        //
+        Schema::table('master_delivery_fee', function (Blueprint $table) {
+            $table->dropColumn('target_kpi_percent');
+            $table->dropColumn('reduce_not_achievement');
+        });
     }
 };

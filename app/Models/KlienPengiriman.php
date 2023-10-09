@@ -18,4 +18,8 @@ class KlienPengiriman extends Model
         'is_dfod',
         'is_super'
     ];
+
+    public function category(){
+        return $this->belongsToMany('Modules\Category\Model\CategoryKlienPengiriman');
+    }
 }

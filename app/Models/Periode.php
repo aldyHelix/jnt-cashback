@@ -34,6 +34,15 @@ class Periode extends Model
         'locked_grade_3',
         'start_processed_at',
         'done_processed_at',
+        'data_pivot',
+        'data_pivot_mp',
+        'data_cashback_reguler',
+        'data_cashback_marketplace_cod',
+        'data_cashback_marketplace_non_cod',
+        'data_cashback_klien_vip',
+        'data_cashback_grading_1',
+        'data_cashback_grading_2',
+        'data_cashback_grading_3',
     ];
 }
 

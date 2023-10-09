@@ -1,0 +1,10 @@
+{
+    "name": "globalsetting",
+    "namespace": "Modules\\GlobalSetting\\",
+    "providers": [
+        "Modules\\GlobalSetting\\Providers\\GlobalSettingServiceProvider",
+        "Modules\\GlobalSetting\\Providers\\EventServiceProvider",
+        "Modules\\GlobalSetting\\Providers\\RouteServiceProvider"
+    ],
+    "status": "enabled"
+}

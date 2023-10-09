@@ -41,30 +41,23 @@ class GradingService {
                     'kode_cp' => 'Kode CP',
                     'nama_cp' => 'Nama CP',
                     'biaya_kirim_all' => 'Total Biaya Kirim Keseluruhan',
-                    'biaya_kirim_reguler' => 'Total Biaya Kirim Reguler',
-                    'biaya_kirim_dfod' => 'Total Biaya Kirim DFOD',
-                    'biaya_kirim_super' => 'Total Biaya Kirim Super',
+                    'biaya_kirim_reguler' => 'Biaya Kirim Reguler',
+                    'biaya_kirim_dfod' => 'Biaya Kirim DFOD',
+                    'biaya_kirim_super' => 'Biaya Kirim Super',
                     'total_biaya_kirim' => 'Total Biaya Kirim',
                     'total_biaya_kirim_dikurangi_ppn' => 'Total Biaya Kirim Dikurangi PPN',
-                    'amount_discount_25' => 'Diskon 25%',
-                    'akulaku' => 'AKULAKU',
-                    'ordivo' => 'ORDIVO',
-                    'evermos' => 'EVERMOS',
-                    'mengantar' => 'MENGANTAR',
-                    'total_biaya_kirim_a' => 'Total Biaya Kirim',
-                    'total_biaya_kirim_a_dikurangi_ppn' => 'Total Biaya Kirim Dikurangi PPN',
-                    'amount_discount_10' => 'Discount 10%',
+                    'amount_discount_25' => 'Amount Diskon 25%',
                     'total_cashback_reguler' => 'Total Cashback Reguler',
                 ];
-                $data['cpdp_reguler'] = DB::table($schema.'.cp_dp_cashback_reguler_grading_1')->get()->toArray();
+                $data['cpdp_reguler'] = json_decode($get_periode->data_cashback_reguler);
                 array_unshift($data['cpdp_reguler'], $header_cpdp_reguler);
 
                 $header_cpdp_cod = (object) [
                     'kode_cp' => 'Kode CP',
                     'nama_cp' => 'Nama CP',
                     'bukalapak' => 'BUKALAPAK',
-                    'total_biaya_kirim_bukalapak' => 'Total Biaya Kirim BUKALAPAK',
-                    'total_biaya_kirim_bukalapak_dikurangi_ppn' => 'Total Biaya Kirim BUKALAPAK Dikurangi PPN',
+                    'biaya_kirim_bukalapak' => 'Biaya Kirim BUKALAPAK',
+                    'biaya_kirim_bukalapak_dikurangi_ppn' => 'Biaya Kirim BUKALAPAK Dikurangi PPN',
                     'discount_bukalapak_5' => 'DISCOUNT BUKALAPAK 5%',
                     'shopee_cod' => 'SHOPEE COD',
                     'retur_shopee_cod' => 'Return SHOPEE COD',
@@ -77,15 +70,14 @@ class GradingService {
                     'total_biaya_kirim_lazada_cod' => 'Total Biaya Kirim LAZADA COD',
                     'total_biaya_kirim_cod' => 'Total Biaya Kirim COD',
                     'total_biaya_kirim_cod_dikurangi_ppn' => 'Total Biaya Kirim COD Dikurangi PPN',
-                    'diskon_cod_7' => 'Discount COD',
+                    'diskon_cod_7' => 'Discount COD 7%',
                     'tokopedia' => 'TOKOPEDIA',
                     'total_biaya_kirim_tokopedia' => 'Total Biaya Kirim TOKOPEDIA',
                     'total_biaya_kirim_tokopedia_dikurangi_ppn' => 'Total Biaya Kirim TOKOPEDIA dikurangi PPN',
                     'diskon_tokopedia_10' => 'Discount TOKOPEDIA 10%',
                     'cashback_marketplace' => 'Cashback Marketplace',
-                    'diskon_cod' => 'Diskon COD 7%'
                 ];
-                $data['cpdp_cod'] = DB::table($schema.'.cp_dp_cashback_cod_grading_1')->get()->toArray();
+                $data['cpdp_cod'] = json_decode($get_periode->data_cashback_marketplace_cod);
                 array_unshift($data['cpdp_cod'], $header_cpdp_cod);
 
 
@@ -103,49 +95,59 @@ class GradingService {
                     'total_biaya_kirim_non_cod_dikurangi_ppn' => 'Total Biaya Kirim Non COD Dikurangi PPN',
                     'discount_total_biaya_kirim_9' => 'Discount Total Biaya Kirim 9%',
                     'total_cashback_marketplace' => 'Total Cashback Marketplace',
-                    'retur_belum_terpotong' => 'Retur Belum Terpotong',
                 ];
-                $data['cpdp_non_cod'] = DB::table($schema.'.cp_dp_cashback_non_cod_grading_1')->get()->toArray();
+                $data['cpdp_non_cod'] = json_decode($get_periode->data_cashback_marketplace_non_cod);
                 array_unshift($data['cpdp_non_cod'], $header_cpdp_non_cod);
 
+                $header_cpdp_vip = (object) [
+                    'kode_cp' => 'Kode CP',
+                    'nama_cp' => 'Nama CP',
+                    'total_biaya_kirim_vip' => 'Total Biaya Kirim VIP',
+                    'total_biaya_kirim_vip_dikurangi_ppn' => 'Total Biaya Kirim VIP dikurangi ppn',
+                    'discount_total_biaya_kirim_10' => 'Total Cashback Klien VIP',
+                ];
+                $data['cpdp_vip'] = json_decode($get_periode->data_cashback_klien_vip);
+                array_unshift($data['cpdp_vip'], $header_cpdp_vip);
 
-                $header_cpdp_rekap = (object) [
+
+                $header_cpdp_rekap_grading_1 = (object) [
                     'kode_cp' => 'Kode CP',
                     'nama_cp' => 'Nama CP',
                     'total_biaya_kirim_reguler' => 'Total Biaya Kirim Reguler',
-                    'total_cashback_marketplace' => 'Total Cashback marketplace',
-                    'total_cashback_mp_luar_zona' => 'Total Cashback MP Luar Zona',
+                    'total_cashback_marketplace_cod' => 'Total Cashback marketplace',
+                    'total_cashback_marketplace_non_cod' => 'Total Cashback marketplace',
+                    'total_cashback_klien_vip' => 'Total Cashback Klien VIP',
                     'total_cashback' => 'Total Cashback',
                 ];
-                $data['cpdp_rekap'] = DB::table($schema.'.cp_dp_rekap_cashback_grading_1')->get()->toArray();
-                array_unshift($data['cpdp_rekap'], $header_cpdp_rekap);
+                $data['cpdp_rekap_grading_1'] = json_decode($get_periode->data_cashback_grading_1);
+                array_unshift($data['cpdp_rekap_grading_1'], $header_cpdp_rekap_grading_1 );
 
-                $header_cpdp_rekap_denda = (object) [
-                    'kode_cp' => 'Kode CP',
-                    'nama_cp' => 'Nama CP',
-                    'nama_pt' => 'Nama PT',
-                    'total_cashback' => 'Total Cashback',
-                    'transit_fee' => 'Transit Fee',
-                    'total_cashback_dikurangi_transit_fee' => 'Total Cashback Dikurangi Transit Fee',
-                    'denda_void' => 'Denda Void',
-                    'denda_dfod' => 'Denda Dfod',
-                    'denda_pusat' => 'Denda Pusat',
-                    'denda_selisih_berat' => 'Denda Selisih Berat',
-                    'denda_lost_scan_kirim' => 'Denda Lost Scan Kirim',
-                    'denda_auto_claim' => 'Denda Auto Claim',
-                    'denda_sposorship' => 'Denda Sponsorship',
-                    'denda_late_pickup_ecommerce' => 'Denda Late Pickup Ecommerce',
-                    'potongan_pop' => 'Potongan POP',
-                    'denda_lainnya' => 'Denda Lainnya',
-                    'dpp' => 'DPP',
-                    'amount_pph_2' => 'PPH 2%',
-                    'amount_setelah_pph' => 'Total Cashback setelah PPH',
-                    'admin_bank' => 'Admin Bank',
-                    'amount_setelah_potongan' => 'Total Setelah Potongan',
-                    'nama_bank' => 'Nama Bank',
-                ];
-                $data['cpdp_rekap_denda'] = DB::table($schema.'.cp_dp_rekap_denda_cashback_grading_1')->get()->toArray();
-                array_unshift($data['cpdp_rekap_denda'], $header_cpdp_rekap_denda);
+                // $header_cpdp_rekap_denda = (object) [
+                //     'kode_cp' => 'Kode CP',
+                //     'nama_cp' => 'Nama CP',
+                //     'nama_pt' => 'Nama PT',
+                //     'total_cashback' => 'Total Cashback',
+                //     'transit_fee' => 'Transit Fee',
+                //     'total_cashback_dikurangi_transit_fee' => 'Total Cashback Dikurangi Transit Fee',
+                //     'denda_void' => 'Denda Void',
+                //     'denda_dfod' => 'Denda Dfod',
+                //     'denda_pusat' => 'Denda Pusat',
+                //     'denda_selisih_berat' => 'Denda Selisih Berat',
+                //     'denda_lost_scan_kirim' => 'Denda Lost Scan Kirim',
+                //     'denda_auto_claim' => 'Denda Auto Claim',
+                //     'denda_sposorship' => 'Denda Sponsorship',
+                //     'denda_late_pickup_ecommerce' => 'Denda Late Pickup Ecommerce',
+                //     'potongan_pop' => 'Potongan POP',
+                //     'denda_lainnya' => 'Denda Lainnya',
+                //     'dpp' => 'DPP',
+                //     'amount_pph_2' => 'PPH 2%',
+                //     'amount_setelah_pph' => 'Total Cashback setelah PPH',
+                //     'admin_bank' => 'Admin Bank',
+                //     'amount_setelah_potongan' => 'Total Setelah Potongan',
+                //     'nama_bank' => 'Nama Bank',
+                // ];
+                // $data['cpdp_rekap_denda'] = DB::table($schema.'.cp_dp_rekap_denda_cashback_grading_1')->get()->toArray();
+                // array_unshift($data['cpdp_rekap_denda'], $header_cpdp_rekap_denda);
 
                 $this->exportFileGrade1($data, $get_periode->month, $get_periode->year);
                 break;
