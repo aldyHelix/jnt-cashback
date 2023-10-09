@@ -1,6 +1,6 @@
 <?php
 
-namespace Modules\Ladmin\Menus;
+namespace Modules\GlobalSetting\Menus;
 
 use Ladmin\Engine\Menus\Gate;
 use Ladmin\Engine\Supports\BaseMenu;
@@ -9,7 +9,7 @@ use Modules\DropPointOutgoing\Menus\DropPointMenu;
 use Modules\Ladmin\Menus\Submenus\Permission;
 use Modules\Ladmin\Menus\Submenus\Role;
 
-class GlobalSettings extends BaseMenu
+class GlobalSettingsMenu extends BaseMenu
 {
 
     /**
@@ -90,17 +90,9 @@ class GlobalSettings extends BaseMenu
 
             DropPointMenu::class,
 
-            //SumberWaybill::class,
+            SettingsMenu::class,
 
-            //PivotGrading::class
-
-            //Count Sumber Waybill
-
-            //Sum Sumber Waybill
-
-            //Count Retur Sumber Waybill
-
-            //Sum Retur Sumber Waybill
+            SumberWaybillMenu::class,
         ];
     }
 }

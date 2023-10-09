@@ -37,7 +37,7 @@ $uniq = uniqid();
     @if (isset($gate['gates']) && count($gate['gates']) > 0 && ($gate['type'] ?? 'menu') === 'menu')
         <div class="collapse" id="permission-{{ $uniq }}">
             <h6 class="text-primary">Permissions</h6>
-            <ul class="bg-dark text-light rounded">
+            <ul class="text-secondary rounded">
                 @foreach ($gate['gates'] as $item)
                     <li class="py-3 form-check ladmin-permission-tile">
                         <input class="form-check-input" type="checkbox"

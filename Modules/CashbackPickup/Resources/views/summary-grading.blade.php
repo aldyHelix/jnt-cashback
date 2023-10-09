@@ -11,12 +11,56 @@
                   <div class="col text-end">
                     <div class="btn-group" role="group" aria-label="Basic example">
                         {{-- <button type="button" class="btn btn-primary"><i class="fa fa-download"></i> CSV</button> --}}
+                        <button type="button" class="btn btn-primary" onclick="processCashback('{{ route('ladmin.cashbackpickup.process', ['code' => $periode->code, 'grade' => 1 ,'id' => $periode->id]) }}')"><i class="fa fa-replace"></i>  Process Grade 1</button> &nbsp;
                         <button type="button" class="btn btn-primary" onclick="downloadExcel('{{ route('ladmin.cashbackpickup.download', ['filename' => $filename]) }}')"><i class="fa fa-download"></i>  Download Excel</button>
                         {{-- <button type="button" class="btn btn-primary"><i class="fa fa-download"></i> PDF</button> --}}
                     </div>
                   </div>
             </div>
             <div class="row">
+                {{-- @dump(collect(json_decode($periode->data_cashback_grading_1))) --}}
+                @php
+                    $data_grading_1 = collect(json_decode($periode->data_cashback_grading_1));
+                @endphp
+                <div class="col table-responsive">
+                    <h5>Grading</h5>
+                    <table class="table">
+                        <thead>
+                          <tr>
+                            <th scope="col">Kode</th>
+                            <th scope="col">Nama</th>
+                            <th scope="col">TOTAL CASHBACK REGULER</th>
+                            <th scope="col">TOTAL CASHBACK MARKETPLACE COD</th>
+                            <th scope="col">TOTAL CASHBACK MARKETPLACE NON COD</th>
+                            <th scope="col">TOTAL CASHBACK VIP</th>
+                            <th scope="col">TOTAL CASHBACK</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                            @foreach ($data_grading_1 as $item)
+                                <tr>
+                                    <td style="text-align: left">{{$item->kode_cp}}</td>
+                                    <td style="text-align: left">{{$item->nama_cp}}</td>
+                                    <td>Rp {{ rupiah_format($item->total_cashback_reguler)}}</td>
+                                    <td>Rp {{ rupiah_format($item->total_cashback_marketplace_cod) }}</td>
+                                    <td>Rp {{ rupiah_format($item->total_cashback_marketplace_non_cod) }}</td>
+                                    <td>Rp {{ rupiah_format($item->total_cashback_klien_vip) }}</td>
+                                    <td>Rp {{ rupiah_format($item->total_cashback) }}</td>
+                                </tr>
+                            @endforeach
+                            <tr class="font-weight-bold border">
+                                <td style="text-align: left" colspan="2">Total</td>
+                                <td>Rp {{ rupiah_format($data_grading_1->sum('total_cashback_reguler')) }}</td>
+                                <td>Rp {{ rupiah_format($data_grading_1->sum('total_cashback_marketplace_cod')) }}</td>
+                                <td>Rp {{ rupiah_format($data_grading_1->sum('total_cashback_marketplace_non_cod')) }}</td>
+                                <td>Rp {{ rupiah_format($data_grading_1->sum('total_cashback_klien_vip')) }}</td>
+                                <td>Rp {{ rupiah_format($data_grading_1->sum('total_cashback')) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            {{-- <div class="row">
                 <div class="col table-responsive">
                     <h5>Grading</h5>
                     <table class="table">
@@ -66,8 +110,8 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
-            <div class="row">
+            </div> --}}
+            {{-- <div class="row">
                 <div class="col-6">
                     <h5>All Count SUM CP DP</h5>
                     <table class="table">
@@ -172,12 +216,16 @@
                         </tbody>
                     </table>
                 </div>
-            </div>
+            </div> --}}
         </div>
         </x-slot>
     </x-ladmin-card>
     <x-slot name="scripts">
         <script>
+            function processCashback(route) {
+              window.location.href = route;
+            }
+
             function downloadExcel(route) {
                 // Make a request to the server-side script to initiate the download
                 window.location.href = route;

@@ -6,6 +6,8 @@ use App\Exports\GradingExport;
 use App\Exports\GradingExports;
 use App\Facades\CreateSchema;
 use App\Facades\GeneratePivot;
+use App\Facades\GeneratePivotRekap;
+use App\Facades\GenerateSummary;
 use App\Facades\GradingProcess;
 use App\Models\Denda;
 use App\Facades\PivotTable;
@@ -70,22 +72,22 @@ class CashbackPickupController extends Controller
         $data['periode'] = Periode::where('code', $code)->first();
         $data['denda'] = Denda::where(['periode_id'=> $data['periode']->id, 'grading_type'=> $grade])->get();
         $data['filename'] = strtoupper($data['periode']->month).'-'.$data['periode']->year.'-GRADING-'.$grade.'.xlsx';
-        $data['cp_grading'] = DB::table($data['periode']->code.'.cp_dp_raw_grading_1')->get();
-        $data['cp_dp_all_count_sum'] = PivotTable::getPivotAllCountSumCPDP($code);
-        $data['cp_dp_reguler_count_sum'] = PivotTable::getPivotRegulerCountSumCPDP($code);
-        $data['cp_dp_dfod_count_sum'] = PivotTable::getPivotDfodCountSumCPDP($code);
-        $data['cp_dp_super_count_sum'] = PivotTable::getPivotSuperCountSumCPDP($code);
-        $data['sum_all_biaya_kirim'] = PivotTable::getSumAllBiayaKirim($code);
-        $data['total'] = [
-            'cp_dp_all_count_sum_total_count' => $data['cp_dp_all_count_sum']->sum('count'),
-            'cp_dp_all_count_sum_total_sum' => $data['cp_dp_all_count_sum']->sum('sum'),
-            'cp_dp_reguler_count_sum_total_count' => $data['cp_dp_reguler_count_sum']->sum('count'),
-            'cp_dp_reguler_count_sum_total_sum' => $data['cp_dp_reguler_count_sum']->sum('sum'),
-            'cp_dp_super_count_sum_total_count' => $data['cp_dp_super_count_sum']->sum('count'),
-            'cp_dp_super_count_sum_total_sum' => $data['cp_dp_super_count_sum']->sum('sum'),
-            'cp_dp_dfod_count_sum_total_count' => $data['cp_dp_dfod_count_sum']->sum('count'),
-            'cp_dp_dfod_count_sum_total_sum' => $data['cp_dp_dfod_count_sum']->sum('sum'),
-        ];
+        // $data['cp_grading'] = DB::table($data['periode']->code.'.cp_dp_raw_grading_1')->get();
+        // $data['cp_dp_all_count_sum'] = PivotTable::getPivotAllCountSumCPDP($code);
+        // $data['cp_dp_reguler_count_sum'] = PivotTable::getPivotRegulerCountSumCPDP($code);
+        // $data['cp_dp_dfod_count_sum'] = PivotTable::getPivotDfodCountSumCPDP($code);
+        // $data['cp_dp_super_count_sum'] = PivotTable::getPivotSuperCountSumCPDP($code);
+        // $data['sum_all_biaya_kirim'] = PivotTable::getSumAllBiayaKirim($code);
+        // $data['total'] = [
+        //     'cp_dp_all_count_sum_total_count' => $data['cp_dp_all_count_sum']->sum('count'),
+        //     'cp_dp_all_count_sum_total_sum' => $data['cp_dp_all_count_sum']->sum('sum'),
+        //     'cp_dp_reguler_count_sum_total_count' => $data['cp_dp_reguler_count_sum']->sum('count'),
+        //     'cp_dp_reguler_count_sum_total_sum' => $data['cp_dp_reguler_count_sum']->sum('sum'),
+        //     'cp_dp_super_count_sum_total_count' => $data['cp_dp_super_count_sum']->sum('count'),
+        //     'cp_dp_super_count_sum_total_sum' => $data['cp_dp_super_count_sum']->sum('sum'),
+        //     'cp_dp_dfod_count_sum_total_count' => $data['cp_dp_dfod_count_sum']->sum('count'),
+        //     'cp_dp_dfod_count_sum_total_sum' => $data['cp_dp_dfod_count_sum']->sum('sum'),
+        // ];
         return view('cashbackpickup::summary-grading', $data);
     }
 
@@ -152,19 +154,30 @@ class CashbackPickupController extends Controller
 
     public function process($code, $grade, $id) {
 
+        GeneratePivot::createOrReplacePivot($code, $id);
+
+        GeneratePivot::runMPGenerator($code);
+
+        GeneratePivotRekap::runRekapGenerator($code);
+
         $periode = Periode::where('code', $code)->first();
+
+        GenerateSummary::runSummaryGenerator($code, $periode);
+
         /**
          * $code = cashback-code periode
          * $grade = cashback grade
          * $id = periode id
          */
         //update view table
-        CreateSchema::updateView($code, $id);
+
+
+
+        // CreateSchema::updateView($code, $id);
 
         GradingProcess::generateGrading($id, $grade);
 
         //update Category Klien Pengiriman
-        GeneratePivot::createOrReplacePivot($code, $id);
 
         //update klien pengiriman
         //CreateSchema::updateViewPivot($periode->code, $string);
@@ -175,7 +188,7 @@ class CashbackPickupController extends Controller
         switch ($grade) {
             case 1:
                 $script = CreateSchema::createViewCPDPRekapDendaGrading1($code);
-                CreateSchema::runScript($code, $script);
+                // CreateSchema::runScript($code, $script);
 
                 //process dengan rate setting juga disini nanti
                 //perlu melakukan query dengan data rate setting dan general setting.
@@ -189,7 +202,7 @@ class CashbackPickupController extends Controller
                 $script = CreateSchema::createViewCPDPCashbackRekapDendaGrading2($code
             );
 
-                CreateSchema::runScript($code, $script);
+                // CreateSchema::runScript($code, $script);
 
                 $periode->processed_grade_2 = 1;
                 $periode->processed_grade_2_by = auth()->user()->id;
@@ -198,7 +211,7 @@ class CashbackPickupController extends Controller
             case 3:
                 $script = CreateSchema::createViewCPDPCashbackRekapDendaGrading3($code);
 
-                CreateSchema::runScript($code, $script);
+                // CreateSchema::runScript($code, $script);
 
                 $periode->processed_grade_3 = 1;
                 $periode->processed_grade_3_by = auth()->user()->id;

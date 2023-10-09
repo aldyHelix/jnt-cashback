@@ -1,22 +1,47 @@
 <?
 namespace App\Services;
 
+use App\Models\GlobalSumberWaybill;
 use App\Models\PeriodeKlienPengiriman;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 use Modules\Category\Models\CategoryKlienPengiriman;
 
 class GeneratePivotTableService {
+
+    public function runMPGenerator($schema){
+        $this->generateMPCountWaybill($schema);
+
+        $this->generateMPSumBiayaKirim($schema);
+
+        $this->generateMPReturCountWaybill($schema);
+
+        $this->generateMPReturSumBiayaKirim($schema);
+
+        $this->generateMPResultSumBiayaKirim($schema);
+
+        $this->generateMPResultCountBiayaKirim($schema);
+    }
+
     public function createOrReplacePivot($schema, $periode_id) {
         //get category
-        $category = CategoryKlienPengiriman::get();
+        $category = CategoryKlienPengiriman::where('cashback_type', 'reguler')->get();
         $query = "";
         // $schema = 'cashback_feb_2022'; //for debuging
 
         $query .= "
+
             CREATE OR REPLACE VIEW sum_all_biaya_kirim AS
                 SELECT SUM(data_mart.biaya_kirim)
-                FROM ".$schema.".data_mart;";
+                FROM ".$schema.".data_mart;
+
+            CREATE OR REPLACE VIEW cp_dp_all_count_sum AS
+                SELECT DISTINCT data_mart.drop_point_outgoing, COUNT(data_mart.no_waybill), SUM(data_mart.biaya_kirim)
+                FROM ".$schema.".data_mart
+                WHERE (data_mart.kat = 'CP' OR data_mart.kat = 'DP')
+                GROUP BY data_mart.drop_point_outgoing;
+
+        ";
 
         foreach($category as $cat) {
             $sum_column = 'biaya_kirim';
@@ -37,13 +62,13 @@ class GeneratePivotTableService {
             $metode_pembayaran = str_replace("(blank)"," ",$metode_pembayaran);
             $metode_pembayaran = "data_mart.metode_pembayaran = '".$metode_pembayaran."'";
 
-            $klien_pengiriman = "";
-
-
-            $klien_pengiriman = implode(";", $periode_klien_pengiriman);
-            $klien_pengiriman = str_replace(";","', '",$klien_pengiriman);
-            $klien_pengiriman = "'".$klien_pengiriman."'";
-            $klien_pengiriman = str_replace("''","' ',NULL ",$klien_pengiriman);
+            if(count($periode_klien_pengiriman)){
+                $klien_pengiriman = "";
+                $klien_pengiriman = implode(";", $periode_klien_pengiriman);
+                $klien_pengiriman = str_replace(";","', '",$klien_pengiriman);
+                $klien_pengiriman = "'".$klien_pengiriman."'";
+                $klien_pengiriman = str_replace("''","' ',NULL ",$klien_pengiriman);
+            }
 
             $query .= "
                 CREATE OR REPLACE VIEW cp_dp_".$cat->kode_kategori."_count_sum AS
@@ -62,7 +87,189 @@ class GeneratePivotTableService {
             ";
         }
 
-        //check if exist first
+        $this->checkAndRunSchema($schema, $query);
+
+    }
+
+    public function generateMPSumBiayaKirim($schema){
+        $sumber_waybill = GlobalSumberWaybill::orderBy('sumber_waybill', 'ASC')->get()->pluck('sumber_waybill');
+        $query = "";
+
+        $sumber_waybill_new = $sumber_waybill->map(function ($sumber_waybill) {
+            if($sumber_waybill == '') {
+                return 'sq.blank';
+            }
+            return 'sq.'.$sumber_waybill;
+        });
+        $sumber_waybill_select = implode(",", $sumber_waybill_new->toArray());
+        $sumber_waybill_select =  str_replace(" ","_",$sumber_waybill_select);
+        $sumber_waybill_select =  str_replace("-","_",$sumber_waybill_select);
+        $sumber_waybill_plus = implode("+", $sumber_waybill_new->toArray());
+        $sumber_waybill_plus =  str_replace(" ","_",$sumber_waybill_plus);
+        $sumber_waybill_plus =  str_replace("-","_",$sumber_waybill_plus);
+
+
+        $sumber_waybill_sum = $sumber_waybill->map(function ($sumber_waybill) {
+            $column = ($sumber_waybill != '' ? str_replace(' ','_',$sumber_waybill) : "");
+            $as_column = ($sumber_waybill != "" ? str_replace(" ","_",$sumber_waybill) : 'blank');
+            $as_column = str_replace("-","_",$as_column);
+            return "SUM(CASE WHEN dm.sumber_waybill = '$column' THEN dm.biaya_kirim ELSE 0 END) AS $as_column";
+        });
+
+        $sumber_waybill_sum = implode(",", $sumber_waybill_sum->toArray());
+
+        $query .= "
+            CREATE OR REPLACE VIEW cp_dp_mp_sum_biaya_kirim AS
+            SELECT
+                drop_point_outgoing,
+                $sumber_waybill_select,
+                ($sumber_waybill_plus) AS grand_total
+            FROM (
+                SELECT
+                    dm.drop_point_outgoing,
+                    $sumber_waybill_sum
+                FROM
+                ".$schema.".data_mart dm
+                WHERE (dm.kat = 'CP' OR dm.kat = 'DP')
+                GROUP BY
+                    dm.drop_point_outgoing
+            ) AS sq
+        ";
+
+        $this->checkAndRunSchema($schema, $query);
+    }
+
+    public function generateMPReturSumBiayaKirim($schema){
+        $sumber_waybill = GlobalSumberWaybill::orderBy('sumber_waybill', 'ASC')->get()->pluck('sumber_waybill');
+        $query = "";
+
+        $sumber_waybill_new = $sumber_waybill->map(function ($sumber_waybill) {
+            if($sumber_waybill == '') {
+                return 'sq.blank';
+            }
+            return 'sq.'.$sumber_waybill;
+        });
+        $sumber_waybill_select = implode(",", $sumber_waybill_new->toArray());
+        $sumber_waybill_select =  str_replace(" ","_",$sumber_waybill_select);
+        $sumber_waybill_select =  str_replace("-","_",$sumber_waybill_select);
+        $sumber_waybill_plus = implode("+", $sumber_waybill_new->toArray());
+        $sumber_waybill_plus =  str_replace(" ","_",$sumber_waybill_plus);
+        $sumber_waybill_plus =  str_replace("-","_",$sumber_waybill_plus);
+
+
+        $sumber_waybill_sum = $sumber_waybill->map(function ($sumber_waybill) {
+            $column = ($sumber_waybill != '' ? str_replace(' ','_',$sumber_waybill) : "");
+            $as_column = ($sumber_waybill != "" ? str_replace(" ","_",$sumber_waybill) : 'blank');
+            $as_column = str_replace("-","_",$as_column);
+            return "SUM(CASE WHEN dm.sumber_waybill = '$column' THEN dm.biaya_kirim ELSE 0 END) AS $as_column";
+        });
+
+        $sumber_waybill_sum = implode(",", $sumber_waybill_sum->toArray());
+
+        $query .= "
+            CREATE OR REPLACE VIEW cp_dp_mp_retur_sum_biaya_kirim AS
+            SELECT
+                drop_point_outgoing,
+                $sumber_waybill_select,
+                ($sumber_waybill_plus) AS grand_total
+            FROM (
+                SELECT
+                    dm.drop_point_outgoing,
+                    $sumber_waybill_sum
+                FROM
+                ".$schema.".data_mart dm
+                WHERE (dm.kat = 'CP' OR dm.kat = 'DP')
+                AND (dm.paket_retur = '1' OR dm.paket_retur = 'Returned' OR (dm.paket_retur ~ '^\\d+$' AND CAST(dm.paket_retur AS INTEGER) = 1))
+                GROUP BY
+                    dm.drop_point_outgoing
+            ) AS sq
+        ";
+
+        $this->checkAndRunSchema($schema, $query);
+
+    }
+
+    public function generateMPCountWaybill($schema){
+        $sumber_waybill = GlobalSumberWaybill::orderBy('sumber_waybill', 'ASC')->get()->pluck('sumber_waybill');
+        $query = "";
+
+        $sumber_waybill_new = $sumber_waybill->map(function ($sumber_waybill) {
+            if($sumber_waybill == '') {
+                return 'blank';
+            }
+            return $sumber_waybill;
+        });
+
+        $sumber_waybill_sum = implode("','", $sumber_waybill_new->toArray());
+        $sumber_waybill_sum =  str_replace(" ","_",$sumber_waybill_sum);
+
+        $sumber_waybill_count = $sumber_waybill->map(function ($sumber_waybill) {
+            $column = ($sumber_waybill != '' ? str_replace(' ','_',$sumber_waybill) : "");
+            $as_column = ($sumber_waybill != "" ? str_replace(" ","_",$sumber_waybill) : 'blank');
+            $as_column = str_replace("-","_",$as_column);
+            return "COUNT(CASE WHEN dm.sumber_waybill = '$column' THEN dm.no_waybill END) AS  $as_column";
+        });
+
+        $sumber_waybill_count = implode(",", $sumber_waybill_count->toArray());
+
+
+        $query = "
+            CREATE OR REPLACE VIEW cp_dp_mp_count_waybill AS
+                SELECT dm.drop_point_outgoing,
+                    $sumber_waybill_count,
+                    SUM(CASE WHEN dm.sumber_waybill IN ('$sumber_waybill_sum') THEN 1 ELSE 0 END) AS grand_total
+                FROM
+                    ".$schema.".data_mart dm
+                WHERE (dm.kat = 'CP' OR dm.kat = 'DP')
+                GROUP BY
+                    dm.drop_point_outgoing
+        ";
+
+        $this->checkAndRunSchema($schema, $query);
+
+    }
+
+    public function generateMPReturCountWaybill($schema){
+        $sumber_waybill = GlobalSumberWaybill::orderBy('sumber_waybill', 'ASC')->get()->pluck('sumber_waybill');
+        $query = "";
+
+        $sumber_waybill_new = $sumber_waybill->map(function ($sumber_waybill) {
+            if($sumber_waybill == '') {
+                return 'blank';
+            }
+            return $sumber_waybill;
+        });
+
+        $sumber_waybill_sum = implode("','", $sumber_waybill_new->toArray());
+        $sumber_waybill_sum =  str_replace(" ","_",$sumber_waybill_sum);
+
+        $sumber_waybill_count = $sumber_waybill->map(function ($sumber_waybill) {
+            $column = ($sumber_waybill != '' ? str_replace(' ','_',$sumber_waybill) : "");
+            $as_column = ($sumber_waybill != "" ? str_replace(" ","_",$sumber_waybill) : 'blank');
+            $as_column = str_replace("-","_",$as_column);
+            return "COUNT(CASE WHEN dm.sumber_waybill = '$column' THEN dm.no_waybill END) AS  $as_column";
+        });
+
+        $sumber_waybill_count = implode(",", $sumber_waybill_count->toArray());
+
+
+        $query = "
+            CREATE OR REPLACE VIEW cp_dp_mp_retur_count_waybill AS
+                SELECT dm.drop_point_outgoing,
+                    $sumber_waybill_count,
+                    SUM(CASE WHEN dm.sumber_waybill IN ('$sumber_waybill_sum') THEN 1 ELSE 0 END) AS grand_total
+                FROM
+                    ".$schema.".data_mart dm
+                WHERE (dm.kat = 'CP' OR dm.kat = 'DP')
+                    AND (dm.paket_retur = '1' OR dm.paket_retur = 'Returned' OR (dm.paket_retur ~ '^\\d+$' AND CAST(dm.paket_retur AS INTEGER) = 1))
+                GROUP BY
+                    dm.drop_point_outgoing
+        ";
+
+        $this->checkAndRunSchema($schema, $query);
+    }
+
+    public function checkAndRunSchema($schema, $query){
         if(Schema::hasTable($schema.'.data_mart')) {
             $run = DB::connection('pgsql')->unprepared(
                 "
@@ -77,5 +284,77 @@ class GeneratePivotTableService {
         return false;
     }
 
+    public function generateMPResultSumBiayaKirim($schema){
+        $sumber_waybill = GlobalSumberWaybill::orderBy('sumber_waybill', 'ASC')->get()->pluck('sumber_waybill');
+        $query = "";
 
+        $grand_total_query = [];
+
+        foreach($sumber_waybill as $sb) {
+            $as_column = ($sb != "" ? str_replace(" ","_",$sb) : 'blank');
+            $as_column = str_replace("-","_",$as_column);
+            $grand_total_query[] = "cdmsbk.$as_column - cdmsrbk.$as_column";
+        }
+
+        $sumber_waybill_sum = $sumber_waybill->map(function ($sumber_waybill) use ($grand_total_query){
+            $as_column = ($sumber_waybill != "" ? str_replace(" ","_",$sumber_waybill) : 'blank');
+            $as_column = str_replace("-","_",$as_column);
+
+            return "cdmsbk.$as_column - cdmsrbk.$as_column AS $as_column";
+        });
+
+        $sumber_waybill_sum = implode(",\n", $sumber_waybill_sum->toArray());
+        $grand_total = implode(" + \n", $grand_total_query);
+
+        $query .= "
+            CREATE OR REPLACE VIEW cp_dp_mp_result_sum_biaya_kirim AS
+            SELECT
+                cdmsbk.drop_point_outgoing,
+                $sumber_waybill_sum,
+                ($grand_total) as grand_total
+            FROM
+                ".$schema.".cp_dp_mp_sum_biaya_kirim cdmsbk
+            JOIN
+                ".$schema.".cp_dp_mp_retur_sum_biaya_kirim cdmsrbk ON cdmsbk.drop_point_outgoing = cdmsrbk.drop_point_outgoing
+        ";
+
+        $this->checkAndRunSchema($schema, $query);
+    }
+
+    public function generateMPResultCountBiayaKirim($schema){
+        $sumber_waybill = GlobalSumberWaybill::orderBy('sumber_waybill', 'ASC')->get()->pluck('sumber_waybill');
+        $query = "";
+
+        $grand_total_query = [];
+
+        foreach($sumber_waybill as $sb) {
+            $as_column = ($sb != "" ? str_replace(" ","_",$sb) : 'blank');
+            $as_column = str_replace("-","_",$as_column);
+            $grand_total_query[] = "cdmcw.$as_column - cdmcrw.$as_column";
+        }
+
+        $sumber_waybill_sum = $sumber_waybill->map(function ($sumber_waybill) use ($grand_total_query){
+            $as_column = ($sumber_waybill != "" ? str_replace(" ","_",$sumber_waybill) : 'blank');
+            $as_column = str_replace("-","_",$as_column);
+
+            return "cdmcw.$as_column - cdmcrw.$as_column AS $as_column";
+        });
+
+        $sumber_waybill_sum = implode(",\n", $sumber_waybill_sum->toArray());
+        $grand_total = implode(" + \n", $grand_total_query);
+
+        $query .= "
+            CREATE OR REPLACE VIEW cp_dp_mp_result_count_biaya_kirim AS
+            SELECT
+                cdmcw.drop_point_outgoing,
+                $sumber_waybill_sum,
+                ($grand_total) as grand_total
+            FROM
+                ".$schema.".cp_dp_mp_count_waybill cdmcw
+            JOIN
+                ".$schema.".cp_dp_mp_retur_count_waybill cdmcrw ON cdmcw.drop_point_outgoing = cdmcrw.drop_point_outgoing
+        ";
+
+        $this->checkAndRunSchema($schema, $query);
+    }
 }
