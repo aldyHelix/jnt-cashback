@@ -122,6 +122,39 @@ class GradingService {
                 $data['cpdp_rekap_grading_1'] = json_decode($get_periode->data_cashback_grading_1);
                 array_unshift($data['cpdp_rekap_grading_1'], $header_cpdp_rekap_grading_1 );
 
+                $header_cpdp_rekap_klien_vip = (object) [
+                    'kode_cp' => 'Kode CP',
+                    'nama_cp' => 'Nama CP',
+                    'akulakuob' => 'AKULAKUOB',
+                    'arveoli' => 'ARVEOLI',
+                    'biteship' => 'BITESHIP',
+                    'blibliapi' => 'BLIBLIAPI',
+                    'brttrimentari' => 'BRTTRIMENTARI',
+                    'clodeohq' => 'CLODEOHQ',
+                    'coogee_hq_vip' => 'COOGEE-HQ-VIP',
+                    'destyapi' => 'DESTYAPI',
+                    'doctorship' => 'DOCTORSHIP',
+                    'donatelloindo' => 'DONATELLOINDO',
+                    'evermosapi' => 'EVERMOSAPI',
+                    'goapotik' => 'GOAPOTIK',
+                    'gramedia' => 'GRAMEDIA',
+                    'istyleid' => 'ISTYLEID',
+                    'kkid' => 'KKID',
+                    'mengantar' => 'MENGANTAR',
+                    'ordivo' => 'ORDIVO',
+                    'parama' => 'PARAMA',
+                    'plugo' => 'PLUGO',
+                    'returnkey' => 'RETURNKEY',
+                    'sepasangcollection' => 'SEPASANGCOLLECTION',
+                    'shipperid' => 'SHIPPERID',
+                    'sirclostore' => 'SIRCLOSTORE',
+                    'tries' => 'TRIES',
+                    'grand_total' => 'Grand Total',
+                    'klien_pengirim_vip' => 'Total VIP Sumber waybill',
+                ];
+                $data['cpdp_rekap_klien_vip'] = json_decode($get_periode->data_pivot_vip);
+                array_unshift($data['cpdp_rekap_klien_vip'], $header_cpdp_rekap_klien_vip );
+
                 // $header_cpdp_rekap_denda = (object) [
                 //     'kode_cp' => 'Kode CP',
                 //     'nama_cp' => 'Nama CP',

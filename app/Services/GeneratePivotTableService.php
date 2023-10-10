@@ -41,6 +41,30 @@ class GeneratePivotTableService {
                 WHERE (data_mart.kat = 'CP' OR data_mart.kat = 'DP')
                 GROUP BY data_mart.drop_point_outgoing;
 
+            CREATE OR REPLACE VIEW cp_dp_setting AS
+                select
+                    mcp.kode_cp,
+                    mcp.nama_cp,
+                    coalesce (sdp.retur_klien_pengirim_hq, 0) as retur_klien_pengirim_hq,
+                    coalesce (sdp.retur_belum_terpotong,0) as retur_belum_terpotong,
+                    coalesce (sdp.pengurangan_total,0) as pengurangan_total ,
+                    coalesce (sdp.penambahan_total,0) as penambahan_total,
+                    dgp.transit_fee,
+                    dgp.denda_void,
+                    dgp.denda_dfod,
+                    dgp.denda_pusat,
+                    dgp.denda_selisih_berat,
+                    dgp.denda_lost_scan_kirim,
+                    dgp.denda_auto_claim,
+                    dgp.denda_sponsorship,
+                    dgp.denda_late_pickup_ecommerce,
+                    dgp.potongan_pop,
+                    dgp.denda_lainnya
+                from denda_grading_periode dgp
+                left join master_collection_point mcp on mcp.id  = dgp.sprinter_pickup
+                left join setting_dp_periode sdp on sdp.drop_point_outgoing  =  mcp.drop_point_outgoing
+                where dgp.periode_id = $periode_id;
+
         ";
 
         foreach($category as $cat) {
@@ -59,7 +83,7 @@ class GeneratePivotTableService {
             $kat = "data_mart.kat = '".$kat."'";
             $metode_pembayaran = "";
             $metode_pembayaran = str_replace(";","' OR data_mart.metode_pembayaran = '",$cat->metode_pembayaran);
-            $metode_pembayaran = str_replace("(blank)"," ",$metode_pembayaran);
+            $metode_pembayaran = str_replace("(blank)","",$metode_pembayaran);
             $metode_pembayaran = "data_mart.metode_pembayaran = '".$metode_pembayaran."'";
 
             if(count($periode_klien_pengiriman)){
@@ -67,7 +91,7 @@ class GeneratePivotTableService {
                 $klien_pengiriman = implode(";", $periode_klien_pengiriman);
                 $klien_pengiriman = str_replace(";","', '",$klien_pengiriman);
                 $klien_pengiriman = "'".$klien_pengiriman."'";
-                $klien_pengiriman = str_replace("''","' ',NULL ",$klien_pengiriman);
+                $klien_pengiriman = str_replace("''","'',NULL ",$klien_pengiriman);
             }
 
             $query .= "
@@ -113,7 +137,7 @@ class GeneratePivotTableService {
             $column = ($sumber_waybill != '' ? str_replace(' ','_',$sumber_waybill) : "");
             $as_column = ($sumber_waybill != "" ? str_replace(" ","_",$sumber_waybill) : 'blank');
             $as_column = str_replace("-","_",$as_column);
-            return "SUM(CASE WHEN dm.sumber_waybill = '$column' THEN dm.biaya_kirim ELSE 0 END) AS $as_column";
+            return "SUM(CASE WHEN dm.sumber_waybill = '$sumber_waybill' THEN dm.biaya_kirim ELSE 0 END) AS $as_column";
         });
 
         $sumber_waybill_sum = implode(",", $sumber_waybill_sum->toArray());
@@ -161,7 +185,7 @@ class GeneratePivotTableService {
             $column = ($sumber_waybill != '' ? str_replace(' ','_',$sumber_waybill) : "");
             $as_column = ($sumber_waybill != "" ? str_replace(" ","_",$sumber_waybill) : 'blank');
             $as_column = str_replace("-","_",$as_column);
-            return "SUM(CASE WHEN dm.sumber_waybill = '$column' THEN dm.biaya_kirim ELSE 0 END) AS $as_column";
+            return "SUM(CASE WHEN dm.sumber_waybill = '$sumber_waybill' THEN dm.biaya_kirim ELSE 0 END) AS $as_column";
         });
 
         $sumber_waybill_sum = implode(",", $sumber_waybill_sum->toArray());
@@ -207,7 +231,7 @@ class GeneratePivotTableService {
             $column = ($sumber_waybill != '' ? str_replace(' ','_',$sumber_waybill) : "");
             $as_column = ($sumber_waybill != "" ? str_replace(" ","_",$sumber_waybill) : 'blank');
             $as_column = str_replace("-","_",$as_column);
-            return "COUNT(CASE WHEN dm.sumber_waybill = '$column' THEN dm.no_waybill END) AS  $as_column";
+            return "COUNT(CASE WHEN dm.sumber_waybill = '$sumber_waybill' THEN dm.no_waybill END) AS  $as_column";
         });
 
         $sumber_waybill_count = implode(",", $sumber_waybill_count->toArray());
@@ -247,7 +271,7 @@ class GeneratePivotTableService {
             $column = ($sumber_waybill != '' ? str_replace(' ','_',$sumber_waybill) : "");
             $as_column = ($sumber_waybill != "" ? str_replace(" ","_",$sumber_waybill) : 'blank');
             $as_column = str_replace("-","_",$as_column);
-            return "COUNT(CASE WHEN dm.sumber_waybill = '$column' THEN dm.no_waybill END) AS  $as_column";
+            return "COUNT(CASE WHEN dm.sumber_waybill = '$sumber_waybill' THEN dm.no_waybill END) AS  $as_column";
         });
 
         $sumber_waybill_count = implode(",", $sumber_waybill_count->toArray());

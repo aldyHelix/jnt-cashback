@@ -18,6 +18,8 @@ class SettingDpPeriode extends Model
         'penambahan_total',
         'diskon_cod',
         'grouping',
-        'grading_type'
+        'grading_type',
+        'retur_klien_pengirim_hq',
+        'retur_belum_terpotong'
     ];
 }

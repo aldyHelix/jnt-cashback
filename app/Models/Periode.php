@@ -36,6 +36,7 @@ class Periode extends Model
         'done_processed_at',
         'data_pivot',
         'data_pivot_mp',
+        'data_pivot_vip',
         'data_cashback_reguler',
         'data_cashback_marketplace_cod',
         'data_cashback_marketplace_non_cod',

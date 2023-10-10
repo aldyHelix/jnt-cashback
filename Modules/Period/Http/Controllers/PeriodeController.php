@@ -31,7 +31,7 @@ class PeriodeController extends Controller
         ->orderBy('drop_point_outgoing')->get();
 
         $data['dp'] = DB::table($code.'.data_mart')
-            ->selectRaw('DISTINCT(data_mart.drop_point_outgoing), COALESCE(setting_dp_periode.id, 0) as id , COALESCE(setting_dp_periode.pengurangan_total, 0) as pengurangan_total, COALESCE(setting_dp_periode.penambahan_total, 0) as penambahan_total, COALESCE(setting_dp_periode.diskon_cod, 0) as diskon_cod')
+            ->selectRaw('DISTINCT(data_mart.drop_point_outgoing), COALESCE(setting_dp_periode.id, 0) as id ,COALESCE(setting_dp_periode.retur_klien_pengirim_hq, 0) as retur_klien_pengirim_hq, COALESCE(setting_dp_periode.retur_belum_terpotong, 0) as retur_belum_terpotong,COALESCE(setting_dp_periode.pengurangan_total, 0) as pengurangan_total, COALESCE(setting_dp_periode.penambahan_total, 0) as penambahan_total, COALESCE(setting_dp_periode.diskon_cod, 0) as diskon_cod')
             ->leftJoin('setting_dp_periode', function ($join) use ($data) {
                 $join->on('setting_dp_periode.drop_point_outgoing', '=', 'data_mart.drop_point_outgoing')
                     ->where('setting_dp_periode.periode_id', $data['periode']->id);
@@ -125,6 +125,8 @@ class PeriodeController extends Controller
 
                 if($exist) {
                     $exist->update([
+                        "retur_klien_pengirim_hq" => intval($item['retur_klien_pengirim_hq']),
+                        "retur_belum_terpotong" => intval($item['retur_belum_terpotong']),
                         "pengurangan_total" => intval($item['pengurangan_total']),
                         "penambahan_total" => intval($item['penambahan_total']),
                         "diskon_cod" => intval($item['diskon_cod']),
@@ -133,6 +135,8 @@ class PeriodeController extends Controller
                     SettingDpPeriode::create([
                         'periode_id' => $id,
                         'drop_point_outgoing' => $item['drop_point_outgoing'],
+                        "retur_klien_pengirim_hq" => intval($item['retur_klien_pengirim_hq']),
+                        "retur_belum_terpotong" => intval($item['retur_belum_terpotong']),
                         "pengurangan_total" => intval($item['pengurangan_total']),
                         "penambahan_total" => intval($item['penambahan_total']),
                         "diskon_cod" => intval($item['diskon_cod']),
@@ -144,7 +148,7 @@ class PeriodeController extends Controller
 
         //update schema->cp_dp_cashback_reguler_grading_1 , cp_dp_cashback_non_cod_grading_1 -> update pengurangan_total,
         //penambahan_total ->
-        CreateSchema::runUpdateDiskonPenguranganPenambahan($periode->code, $id);
+        // CreateSchema::runUpdateDiskonPenguranganPenambahan($periode->code, $id);
 
         toastr()->success('Data setting klien pengiriman succesfully saved', 'Success');
         return redirect()->back();
