@@ -32,6 +32,8 @@ class GenerateSummaryService {
         $data_pivot_mp['cp_dp_mp_result_sum_biaya_kirim'] = DB::table($schema.'.cp_dp_mp_result_sum_biaya_kirim')->get()->toArray();
         $data_pivot_mp['cp_dp_mp_result_count_biaya_kirim'] = DB::table($schema.'.cp_dp_mp_result_count_biaya_kirim')->get()->toArray();
 
+        $data_pivot_vip = DB::table($schema.'.cp_dp_rekap_klien_pengiriman_vip')->get()->toArray();
+
         $data_cashback_reguler = DB::table($schema.'.cp_dp_cashback_reguler');
         $data_cashback_marketplace_cod = DB::table($schema.'.cp_dp_cashback_marketplace_cod');
         $data_cashback_marketplace_non_cod = DB::table($schema.'.cp_dp_cashback_marketplace_non_cod');
@@ -59,6 +61,7 @@ class GenerateSummaryService {
         $updated = $periode->update([
             'data_pivot' => json_encode($data_pivot),
             'data_pivot_mp' => json_encode($data_pivot_mp),
+            'data_pivot_vip' => json_encode($data_pivot_vip),
             'data_cashback_reguler' => json_encode($data_cashback_reguler->get()->toArray()),
             'data_cashback_marketplace_cod' => json_encode($data_cashback_marketplace_cod->get()->toArray()),
             'data_cashback_marketplace_non_cod' => json_encode($data_cashback_marketplace_non_cod->get()->toArray()),
