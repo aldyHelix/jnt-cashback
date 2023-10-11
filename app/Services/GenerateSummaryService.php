@@ -8,7 +8,7 @@ use Modules\Category\Models\CategoryKlienPengiriman;
 
 class GenerateSummaryService {
     public function runSummaryGenerator($schema, Periode $periode){
-        // $this->rekapGrading1($schema);
+        $this->rekapGrading1($schema);
 
         //tidak perlu summary grading karena data terlalu berat ketika view - to - view kalukulasi.
         //akan dibuatkan kalkulasi via json
@@ -43,6 +43,7 @@ class GenerateSummaryService {
         $get_data_cashback_marketplace_cod = $data_cashback_marketplace_cod->get()->toArray();
         $get_data_cashback_marketplace_non_cod = $data_cashback_marketplace_non_cod->get()->toArray();
         $get_data_cashback_klien_vip = $data_cashback_klien_vip->get()->toArray();
+        $get_data_cashback_mp_luar_zona = 0;
 
         $data_grading_1 = [];
 
@@ -53,8 +54,9 @@ class GenerateSummaryService {
                 'total_cashback_reguler' => $item->total_cashback_reguler,
                 'total_cashback_marketplace_cod' => $get_data_cashback_marketplace_cod[$key]->cashback_marketplace,
                 'total_cashback_marketplace_non_cod' => $get_data_cashback_marketplace_non_cod[$key]->total_cashback_marketplace,
-                'total_cashback_klien_vip' => $get_data_cashback_klien_vip[$key]->discount_total_biaya_kirim_10,
-                'total_cashback' => $item->total_cashback_reguler + $get_data_cashback_marketplace_cod[$key]->cashback_marketplace + $get_data_cashback_marketplace_non_cod[$key]->total_cashback_marketplace + $get_data_cashback_klien_vip[$key]->discount_total_biaya_kirim_10
+                'total_cashback_klien_vip' => $get_data_cashback_klien_vip[$key]->cashback_marketplace ?? 0,
+                'total_cashback_mp_luar_zona' => $get_data_cashback_mp_luar_zona,
+                'total_cashback' => $item->total_cashback_reguler + $get_data_cashback_marketplace_non_cod[$key]->total_cashback_marketplace + $get_data_cashback_mp_luar_zona
             ];
         }
 
@@ -78,19 +80,14 @@ class GenerateSummaryService {
                 cp.kode_cp,
                 cp.nama_cp,
                 cr.total_cashback_reguler as total_cashback_reguler,
-                cmc.cashback_marketplace as total_cashback_marketplace_cod,
                 cmnc.total_cashback_marketplace as total_cashback_marketplace_non_cod,
-                cv.discount_total_biaya_kirim_10 as total_cashback_klien_vip
+                (cr.total_cashback_reguler + cmnc.total_cashback_marketplace) as total_cashback
             FROM
                 PUBLIC.master_collection_point AS cp
             LEFT JOIN
                 ".$schema.".cp_dp_cashback_reguler AS cr ON cp.drop_point_outgoing = cr.nama_cp
             LEFT JOIN
-                ".$schema.".cp_dp_cashback_marketplace_cod AS cmc ON cp.drop_point_outgoing = cmc.nama_cp
-            LEFT JOIN
                 ".$schema.".cp_dp_cashback_marketplace_non_cod AS cmnc ON cp.drop_point_outgoing = cmnc.nama_cp
-            LEFT JOIN
-                ".$schema.".cp_dp_cashback_klien_vip AS cv ON cp.drop_point_outgoing = cv.nama_cp
             WHERE
                 cp.grading_pickup = 'A'
         ";
