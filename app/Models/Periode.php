@@ -45,5 +45,10 @@ class Periode extends Model
         'data_cashback_grading_2',
         'data_cashback_grading_3',
     ];
+
+    public function jsonData(){
+        return $this->belongsTo('App\Models\PeriodeDataJson', 'id', 'periode_id');
+
+    }
 }
 

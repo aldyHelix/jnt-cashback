@@ -7,6 +7,7 @@ use App\Exports\GradingExports;
 use App\Facades\CreateSchema;
 use App\Facades\GeneratePivot;
 use App\Facades\GeneratePivotRekap;
+use App\Facades\GenerateRekapLuarZona;
 use App\Facades\GenerateSummary;
 use App\Facades\GradingProcess;
 use App\Models\Denda;
@@ -154,13 +155,15 @@ class CashbackPickupController extends Controller
 
     public function process($code, $grade, $id) {
 
+        $periode = Periode::where('code', $code)->first();
+
         GeneratePivot::createOrReplacePivot($code, $id);
 
         GeneratePivot::runMPGenerator($code);
 
         GeneratePivotRekap::runRekapGenerator($code);
 
-        $periode = Periode::where('code', $code)->first();
+        GenerateRekapLuarZona::runZonasiGenerator($code);
 
         GenerateSummary::runSummaryGenerator($code, $periode);
 
