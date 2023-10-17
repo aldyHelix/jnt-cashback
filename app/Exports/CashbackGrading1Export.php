@@ -4,8 +4,9 @@ namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
 use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 
-class CashbackGrading1Export implements FromCollection
+class CashbackGrading1Export implements FromCollection, ShouldAutoSize, WithHeadings
 {
     private $collection;
     private $fileName;
@@ -30,6 +31,14 @@ class CashbackGrading1Export implements FromCollection
         }
 
         $this->collection = collect($output);
+    }
+
+    public function headings(): array
+    {
+        return [
+           ['' ,'PT ORIENTAL JAYA MANDIRI INDAH ( J&T EXPRESS )'],
+           ['' , 'DATA DISCOUNT CUSTOMER CP'],
+        ];
     }
 
     public function collection()

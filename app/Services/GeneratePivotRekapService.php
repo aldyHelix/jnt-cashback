@@ -19,16 +19,17 @@ class GeneratePivotRekapService {
 
         $this->cashbackMarketplaceCod($schema);
 
+        $this->cashbackKlienVIP($schema);
+
         $this->cashbackMarketplaceNonCod($schema);
 
-        $this->cashbackKlienVIP($schema);
     }
 
     public function cashbackReguler($schema) {
         // $ppn = 1 + (intval(GlobalSetting::where('code', 'ppn')->first()->value) / 100);
         $ppn = 1.011;
         $cashback_reguler_diskon = CashbackSetting::where('jenis_paket', 'REGULER')->first()->diskon;
-        $category = CategoryKlienPengiriman::where('cashback_type', 'reguler')->get();
+        $category = CategoryKlienPengiriman::where('cashback_type', 'reguler')->orderBy('id', 'ASC')->get();
         $query = "";
 
         $joins = [];
@@ -223,11 +224,19 @@ class GeneratePivotRekapService {
             'klien_pengirim_vip'
         ];
 
-        $marketplace = implode(", sbk.", $marketplace_list);
-        $marketplace = 'sbk.'.$marketplace;
+        $marketplace = [];
+        $total_biaya_kirim = [];
 
-        $total_biaya_kirim = implode("+ sbk.", $marketplace_list);
-        $total_biaya_kirim = 'sbk.'.$total_biaya_kirim;
+        foreach($marketplace_list as $item){
+            $marketplace[] = "COALESCE(sbk.$item, 0) as $item";
+            $total_biaya_kirim[] = "COALESCE(sbk.$item, 0)";
+        }
+
+        $marketplace_select = implode(", \n", $marketplace);
+        // $marketplace = 'sbk.'.$marketplace;
+
+        $total_biaya_kirim = implode("+ ", $total_biaya_kirim);
+        // $total_biaya_kirim = 'sbk.'.$total_biaya_kirim;
 
         $sum_klien_pengiriman_ppn = "(( $total_biaya_kirim ) / $ppn::float )";
         $sum_klien_pengiriman_ppn_diskon = "(( $total_biaya_kirim ) / $ppn::float ) * $vip_diskon";
@@ -237,7 +246,7 @@ class GeneratePivotRekapService {
             SELECT
                 cp.kode_cp,
                 cp.nama_cp,
-                $marketplace,
+                $marketplace_select,
                 ( $total_biaya_kirim ) AS total_biaya_kirim_vip,
                 CAST(ROUND( $sum_klien_pengiriman_ppn ) AS BIGINT) AS total_biaya_kirim_vip_dikurangi_ppn,
                 CAST(ROUND( $sum_klien_pengiriman_ppn_diskon ) AS BIGINT) AS discount_total_biaya_kirim_10,
@@ -306,7 +315,7 @@ class GeneratePivotRekapService {
             ;
         ";
 
-        $this->checkAndRunSchema($schema, $query);
+        return $this->checkAndRunSchema($schema, $query);
     }
 
     public function checkAndRunSchema($schema, $query){

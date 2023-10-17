@@ -49,6 +49,7 @@ class GeneratePivotTableService {
                     coalesce (sdp.retur_belum_terpotong,0) as retur_belum_terpotong,
                     coalesce (sdp.pengurangan_total,0) as pengurangan_total ,
                     coalesce (sdp.penambahan_total,0) as penambahan_total,
+                    coalesce (sdp.setting_pph,0) as setting_pph,
                     dgp.transit_fee,
                     dgp.denda_void,
                     dgp.denda_dfod,
