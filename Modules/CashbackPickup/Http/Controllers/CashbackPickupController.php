@@ -73,6 +73,7 @@ class CashbackPickupController extends Controller
         $data['periode'] = Periode::where('code', $code)->first();
         $data['denda'] = Denda::where(['periode_id'=> $data['periode']->id, 'grading_type'=> $grade])->get();
         $data['filename'] = strtoupper($data['periode']->month).'-'.$data['periode']->year.'-GRADING-'.$grade.'.xlsx';
+        $data['grading'] = $grade;
         // $data['cp_grading'] = DB::table($data['periode']->code.'.cp_dp_raw_grading_1')->get();
         // $data['cp_dp_all_count_sum'] = PivotTable::getPivotAllCountSumCPDP($code);
         // $data['cp_dp_reguler_count_sum'] = PivotTable::getPivotRegulerCountSumCPDP($code);

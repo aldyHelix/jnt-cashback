@@ -146,7 +146,7 @@ class PeriodeController extends Controller
 
         }
 
-        //update schema->cp_dp_cashback_reguler_grading_1 , cp_dp_cashback_non_cod_grading_1 -> update pengurangan_total,
+        //update schema->cp_dp_cashback_reguler_a_grading_1 , cp_dp_cashback_non_cod_grading_1 -> update pengurangan_total,
         //penambahan_total ->
         // CreateSchema::runUpdateDiskonPenguranganPenambahan($periode->code, $id);
 
