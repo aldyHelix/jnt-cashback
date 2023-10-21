@@ -3,8 +3,10 @@
 namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 
-class CashbackGrading2Export implements FromCollection
+class CashbackGrading2Export implements FromCollection, ShouldAutoSize, WithHeadings
 {
     private $collection;
     private $fileName;
@@ -19,7 +21,7 @@ class CashbackGrading2Export implements FromCollection
                 $array[$key] = get_object_vars($item);
             }
             // get headers for current dataset
-            $output[] = array_keys($array[0]);
+            // $output[] = array_keys($array[0]);
             // store values for each row
             foreach ($array as $row) {
                 $output[] = array_values($row);
@@ -29,6 +31,14 @@ class CashbackGrading2Export implements FromCollection
         }
 
         $this->collection = collect($output);
+    }
+
+    public function headings(): array
+    {
+        return [
+           ['' ,'PT ORIENTAL JAYA MANDIRI INDAH ( J&T EXPRESS )'],
+           ['' , 'DATA DISCOUNT CUSTOMER CP'],
+        ];
     }
 
     public function collection()

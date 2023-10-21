@@ -3271,7 +3271,7 @@ class CreateSchemaService {
         // $diskon_reguler = stringValue(25 / 100);
 
         return "
-            CREATE OR REPLACE VIEW cp_dp_cashback_reguler_grading_1 AS
+            CREATE OR REPLACE VIEW cp_dp_cashback_reguler_a_grading_1 AS
             SELECT
                 cp.kode_cp,
                 cp.nama_cp,
@@ -3378,7 +3378,7 @@ class CreateSchemaService {
 
     public function createViewCPDPCashbackRegulerGrading2($schema) {
         return "
-        CREATE OR REPLACE VIEW cp_dp_cashback_reguler_grading_2 AS
+        CREATE OR REPLACE VIEW cp_dp_cashback_reguler_a_grading_2 AS
         SELECT
             cp.kode_cp,
             cp.nama_cp,
@@ -3485,7 +3485,7 @@ class CreateSchemaService {
 
     public function createViewCPDPCashbackRegulerGrading3($schema) {
         return "
-            CREATE OR REPLACE VIEW cp_dp_cashback_reguler_grading_3 AS
+            CREATE OR REPLACE VIEW cp_dp_cashback_reguler_a_grading_3 AS
             SELECT
                 cp.kode_cp,
                 cp.nama_cp,
@@ -3926,7 +3926,7 @@ class CreateSchemaService {
             FROM
                 PUBLIC.master_collection_point cp
             LEFT JOIN ".$schema.".rekap_zonasi rzmp ON cp.drop_point_outgoing = rzmp.drop_point_outgoing
-            LEFT JOIN ".$schema.".cp_dp_cashback_reguler_grading_1 cpdpcrg ON cp.drop_point_outgoing = cpdpcrg.nama_cp
+            LEFT JOIN ".$schema.".cp_dp_cashback_reguler_a_grading_1 cpdpcrg ON cp.drop_point_outgoing = cpdpcrg.nama_cp
             LEFT JOIN ".$schema.".cp_dp_cashback_non_cod_grading_1 cpdpcncg ON cp.drop_point_outgoing = cpdpcncg.nama_cp
             WHERE
                 cp.grading_pickup = 'A'
@@ -4190,7 +4190,7 @@ class CreateSchemaService {
             COALESCE(cpdpcrg.total_cashback_reguler, 0) + COALESCE(cbawbcg.total_cashback_marketplace,0) AS total_cashback
             FROM
             PUBLIC.master_collection_point cp
-            LEFT JOIN ".$schema.".cp_dp_cashback_reguler_grading_2 cpdpcrg ON cp.drop_point_outgoing = cpdpcrg.nama_cp
+            LEFT JOIN ".$schema.".cp_dp_cashback_reguler_a_grading_2 cpdpcrg ON cp.drop_point_outgoing = cpdpcrg.nama_cp
             LEFT JOIN ".$schema.".cp_dp_cashback_awb_grading_2 cbawbcg ON cp.drop_point_outgoing = cbawbcg.nama_cp
             WHERE
             cp.grading_pickup = 'B'
@@ -4454,7 +4454,7 @@ class CreateSchemaService {
             COALESCE(cpdpcrg.total_cashback_reguler, 0) + COALESCE(cbawbcg.total_cashback_marketplace,0) AS total_cashback
             FROM
                 PUBLIC.master_collection_point cp
-            LEFT JOIN ".$schema.".cp_dp_cashback_reguler_grading_3 cpdpcrg ON cp.drop_point_outgoing = cpdpcrg.nama_cp
+            LEFT JOIN ".$schema.".cp_dp_cashback_reguler_a_grading_3 cpdpcrg ON cp.drop_point_outgoing = cpdpcrg.nama_cp
             LEFT JOIN ".$schema.".cp_dp_cashback_awb_grading_3 cbawbcg ON cp.drop_point_outgoing = cbawbcg.nama_cp
             WHERE
                 cp.grading_pickup = 'C'

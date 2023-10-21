@@ -4,7 +4,7 @@ namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
 
-class CashbackGradingDeliveryExport implements FromCollection
+class CashbackGradingDeliveryExport implements FromCollection, ShouldAutoSize, WithHeadings
 {
     private $collection;
     private $fileName;

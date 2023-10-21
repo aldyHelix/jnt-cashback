@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('setting_dp_periode', function (Blueprint $table) {
-            $table->double('setting_pph')->default(0);
+        Schema::table('periode_data_json', function (Blueprint $table) {
+            $table->json('cashback_marketplace_awb_g3_cod')->nullable()->after('cashback_marketplace_awb_cod');
         });
     }
 
@@ -21,8 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('setting_dp_periode', function (Blueprint $table) {
-            $table->dropColumn('setting_pph');
+        Schema::table('periode_data_json', function (Blueprint $table) {
+            $table->dropColumn('cashback_marketplace_awb_g3_cod');
         });
     }
 };
