@@ -29,6 +29,11 @@ class GeneratePivotTableService {
         $query = "";
         // $schema = 'cashback_feb_2022'; //for debuging
 
+        $dalam_zona = "or
+            (data_mart.drop_point_outgoing = 'CP_BNR' and data_mart.kat = 'DALAM ZONASI') or
+            (data_mart.drop_point_outgoing = 'PESONA_DARUSSALAM' and data_mart.kat = 'DALAM ZONASI') or
+            (data_mart.drop_point_outgoing = 'PAMOYANAN_BOGOR' and data_mart.kat = 'DALAM ZONASI')";
+
         $query .= "
 
             CREATE OR REPLACE VIEW sum_all_biaya_kirim AS
@@ -38,7 +43,7 @@ class GeneratePivotTableService {
             CREATE OR REPLACE VIEW cp_dp_all_count_sum AS
                 SELECT DISTINCT (data_mart.drop_point_outgoing), COUNT(data_mart.no_waybill), SUM(data_mart.biaya_kirim)
                 FROM ".$schema.".data_mart
-                WHERE (data_mart.kat = 'CP' OR data_mart.kat = 'DP')
+                WHERE (data_mart.kat = 'CP' OR data_mart.kat = 'DP' $dalam_zona)
                 GROUP BY data_mart.drop_point_outgoing;
 
             CREATE OR REPLACE VIEW cp_dp_setting AS

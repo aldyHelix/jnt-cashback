@@ -44,6 +44,7 @@ if (!function_exists('grading_map')) {
             1 => 'A',
             2 => 'B',
             3 => 'C',
+            'DPF' => 'DPF'
             // Add more mappings as needed.
         ];
 

@@ -32,6 +32,16 @@ class PeriodeDataJson extends Model
         'cashback_grading_2_denda',
         'cashback_grading_3',
         'cashback_grading_3_denda',
+        'dpf_pivot',
+        'dpf_pivot_mp',
+        'dpf_pivot_vip',
+        'dpf_cashback_reguler',
+        'dpf_cashback_marketplace_cod',
+        'dpf_cashback_marketplace_non_cod',
+        'dpf_cashback_klien_vip',
+        'dpf_cashback_rekap_klien_vip',
+        'dpf_cashback_rekap',
+        'dpf_cashback_rekap_denda',
     ];
 
     public function category(){
