@@ -6,7 +6,7 @@ use Ladmin\Engine\Contracts\MenuDivider;
 use Ladmin\Engine\Menus\Gate;
 use Ladmin\Engine\Supports\BaseMenu;
 
-class CashbackMenu extends BaseMenu
+class DPFMenu extends BaseMenu
 {
 
     /**
@@ -14,28 +14,28 @@ class CashbackMenu extends BaseMenu
      *
      * @var string
      */
-    protected $gate = 'ladmin.cashbackpickup.index';
+    protected $gate = 'ladmin.cashbackpickup.dpf.index';
 
     /**
      * Name of menu
      *
      * @var string
      */
-    protected $name = 'Cashback Pickup';
+    protected $name = 'DPF';
 
     /**
      * Font icons
      *
      * @var string
      */
-    protected $icon = 'fa fa-history'; // fontawesome
+    protected $icon = 'fa fa-bar-chart'; // fontawesome
 
     /**
      * Menu description
      *
      * @var string
      */
-    protected $description = 'User can access Cashback Pickup';
+    protected $description = 'User can access cashback pickup dpf';
 
     /**
      * Inspecting The Request Path / Route active
@@ -43,7 +43,7 @@ class CashbackMenu extends BaseMenu
      *
      * @var string
      */
-    protected $isActive = 'grading*';
+    protected $isActive = 'cashbackpickup/dpf*';
 
     /**
      * Menu ID
@@ -60,7 +60,7 @@ class CashbackMenu extends BaseMenu
      */
     protected function route()
     {
-        return null;
+        return ['ladmin.cashbackpickup.dpf.index'];
     }
 
     /**
@@ -72,6 +72,10 @@ class CashbackMenu extends BaseMenu
     {
         return [
             // new Gate(gate: 'gate.menu.uniq', title: 'Gate Title', description: 'Description of gate'),
+            new Gate(gate: 'ladmin.cashbackpickup.dpf.denda', title: 'Create New Denda', description: 'User can create new data denda period'),
+            new Gate(gate: 'ladmin.cashbackpickup.dpf.view', title: 'View Summary', description: 'User can view summary'),
+            new Gate(gate: 'ladmin.cashbackpickup.dpf.process', title: 'Process Delivery Report', description: 'User can process delivery report'),
+            new Gate(gate: 'ladmin.cashbackpickup.dpf.lock', title: 'Process lock Delivery', description: 'User can lock delivery'),
         ];
     }
 
@@ -84,10 +88,6 @@ class CashbackMenu extends BaseMenu
     {
         return [
             // OtherMenu::class
-            Grading1Menu::class,
-            Grading2Menu::class,
-            Grading3Menu::class,
-            DPFMenu::class,
         ];
     }
 }

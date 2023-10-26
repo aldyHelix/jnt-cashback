@@ -26,6 +26,13 @@ ladmin()->route(function() {
         Route::get('/process/{code}/{grade}/{id}', [CashbackPickupController::class, 'process'])->name('process');
         Route::get('/lock/{code}/{grade}/{id}', [CashbackPickupController::class, 'lock'])->name('lock');
         Route::get('/download/{filename}', [CashbackPickupController::class, 'downloadExcel'])->name('download');
+
+        Route::get('/grading/dpf', [CashbackPickupController::class, 'DPFIndex'])->name('dpf.index');
+        Route::get('/denda-dpf/{id}/dpf', [CashbackPickupController::class, 'viewDendaDpf'])->name('dpf.view-denda');
+        Route::post('/denda-dpf/dpf', [CashbackPickupController::class, 'saveDendaDpf'])->name('dpf.save-denda');
+        Route::get('/detail-dpf/{code}/dpf', [CashbackPickupController::class, 'viewDetailDpf'])->name('dpf.detail');
+        Route::get('/process-dpf/{code}/dpf/{id}', [CashbackPickupController::class, 'processDpf'])->name('dpf.process');
+        Route::get('/lock-dpf/{code}/dpf/{id}', [CashbackPickupController::class, 'lockDpf'])->name('dpf.lock');
     });
 
 });
