@@ -10,7 +10,7 @@
                 </div>
             </div>
             <div class="row" style="margin-bottom: 10px;">
-                <div class="col-6">
+                <div class="col-12">
                     Setting drop point outgoing
                     <div class="table-responsive">
                         <form action="{{ route('ladmin.period.setting-dp', $periode->id) }}" method="POST">
@@ -21,6 +21,8 @@
                                 <tr>
                                     <td>#</td>
                                     <td>Nama DP</td>
+                                    <td>Retur Klien HQ</td>
+                                    <td>Retur Belum Terpotong</td>
                                     <td>Pengurangan</td>
                                     <td>Penambahan</td>
                                     <td>Diskon COD</td>
@@ -38,6 +40,12 @@
                                     </td>
                                     <td style="text-align: left;width: 300px;">{{ $item->drop_point_outgoing }} </td>
                                     <td>
+                                        <x-ladmin-input id="retur_klien_pengirim_hq" type="text" class="mb-3 col" name="dp[{{ $key }}][retur_klien_pengirim_hq]" value="{{ old('retur_klien_pengirim_hq', intval($item->retur_klien_pengirim_hq)) }}" placeholder="Retur Klien Pengirim HQ" />
+                                    </td>
+                                    <td>
+                                        <x-ladmin-input id="retur_belum_terpotong" type="text" class="mb-3 col" name="dp[{{ $key }}][retur_belum_terpotong]" value="{{ old('retur_belum_terpotong', intval($item->retur_belum_terpotong)) }}" placeholder="Retur Belum Terpotong" />
+                                    </td>
+                                    <td>
                                         <x-ladmin-input id="pengurangan_total" type="text" class="mb-3 col" name="dp[{{ $key }}][pengurangan_total]" value="{{ old('pengurangan_total', intval($item->pengurangan_total)) }}" placeholder="Pengurangan Total" />
                                     </td>
                                     <td>
@@ -52,55 +60,6 @@
                         </table>
                         <button class="btn btn-primary" type="submit">Save</button>
                         </form>
-                    </div>
-                </div>
-                <div class="col-6">
-                    Setting Klien pengiriman
-                    <div class="table-responsive">
-                        <form action="{{ route('ladmin.period.update-klien', $periode->id) }}" method="POST">
-                            @csrf
-                            @method('POST')
-                        <table class="table">
-                            <thead>
-                                <tr>
-                                    <td>Klien</td>
-                                    <td>Reguler</td>
-                                    <td>DFOD</td>
-                                    <td>SUPER</td>
-                                </tr>
-                            </thead>
-                                <tbody>
-                                    @foreach ($klien_pengiriman as $key => $item)
-                                    <input type="hidden" name="klien[{{$key}}][item]" value="{{ $item->klien_pengiriman }}">
-                                    <tr>
-                                        <td style="text-align: left;width: 300px;">{{ $item->klien_pengiriman ?? '(blank)' }} </td>
-                                        <td>
-                                            <div class="form-check">
-                                                <input type="hidden" name="klien[{{$key}}][reguler]" value=0>
-                                                <input class="form-check-input" type="checkbox" name="klien[{{$key}}][reguler]" value=1 id="flexCheckDefaultReguler" {{ $item->is_reguler ? 'checked' : ''}}>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="form-check">
-                                                <input type="hidden" name="klien[{{$key}}][dfod]" value=0>
-                                                <input class="form-check-input" type="checkbox" name="klien[{{$key}}][dfod]" value=1 id="flexCheckDefaultDfod" {{ $item->is_dfod ? 'checked' : ''}}>
-                                            </div>
-                                        </td>
-                                        <td>
-                                            <div class="form-check">
-                                                <input type="hidden" name="klien[{{$key}}][super]" value=0>
-                                                <input class="form-check-input" type="checkbox" name="klien[{{$key}}][super]" value=1 id="flexCheckDefaultSuper" {{ $item->is_super ? 'checked' : ''}}>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                    @endforeach
-                                </tbody>
-
-                            </table>
-
-                            <button class="btn btn-primary" type="submit">Save</button>
-                        </form>
-
                     </div>
                 </div>
             </div>

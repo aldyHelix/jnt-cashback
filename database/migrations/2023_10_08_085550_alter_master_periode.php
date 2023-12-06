@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::table('master_periode', function (Blueprint $table) {
             $table->json('data_pivot')->nullable();
             $table->json('data_pivot_mp')->nullable();
+            $table->json('data_pivot_vip')->nullable();
             $table->json('data_cashback_reguler')->nullable();
             $table->json('data_cashback_marketplace_cod')->nullable();
             $table->json('data_cashback_marketplace_non_cod')->nullable();
