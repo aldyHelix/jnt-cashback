@@ -180,6 +180,7 @@
                                         </tr>
                                       </thead>
                                       <tbody>
+                                        @if($cp_grade_a->count() > 0)
                                           @foreach ($cp_grade_a as $item)
                                               <tr>
                                                   <td style="text-align: left">{{$item->kode_cp}}</td>
@@ -193,6 +194,13 @@
                                               <td>{{ decimal_format($total['grade_a_summary_total_count']) }}</td>
                                               <td>Rp{{ rupiah_format($total['grade_a_summary_total_sum']) }}</td>
                                           </tr>
+                                        @else
+                                        <tr>
+                                            <td colspan="4">
+                                                No Data
+                                            </td>
+                                        </tr>
+                                        @endif
                                       </tbody>
                                     </table>
                                 </div>
@@ -208,6 +216,7 @@
                                         </tr>
                                       </thead>
                                       <tbody>
+                                        @if($cp_grade_b->count() > 0)
                                         @foreach ($cp_grade_b as $item)
                                             <tr>
                                                 <td style="text-align: left">{{$item->kode_cp}}</td>
@@ -221,6 +230,13 @@
                                               <td>{{ decimal_format($total['grade_b_summary_total_count']) }}</td>
                                               <td>Rp{{ rupiah_format($total['grade_b_summary_total_sum']) }}</td>
                                           </tr>
+                                        @else
+                                          <tr>
+                                              <td colspan="4">
+                                                  No Data
+                                              </td>
+                                          </tr>
+                                        @endif
                                       </tbody>
                                     </table>
                                 </div>
@@ -236,6 +252,7 @@
                                         </tr>
                                       </thead>
                                       <tbody>
+                                        @if($cp_grade_c->count() > 0)
                                         @foreach ($cp_grade_c as $item)
                                             <tr>
                                                 <td style="text-align: left">{{$item->kode_cp}}</td>
@@ -249,6 +266,13 @@
                                               <td>{{ decimal_format($total['grade_c_summary_total_count']) }}</td>
                                               <td>Rp{{ rupiah_format($total['grade_c_summary_total_sum'] )}}</td>
                                           </tr>
+                                        @else
+                                        <tr>
+                                            <td colspan="4">
+                                                No Data
+                                            </td>
+                                        </tr>
+                                        @endif
                                       </tbody>
                                     </table>
                                 </div>

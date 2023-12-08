@@ -151,8 +151,8 @@ class ProcessCSVDataOptimized implements ShouldQueue
                                 'periode_id' => $this->period_id,
                                 'batch_id' => $this->batch()->id,
                                 'resi' => substr($cell, 0, 12),
-                                'before_raw' => '"'.$original.'"',
-                                'after_raw' => '"'.$cell.'"',
+                                'before_raw' => $original,
+                                'after_raw' => $cell,
                                 'type' => 'invalid',
                                 'date' => now(),
                                 'created_at' => now(),
@@ -269,73 +269,71 @@ class ProcessCSVDataOptimized implements ShouldQueue
                     unset($item[25]);
                     unset($item[26]);
 
-                        if (count($item) === count($header)) {
-                            $item = array_combine($header, $item);
-                            $item['cod'] = rupiah_to_int($item['cod']);
-                            $item['biaya_asuransi'] = rupiah_to_int($item['biaya_asuransi']);
-                            $item['biaya_kirim'] = rupiah_to_int($item['biaya_kirim']);
-                            $item['biaya_lainnya'] = rupiah_to_int($item['biaya_lainnya']);
-                            $item['total_biaya'] = rupiah_to_int($item['total_biaya']);
-                            $item['diskon'] = rupiah_to_int($item['diskon']);
-                            $item['total_biaya_setelah_diskon'] = rupiah_to_int($item['total_biaya_setelah_diskon']);
+                    if (count($item) === count($header)) {
+                        $item = array_combine($header, $item);
+                        $item['cod'] = rupiah_to_int($item['cod']);
+                        $item['biaya_asuransi'] = rupiah_to_int($item['biaya_asuransi']);
+                        $item['biaya_kirim'] = rupiah_to_int($item['biaya_kirim']);
+                        $item['biaya_lainnya'] = rupiah_to_int($item['biaya_lainnya']);
+                        $item['total_biaya'] = rupiah_to_int($item['total_biaya']);
+                        $item['diskon'] = rupiah_to_int($item['diskon']);
+                        $item['total_biaya_setelah_diskon'] = rupiah_to_int($item['total_biaya_setelah_diskon']);
 
-                            if ($item['waktu_ttd'] === "") {
-                                $item['waktu_ttd'] = '01/01/1970 00:00';
-                            }
-
-                            $data_insert[] = $item;
-                            $dbInsert = DB::table($this->schema_name . '.data_mart')->insert($item);
-
-                            if(!$dbInsert) {
-                                DB::table('log_resi')->insert([
-                                    'periode_id' => $this->period_id,
-                                    'batch_id' => $this->batch()->id,
-                                    'resi' => $item['no_waybill'],
-                                    'before_raw' => '',
-                                    'after_raw' => json_encode($item),
-                                    'type' => 'fail_insert',
-                                    'date' => $item['tgl_pengiriman'],
-                                    'created_at' => now()
-                                ]);
-                            }
-
-                            if ($invalid) {
-                                $invalid->update(['type' => 'invalid : success inserted']);
-                            }
-
-                            $inserted++;
+                        if ($item['waktu_ttd'] === "") {
+                            $item['waktu_ttd'] = '01/01/1970 00:00';
                         }
-                         else {
+
+                        $data_insert[] = $item;
+                        $dbInsert = DB::table($this->schema_name . '.data_mart')->insert($item);
+
+                        if(!$dbInsert) {
                             DB::table('log_resi')->insert([
                                 'periode_id' => $this->period_id,
                                 'batch_id' => $this->batch()->id,
-                                'resi' => $item[0],
+                                'resi' => $item['no_waybill'],
                                 'before_raw' => '',
                                 'after_raw' => json_encode($item),
-                                'type' => 'skiped row',
-                                'date' => isset($item[1]) ? $item[1] : now(),
-                                'created_at' => now(),
+                                'type' => 'fail_insert',
+                                'date' => $item['tgl_pengiriman'],
+                                'created_at' => now()
                             ]);
                         }
 
-                        if(isset($item[24])){
-                            if($item[24] == "" && !$duplicates && !$dbInsert) {
-                                DB::table('log_resi')->insert([
-                                    'periode_id' => $this->period_id,
-                                    'batch_id' => $this->batch()->id,
-                                    'resi' => substr($cell, 0, 12),
-                                    'before_raw' => json_encode($cell),
-                                    'after_raw' => json_encode($this->data[$index]),
-                                    'type' => 'error: row not inserted',
-                                    'date' => now(),
-                                    'created_at' => now(),
-                                ]);
-
-                                unset($result[$key2]);
-                                continue;
-                            }
+                        if ($invalid) {
+                            $invalid->update(['type' => 'invalid : success inserted']);
                         }
 
+                        $inserted++;
+                    } else {
+                        DB::table('log_resi')->insert([
+                            'periode_id' => $this->period_id,
+                            'batch_id' => $this->batch()->id,
+                            'resi' => $item[0],
+                            'before_raw' => '',
+                            'after_raw' => json_encode($item),
+                            'type' => 'skiped row',
+                            'date' => isset($item[1]) ? $item[1] : now(),
+                            'created_at' => now(),
+                        ]);
+                    }
+
+                    if(isset($item[24])){
+                        if($item[24] == "" && !$dbInsert) {
+                            DB::table('log_resi')->insert([
+                                'periode_id' => $this->period_id,
+                                'batch_id' => $this->batch()->id,
+                                'resi' => substr($cell, 0, 12),
+                                'before_raw' => json_encode($cell),
+                                'after_raw' => json_encode($this->data[$index]),
+                                'type' => 'error: row not inserted',
+                                'date' => now(),
+                                'created_at' => now(),
+                            ]);
+
+                            unset($result[$key2]);
+                            continue;
+                        }
+                    }
                 }
 
                 $periode_inserted_row = $periode->first()->inserted_row;

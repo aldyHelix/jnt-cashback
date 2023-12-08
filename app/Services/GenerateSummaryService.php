@@ -133,7 +133,7 @@ class GenerateSummaryService {
                 'cashback_reguler_c' => json_encode($data_cashback_reguler_c->get()->toArray()),
                 'cashback_marketplace_cod' => json_encode($data_cashback_marketplace_cod->get()->toArray()),
                 'cashback_marketplace_awb_cod' => json_encode($data_cashback_marketplace_awb_cod->get()->toArray()),
-                'cashback_marketplace_awb_g3_cod' => json_encode($data_cashback_marketplace_g3_cod->get()->toArray()),
+                'cashback_marketplace_awb_g3_cod' => json_encode($data_cashback_marketplace_awb_g3_cod->get()->toArray()),
                 'cashback_marketplace_non_cod' => json_encode($data_cashback_marketplace_non_cod->get()->toArray()),
                 'cashback_klien_vip' => json_encode($data_cashback_klien_vip->get()->toArray()),
                 'cashback_grading_1' => json_encode($data_grading_1),

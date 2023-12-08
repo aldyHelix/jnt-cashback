@@ -13,6 +13,10 @@ class PivotService {
         if(!Schema::hasTable($schema.'.data_mart')) {
             return false;
         }
+
+        // if(!Schema::hasTable($schema.'.sum_all_biaya_kirim')) {
+        //     return 0;
+        // }
         return DB::table($schema.'.sum_all_biaya_kirim')
             ->first()->sum;
     }
@@ -23,6 +27,10 @@ class PivotService {
         if(!Schema::hasTable($schema.'.data_mart')) {
             return false;
         }
+
+        // if(Schema::hasTable($schema.'.cp_dp_all_count_sum')) {
+        //     return collect([]);
+        // }
         return DB::table($schema.'.cp_dp_all_count_sum')
             ->get();
     }
@@ -31,6 +39,10 @@ class PivotService {
         if(!Schema::hasTable($schema.'.data_mart')) {
             return false;
         }
+
+        // if(!Schema::hasTable($schema.'.cp_dp_reguler_count_sum')) {
+        //     return collect([]);
+        // }
         return DB::table($schema.'.cp_dp_reguler_count_sum')
             ->get();
     }
@@ -39,6 +51,10 @@ class PivotService {
         if(!Schema::hasTable($schema.'.data_mart')) {
             return false;
         }
+
+        // if(!Schema::hasTable($schema.'.cp_dp_super_count_sum')) {
+        //     return collect([]);
+        // }
         return DB::table($schema.'.cp_dp_super_count_sum')
             ->get();
     }
@@ -46,6 +62,10 @@ class PivotService {
         if(!Schema::hasTable($schema.'.data_mart')) {
             return false;
         }
+
+        // if(!Schema::hasTable($schema.'.cp_dp_dfod_count_sum')) {
+        //     return collect([]);
+        // }
         return DB::table($schema.'.cp_dp_dfod_count_sum')
             ->get();
     }
@@ -53,6 +73,10 @@ class PivotService {
         if(!Schema::hasTable($schema.'.data_mart')) {
             return false;
         }
+
+        // if(!Schema::hasTable($schema.'.cp_dp_mp_count_waybill')) {
+        //     return collect([]);
+        // }
         return DB::table($schema.'.cp_dp_mp_count_waybill')
             ->get();
     }
@@ -60,6 +84,11 @@ class PivotService {
         if(!Schema::hasTable($schema.'.data_mart')) {
             return false;
         }
+
+        // if(!Schema::hasTable($schema.'.cp_dp_mp_sum_biaya_kirim')) {
+        //     return collect([]);
+
+        // }
         return DB::table($schema.'.cp_dp_mp_sum_biaya_kirim')
             ->get();
     }
@@ -67,6 +96,11 @@ class PivotService {
         if(!Schema::hasTable($schema.'.data_mart')) {
             return false;
         }
+
+        // if(!Schema::hasTable($schema.'.cp_dp_mp_retur_count_waybill')) {
+        //     return collect([]);
+
+        // }
         return DB::table($schema.'.cp_dp_mp_retur_count_waybill')
             ->get();
     }
@@ -74,6 +108,11 @@ class PivotService {
         if(!Schema::hasTable($schema.'.data_mart')) {
             return false;
         }
+
+        // if(!Schema::hasTable($schema.'.cp_dp_mp_retur_sum_biaya_kirim')) {
+        //     return collect([]);
+
+        // }
         return DB::table($schema.'.cp_dp_mp_retur_sum_biaya_kirim')
             ->get();
     }
@@ -84,6 +123,10 @@ class PivotService {
         if(!Schema::hasTable($schema.'.data_mart')) {
             return false;
         }
+
+        // if(!Schema::hasTable($schema.'.dpf_all_count_sum')) {
+        //     return collect([]);
+        // }
         return DB::table($schema.'.dpf_all_count_sum')
             ->get();
     }
@@ -92,6 +135,10 @@ class PivotService {
         if(!Schema::hasTable($schema.'.data_mart')) {
             return false;
         }
+
+        // if(!Schema::hasTable($schema.'.dpf_reguler_count_sum')) {
+        //     return collect([]);
+        // }
         return DB::table($schema.'.dpf_reguler_count_sum')
             ->get();
     }
@@ -100,6 +147,10 @@ class PivotService {
         if(!Schema::hasTable($schema.'.data_mart')) {
             return false;
         }
+
+        // if(!Schema::hasTable($schema.'.dpf_super_count_sum')) {
+        //     return collect([]);
+        // }
         return DB::table($schema.'.dpf_super_count_sum')
             ->get();
     }
@@ -107,6 +158,10 @@ class PivotService {
         if(!Schema::hasTable($schema.'.data_mart')) {
             return false;
         }
+
+        // if(!Schema::hasTable($schema.'.dpf_dfod_count_sum')) {
+        //     return collect([]);
+        // }
         return DB::table($schema.'.dpf_dfod_count_sum')
             ->get();
     }
@@ -114,6 +169,10 @@ class PivotService {
         if(!Schema::hasTable($schema.'.data_mart')) {
             return false;
         }
+
+        // if(!Schema::hasTable($schema.'.dpf_mp_count_waybill')) {
+        //     return collect([]);
+        // }
         return DB::table($schema.'.dpf_mp_count_waybill')
             ->get();
     }
@@ -121,6 +180,10 @@ class PivotService {
         if(!Schema::hasTable($schema.'.data_mart')) {
             return false;
         }
+
+        // if(!Schema::hasTable($schema.'.dpf_mp_sum_biaya_kirim')) {
+        //     return collect([]);
+        // }
         return DB::table($schema.'.dpf_mp_sum_biaya_kirim')
             ->get();
     }
@@ -128,6 +191,10 @@ class PivotService {
         if(!Schema::hasTable($schema.'.data_mart')) {
             return false;
         }
+
+        // if(!Schema::hasTable($schema.'.dpf_mp_retur_count_waybill')) {
+        //     return collect([]);
+        // }
         return DB::table($schema.'.dpf_mp_retur_count_waybill')
             ->get();
     }
@@ -135,6 +202,10 @@ class PivotService {
         if(!Schema::hasTable($schema.'.data_mart')) {
             return false;
         }
+
+        // if(!Schema::hasTable($schema.'.dpf_mp_retur_sum_biaya_kirim')) {
+        //     return collect([]);
+        // }
         return DB::table($schema.'.dpf_mp_retur_sum_biaya_kirim')
             ->get();
     }
@@ -143,6 +214,10 @@ class PivotService {
         if(!Schema::hasTable($schema.'.data_mart')) {
             return false;
         }
+
+        // if(!Schema::hasTable($schema.'.mp_delivery_count_sprinter')) {
+        //     return collect([]);
+        // }
         return DB::table($schema.'.mp_delivery_count_sprinter')
             ->get();
     }

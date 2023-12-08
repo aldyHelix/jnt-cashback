@@ -119,6 +119,12 @@ class PeriodeController extends Controller
 
     public function updateSettingDP(Request $request, $id) {
         $periode = Periode::where('id', $id)->first();
+
+        if(!isset($request['dp'] )){
+            toastr()->error('Could not save setting, no field filled!', 'Error');
+            return redirect()->back();
+        }
+
         foreach($request['dp'] as $item) {
             if(intval($item['is_import'])) {
                 $exist = SettingDpPeriode::where(['periode_id' => $id, 'drop_point_outgoing' => $item['drop_point_outgoing']])->first();
