@@ -151,8 +151,8 @@ class ProcessCSVDataOptimized implements ShouldQueue
                                 'periode_id' => $this->period_id,
                                 'batch_id' => $this->batch()->id,
                                 'resi' => substr($cell, 0, 12),
-                                'before_raw' => $original,
-                                'after_raw' => $cell,
+                                'before_raw' => '"'.$original.'"',
+                                'after_raw' => '"'.$cell.'"',
                                 'type' => 'invalid',
                                 'date' => now(),
                                 'created_at' => now(),
@@ -269,24 +269,6 @@ class ProcessCSVDataOptimized implements ShouldQueue
                     unset($item[25]);
                     unset($item[26]);
 
-                    if(isset($item[24])){
-                        if($item[24] == "") {
-                            DB::table('log_resi')->insert([
-                                'periode_id' => $this->period_id,
-                                'batch_id' => $this->batch()->id,
-                                'resi' => substr($cell, 0, 12),
-                                'before_raw' => json_encode($cell),
-                                'after_raw' => json_encode($this->data[$index]),
-                                'type' => 'error: row not inserted',
-                                'date' => now(),
-                                'created_at' => now(),
-                            ]);
-
-                            unset($result[$key2]);
-                            continue;
-                        }
-                    }
-
                         if (count($item) === count($header)) {
                             $item = array_combine($header, $item);
                             $item['cod'] = rupiah_to_int($item['cod']);
@@ -334,6 +316,24 @@ class ProcessCSVDataOptimized implements ShouldQueue
                                 'date' => isset($item[1]) ? $item[1] : now(),
                                 'created_at' => now(),
                             ]);
+                        }
+
+                        if(isset($item[24])){
+                            if($item[24] == "" && !$duplicates && !$dbInsert) {
+                                DB::table('log_resi')->insert([
+                                    'periode_id' => $this->period_id,
+                                    'batch_id' => $this->batch()->id,
+                                    'resi' => substr($cell, 0, 12),
+                                    'before_raw' => json_encode($cell),
+                                    'after_raw' => json_encode($this->data[$index]),
+                                    'type' => 'error: row not inserted',
+                                    'date' => now(),
+                                    'created_at' => now(),
+                                ]);
+
+                                unset($result[$key2]);
+                                continue;
+                            }
                         }
 
                 }
