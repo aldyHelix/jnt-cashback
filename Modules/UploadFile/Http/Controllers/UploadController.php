@@ -3,6 +3,12 @@
 namespace Modules\UploadFile\Http\Controllers;
 
 use App\Facades\CreateSchema;
+use App\Facades\GenerateDPF;
+use App\Facades\GeneratePivot;
+use App\Facades\GeneratePivotRekap;
+use App\Facades\GenerateRekapLuarZona;
+use App\Facades\GenerateSummary;
+use App\Facades\GradingProcess;
 use App\Imports\CashbackImport;
 use App\Jobs\ProcessCSVData;
 use App\Jobs\ProcessCSVDataDelivery;
@@ -23,6 +29,7 @@ use Modules\UploadFile\Models\UploadFile;
 use Throwable;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Broadcast;
+use App\Models\PeriodeKlienPengiriman;
 
 class UploadController extends Controller
 {
@@ -233,10 +240,7 @@ class UploadController extends Controller
             $batchSize = 500; // Set the batch size to your desired value
             $batch = []; // Initialize an empty batch array
 
-            // Create the schema if it doesn't exist
-            if (!Schema::hasTable($schema_name.'.'.'data_mart')) {
-                $schema = CreateSchema::createSchemaCashback(strtolower($request->month_period), $request->year_period);
-            }
+
 
             $uploaded_file = UploadFile::create([
                 'file_name' => $request->file('file')->getClientOriginalName(),
@@ -259,6 +263,25 @@ class UploadController extends Controller
             );
 
             $period_id = $existing_periode->id;
+
+            // Create the schema if it doesn't exist
+            if (!Schema::hasTable($schema_name.'.'.'data_mart')) {
+                // $schema = CreateSchema::createSchemaCashback(strtolower($request->month_period), $request->year_period);
+
+                $code = $schema_name;
+
+                $periode = Periode::where('code', $code)->first();
+
+                GeneratePivot::createOrReplacePivot($code, $period_id);
+
+                GeneratePivot::runMPGenerator($code);
+
+                GeneratePivotRekap::runRekapGenerator($code);
+
+                GenerateRekapLuarZona::runZonasiGenerator($code);
+
+                GenerateSummary::runSummaryGenerator($code, $existing_periode);
+            }
 
             while (($csv = fgetcsv($handle)) !== false) {
                 // Convert the line to UTF-8 Encoding
@@ -442,10 +465,6 @@ class UploadController extends Controller
         $count_csv = (count($csv)-1);
         $timeout = 1200;
 
-        if(!Schema::hasTable($schema_name.'.'.'data_mart')) {
-            $schema = CreateSchema::createSchemaCashback(strtolower($request->month_period), $request->year_period);
-        }
-
         $file = $request->file('file');
 
         //as logger
@@ -462,29 +481,81 @@ class UploadController extends Controller
             'processing_status' => 'ON QUEUE',
         ]);
 
+        if(!Schema::hasTable($schema_name.'.'.'data_mart')) {
+            $schema = CreateSchema::createSchemaCashback(strtolower($request->month_period), $request->year_period);
+        }
+
         $queue_name = 'QUEUE CASHBACK : '.$file->getClientOriginalName().';SCHEMA : '.$schema_name.';TIME UPLOAD : '.$uploaded_file->created_at;
+        $count_db_dm = DB::table($schema_name.'.data_mart')->selectRaw('COUNT(no_waybill)')->first();
+        $existing_periode = Periode::where('code', $schema_name)->first();
+
+        if(!$existing_periode) {
+
+            $existing_periode = Periode::create([
+                'code' => $schema_name,
+                'month' => $request->month_period,
+                'year' => $request->year_period,
+                'count_row' => $count_csv,
+                'status' => 'ON QUEUE',
+            ]);
+
+            $period_id = $existing_periode->id;
+        } else {
+            $existing_periode->update([
+                'count_row' => $count_db_dm->count + $count_csv
+            ]);
+            $period_id = $existing_periode->id;
+        }
+
+        //import klien pengiriman
+
+        $get_global_klien_pengiriman = DB::table('category_klien_pengiriman')->get();
+
+        $periode_klien_pengiriman = $get_global_klien_pengiriman->map(function ($data) use ($period_id){
+            return [
+                'periode_id' => intval($period_id),
+                'category_id' => $data->category_id,
+                'klien_pengiriman_id' => $data->klien_pengiriman_id
+            ];
+        });
+
+        //check this current periode before insert (try to not make duplicate) //not support update
+        $get_periode_klien_pengiriman = PeriodeKlienPengiriman::where('periode_id', $period_id)->count();
+
+
+        if($get_periode_klien_pengiriman <= 0){
+            PeriodeKlienPengiriman::insert($periode_klien_pengiriman->toArray());
+        }
+
+        if(Schema::hasTable($schema_name.'.'.'data_mart')) {
+            // $schema = CreateSchema::createSchemaCashback(strtolower($request->month_period), $request->year_period);
+
+            $code = $schema_name;
+
+            GeneratePivot::createOrReplacePivot($code, $period_id);
+
+            GeneratePivot::runMPGenerator($code);
+
+            GeneratePivotRekap::runRekapGenerator($code);
+
+            GenerateRekapLuarZona::runZonasiGenerator($code);
+
+            GenerateSummary::runSummaryGenerator($code, $existing_periode);
+
+            //process grading
+            // GradingProcess::generateGrading($period_id, $grade);
+
+            //process dpf
+            GenerateDPF::runRekapGenerator($code, $id);
+
+            GradingProcess::generateGrading($id, 'dpf');
+
+            //generate denda default 0
+
+
+        }
 
         if($uploaded_file) {
-            $count_db_dm = DB::table($schema_name.'.data_mart')->selectRaw('COUNT(no_waybill)')->first();
-            $existing_periode = Periode::where('code', $schema_name)->first();
-
-            if(!$existing_periode) {
-                $existing_periode = Periode::create([
-                    'code' => $schema_name,
-                    'month' => $request->month_period,
-                    'year' => $request->year_period,
-                    'count_row' => $count_csv,
-                    'status' => 'ON QUEUE',
-                ]);
-
-                $period_id = $existing_periode->id;
-            } else {
-                $existing_periode->update([
-                    'count_row' => $count_db_dm->count + $count_csv
-                ]);
-                $period_id = $existing_periode->id;
-            }
-
             $batch  = Bus::batch([])
             ->then(function (Batch $batch) use ($uploaded_file, $existing_periode, $count_csv) {
                 $uploaded_file->update([

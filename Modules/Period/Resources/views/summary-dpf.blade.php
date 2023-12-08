@@ -23,6 +23,7 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                @if( $dpf_all_count_sum->count() > 0)
                                 @foreach ($dpf_all_count_sum as $item)
                                     <tr>
                                         <td style="text-align: left">{{$item->drop_point_outgoing}}</td>
@@ -35,6 +36,13 @@
                                     <td>{{ decimal_format($total['dpf_all_count_sum_total_count']) }}</td>
                                     <td>Rp{{ rupiah_format($total['dpf_all_count_sum_total_sum']) }}</td>
                                 </tr>
+                                @else
+                                    <tr>
+                                        <td colspan="4">
+                                            No Data
+                                        </td>
+                                    </tr>
+                                @endif
                             </tbody>
                             </table>
                         </div>
@@ -49,6 +57,7 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                @if( $dpf_reguler_count_sum->count() > 0)
                                 @foreach ($dpf_reguler_count_sum as $item)
                                     <tr>
                                         <td style="text-align: left">{{$item->drop_point_outgoing}}</td>
@@ -61,6 +70,13 @@
                                     <td>{{ decimal_format($total['dpf_reguler_count_sum_total_count']) }}</td>
                                     <td>Rp{{ rupiah_format($total['dpf_reguler_count_sum_total_sum']) }}</td>
                                 </tr>
+                                @else
+                                    <tr>
+                                        <td colspan="4">
+                                            No Data
+                                        </td>
+                                    </tr>
+                                @endif
                             </tbody>
                             </table>
                         </div>
@@ -75,6 +91,7 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                @if( $dpf_dfod_count_sum->count() > 0)
                                 @foreach ($dpf_dfod_count_sum as $item)
                                     <tr>
                                         <td style="text-align: left">{{$item->drop_point_outgoing}}</td>
@@ -87,6 +104,13 @@
                                     <td>{{ decimal_format($total['dpf_dfod_count_sum_total_count']) }}</td>
                                     <td>Rp.{{ rupiah_format($total['dpf_dfod_count_sum_total_sum']) }}</td>
                                 </tr>
+                                @else
+                                    <tr>
+                                        <td colspan="4">
+                                            No Data
+                                        </td>
+                                    </tr>
+                                @endif
                             </tbody>
                             </table>
                         </div>
@@ -101,6 +125,7 @@
                                 </tr>
                             </thead>
                             <tbody>
+                                @if( $dpf_super_count_sum->count() > 0)
                                 @foreach ($dpf_super_count_sum as $item)
                                     <tr>
                                         <td style="text-align: left">{{$item->drop_point_outgoing}}</td>
@@ -113,6 +138,13 @@
                                     <td>{{ decimal_format($total['dpf_super_count_sum_total_count']) }}</td>
                                     <td>Rp{{ rupiah_format($total['dpf_super_count_sum_total_sum']) }}</td>
                                 </tr>
+                                @else
+                                    <tr>
+                                        <td colspan="4">
+                                            No Data
+                                        </td>
+                                    </tr>
+                                @endif
                             </tbody>
                             </table>
                         </div>
@@ -146,6 +178,7 @@
                           </tr>
                         </thead>
                         <tbody>
+                            @if( $dpf_mp_count_waybill->count() > 0)
                             @foreach ($dpf_mp_count_waybill as $item)
                                 <tr>
                                     <td style="text-align: left">{{$item->drop_point_outgoing}}</td>
@@ -184,6 +217,13 @@
                                 <td>{{decimal_format($dpf_mp_count_waybill->sum('tokopedia'))}}</td>
                                 <td>{{decimal_format($dpf_mp_count_waybill->sum('grand_total'))}}</td>
                             </tr>
+                            @else
+                                <tr>
+                                    <td colspan="16">
+                                        No Data
+                                    </td>
+                                </tr>
+                            @endif
                         </tbody>
                     </table>
                 </div>
@@ -215,6 +255,7 @@
                           </tr>
                         </thead>
                         <tbody>
+                            @if( $dpf_mp_sum_biaya_kirim->count() > 0)
                             @foreach ($dpf_mp_sum_biaya_kirim as $item)
                                 <tr>
                                     <td style="text-align: left">{{$item->drop_point_outgoing}}</td>
@@ -253,6 +294,13 @@
                                 <td>Rp{{rupiah_format($dpf_mp_sum_biaya_kirim->sum('tokopedia'))}}</td>
                                 <td>Rp{{rupiah_format($dpf_mp_sum_biaya_kirim->sum('grand_total'))}}</td>
                             </tr>
+                            @else
+                                <tr>
+                                    <td colspan="16">
+                                        No Data
+                                    </td>
+                                </tr>
+                            @endif
                         </tbody>
                     </table>
                 </div>
@@ -284,6 +332,7 @@
                           </tr>
                         </thead>
                         <tbody>
+                            @if( $dpf_mp_retur_count_waybill->count() > 0)
                             @foreach ($dpf_mp_retur_count_waybill as $item)
                                 <tr>
                                     <td style="text-align: left">{{$item->drop_point_outgoing}}</td>
@@ -322,6 +371,13 @@
                                 <td>{{decimal_format($dpf_mp_retur_count_waybill->sum('tokopedia'))}}</td>
                                 <td>{{decimal_format($dpf_mp_retur_count_waybill->sum('grand_total'))}}</td>
                             </tr>
+                            @else
+                                <tr>
+                                    <td colspan="16">
+                                        No Data
+                                    </td>
+                                </tr>
+                            @endif
                         </tbody>
                     </table>
                 </div>
@@ -353,6 +409,7 @@
                           </tr>
                         </thead>
                         <tbody>
+                            @if( $dpf_mp_retur_sum_biaya_kirim->count() > 0)
                             @foreach ($dpf_mp_retur_sum_biaya_kirim as $item)
                                 <tr>
                                     <td style="text-align: left">{{$item->drop_point_outgoing}}</td>
@@ -391,6 +448,13 @@
                                 <td>Rp{{rupiah_format($dpf_mp_retur_sum_biaya_kirim->sum('tokopedia'))}}</td>
                                 <td>Rp{{rupiah_format($dpf_mp_retur_sum_biaya_kirim->sum('grand_total'))}}</td>
                             </tr>
+                            @else
+                                <tr>
+                                    <td colspan="16">
+                                        No Data
+                                    </td>
+                                </tr>
+                            @endif
                         </tbody>
                     </table>
                 </div>
