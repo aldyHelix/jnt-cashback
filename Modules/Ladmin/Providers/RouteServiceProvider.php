@@ -22,7 +22,7 @@ class RouteServiceProvider extends ServiceProvider
         $this->configureRateLimiting();
 
         $this->routes(function () {
-            
+
             Route::middleware(['web', GuestMiddleware::class])
                 ->prefix(config('ladmin.prefix'))
                 ->as('ladmin.')
