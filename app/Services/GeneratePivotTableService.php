@@ -122,7 +122,7 @@ class GeneratePivotTableService {
             ";
         }
 
-        $this->checkAndRunSchema($schema, $query);
+        return $this->checkAndRunSchema($schema, $query);
 
     }
 
@@ -176,7 +176,7 @@ class GeneratePivotTableService {
             ) AS sq
         ";
 
-        $this->checkAndRunSchema($schema, $query);
+        return $this->checkAndRunSchema($schema, $query);
     }
 
     public function generateMPReturSumBiayaKirim($schema){
@@ -230,7 +230,7 @@ class GeneratePivotTableService {
             ) AS sq
         ";
 
-        $this->checkAndRunSchema($schema, $query);
+        return $this->checkAndRunSchema($schema, $query);
 
     }
 
@@ -274,7 +274,7 @@ class GeneratePivotTableService {
                     dm.drop_point_outgoing
         ";
 
-        $this->checkAndRunSchema($schema, $query);
+        return $this->checkAndRunSchema($schema, $query);
 
     }
 
@@ -319,7 +319,7 @@ class GeneratePivotTableService {
                     dm.drop_point_outgoing
         ";
 
-        $this->checkAndRunSchema($schema, $query);
+        return $this->checkAndRunSchema($schema, $query);
     }
 
     public function checkAndRunSchema($schema, $query){
@@ -371,7 +371,7 @@ class GeneratePivotTableService {
                 ".$schema.".cp_dp_mp_retur_sum_biaya_kirim cdmsrbk ON cdmsbk.drop_point_outgoing = cdmsrbk.drop_point_outgoing
         ";
 
-        $this->checkAndRunSchema($schema, $query);
+        return $this->checkAndRunSchema($schema, $query);
     }
 
     public function generateMPResultCountBiayaKirim($schema){
@@ -408,6 +408,6 @@ class GeneratePivotTableService {
                 ".$schema.".cp_dp_mp_retur_count_waybill cdmcrw ON cdmcw.drop_point_outgoing = cdmcrw.drop_point_outgoing
         ";
 
-        $this->checkAndRunSchema($schema, $query);
+        return $this->checkAndRunSchema($schema, $query);
     }
 }
