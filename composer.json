@@ -42,7 +42,7 @@
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/",
             "Modules\\": "Modules\\",
-            "App\\Services": "App\\Services\\"
+            "App\\Services\\": "App\\Services\\"
         }
     },
     "autoload-dev": {
