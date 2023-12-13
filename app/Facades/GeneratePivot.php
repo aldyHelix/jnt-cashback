@@ -2,7 +2,7 @@
 
 namespace App\Facades;
 
-use GeneratePivotTableService;
+use App\Service\GeneratePivotTableService;
 use Illuminate\Support\Facades\Facade;
 
 class GeneratePivot extends Facade
