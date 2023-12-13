@@ -10,8 +10,6 @@ use Illuminate\Foundation\Auth\SendsPasswordResetEmails;
 
 class ForgotPasswordController extends Controller
 {
-
-
     public function showLinkRequestForm()
     {
         return ladmin()->view('auth.passwords.email');

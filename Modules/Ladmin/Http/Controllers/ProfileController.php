@@ -10,10 +10,10 @@ use Illuminate\Http\Response;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Queue;
 use Ladmin\Engine\Models\Admin;
-use Modules\CollectionPoint\Models\CollectionPoint;
+use Modules\Collectionpoint\Models\Collectionpoint;
 use Modules\Ladmin\Http\Controllers\Controller;
 use Modules\Ladmin\Http\Requests\ProfileRequest;
-use Modules\UploadFile\Models\UploadFile;
+use Modules\Uploadfile\Models\Uploadfile;
 use Ramsey\Uuid\Type\Integer;
 
 class ProfileController extends Controller
@@ -36,8 +36,8 @@ class ProfileController extends Controller
         $data['period'] = [];
         $data_periode = Periode::get();
         foreach($data_periode as $periode) {
-            $sum = DB::table($periode->code.'.data_mart')->select('biaya_kirim')->sum('biaya_kirim');
-            $data['period'][$periode->month.'-'.$periode->year] = $sum;
+            $sum = DB::table($periode->code . '.data_mart')->select('biaya_kirim')->sum('biaya_kirim');
+            $data['period'][$periode->month . '-' . $periode->year] = $sum;
         }
         return ladmin()->view('profile.index', $data);
     }
@@ -99,14 +99,14 @@ class ProfileController extends Controller
         return Admin::count();
     }
 
-     /**
-     * Get total admin
-     *
-     * @return Integer
-     */
+    /**
+    * Get total admin
+    *
+    * @return Integer
+    */
     protected function queue_status()
     {
-       return $this->total_pending_jobs() > 0 ? 'Queue is active, job is running' : 'Queue is not active, no job running';
+        return $this->total_pending_jobs() > 0 ? 'Queue is active, job is running' : 'Queue is not active, no job running';
     }
 
     /**
@@ -124,8 +124,8 @@ class ProfileController extends Controller
 
     protected function avg_processing()
     {
-        $data = UploadFile::selectRaw('start_processed_at, done_processed_at')->get();
-        if (empty($data)){
+        $data = Uploadfile::selectRaw('start_processed_at, done_processed_at')->get();
+        if (empty($data)) {
             return '0h: 0m: 0s';
         } else {
             $sum_h = 0;
@@ -135,7 +135,7 @@ class ProfileController extends Controller
             $count_total_sum_m = 0;
             $count_total_sum_h = 0;
 
-            foreach ($data as $key => $row){
+            foreach ($data as $key => $row) {
                 $datetime_1 = $row->start_processed_at ?? '';
                 $datetime_2 = $row->done_processed_at ?? '';
 
@@ -162,7 +162,7 @@ class ProfileController extends Controller
 
     protected function latest_upload_file()
     {
-        $data = UploadFile::orderBy('created_at', 'desc')->first();
+        $data = Uploadfile::orderBy('created_at', 'desc')->first();
         return $data ? $data->file_name : '-';
     }
 
@@ -174,12 +174,12 @@ class ProfileController extends Controller
 
     protected function total_collection_point()
     {
-        return CollectionPoint::get()->count();
+        return Collectionpoint::get()->count();
     }
 
     protected function total_file_uploaded()
     {
-        return UploadFile::get()->count();
+        return Uploadfile::get()->count();
     }
 
     protected function get_sum_total_period()
@@ -187,8 +187,8 @@ class ProfileController extends Controller
         $data = [];
         $data_periode = Periode::get();
         foreach($data_periode as $periode) {
-            $sum = DB::table($periode->code.'.cp_dp_all_count_sum')->select('sum')->sum('sum');
-            $data[$periode->month.'-'.$periode->year] = $sum;
+            $sum = DB::table($periode->code . '.cp_dp_all_count_sum')->select('sum')->sum('sum');
+            $data[$periode->month . '-' . $periode->year] = $sum;
         }
         return $data;
     }
@@ -254,18 +254,18 @@ class ProfileController extends Controller
         return number_format($this->total_period(), 0);
     }
 
-     /**
-     * Response total admin
-     *
-     * @param Request $request
-     * @return Response
-     */
+    /**
+    * Response total admin
+    *
+    * @param Request $request
+    * @return Response
+    */
     protected function load_total_collection_point(Request $request)
     {
         return number_format($this->total_collection_point(), 0);
     }
 
-         /**
+    /**
      * Response total admin
      *
      * @param Request $request

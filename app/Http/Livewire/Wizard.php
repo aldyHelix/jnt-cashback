@@ -10,13 +10,13 @@ use App\Models\GlobalKlienPengiriman;
 use App\Models\KlienPengiriman;
 use App\Models\Periode;
 use App\Models\PeriodeKlienPengiriman;
-use App\Models\ProcessWizard;
+use App\Models\Processwizard;
 use Livewire\Component;
 use App\Models\Product;
 use App\Models\SettingDpPeriode;
 use Illuminate\Support\Facades\Auth;
 use Livewire\WithFileUploads;
-use Modules\UploadFile\Models\UploadFile;
+use Modules\Uploadfile\Models\Uploadfile;
 
 class Wizard extends Component
 {
@@ -166,7 +166,7 @@ class Wizard extends Component
         $this->periode = $create_periode;
 
         // //create the state too
-        $create_state = ProcessWizard::create([
+        $create_state = Processwizard::create([
             'periode_id' => $create_periode->id,
             'file_count' => count($this->files),
         ]);
@@ -291,7 +291,7 @@ class Wizard extends Component
        foreach($this->files as $file) {
             $file_uploaded = $file->store('file_upload', 'public');
 
-            $uploaded_file = UploadFile::create([
+            $uploaded_file = Uploadfile::create([
                 'file_name' => $file->getClientOriginalName(),
                 'month_period' => $this->month,
                 'year_period' => $this->year,

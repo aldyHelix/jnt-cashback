@@ -6,7 +6,6 @@ use Illuminate\View\Component;
 
 class Select extends Component
 {
-
     public $value = '';
 
     public $options = [];
@@ -18,7 +17,7 @@ class Select extends Component
      *
      * @return void
      */
-    public function __construct( $value = '', $options = [], $empty = null )
+    public function __construct($value = '', $options = [], $empty = null)
     {
         $this->value = $value;
         $this->options = $options;

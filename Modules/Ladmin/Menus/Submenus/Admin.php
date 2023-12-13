@@ -7,7 +7,6 @@ use Ladmin\Engine\Supports\BaseMenu;
 
 class Admin extends BaseMenu
 {
-
     /**
      * Gate of default menu
      *

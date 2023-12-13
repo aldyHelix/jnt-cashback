@@ -9,11 +9,10 @@ use App\Models\Periode;
 use App\Models\PeriodeDelivery;
 use Hexters\Ladmin\Datatables;
 use Illuminate\Support\Facades\Blade;
-use Modules\CollectionPoint\Models\CollectionPoint;
+use Modules\Collectionpoint\Models\Collectionpoint;
 
 class DeliveryDatatables extends Datatables
 {
-
     /**
      * Page title
      *
@@ -51,7 +50,7 @@ class DeliveryDatatables extends Datatables
             //     return $this->setDeliveryFee($row);
             // })
             ->addColumn('periode', function ($row) {
-                return $row->month.'/'.$row->year;
+                return $row->month . '/' . $row->year;
             })
             ->addColumn('denda', function ($row) {
                 return $this->setDenda($row);
@@ -64,20 +63,23 @@ class DeliveryDatatables extends Datatables
             });
     }
 
-    public function setDenda($data) {
+    public function setDenda($data)
+    {
         $exist = DendaDelivery::where(['delivery_periode_id' => $data->id])->first();
-        $data['delivery_zone'] = DeliveryZone::selectRaw('denda_delivery_periode.*, master_collection_point.zona_delivery, master_collection_point.nama_cp, delivery_zone.drop_point_ttd ,delivery_zone.is_show, delivery_zone.collection_point_id')->leftJoin('denda_delivery_periode','denda_delivery_periode.drop_point_outgoing', '=', 'delivery_zone.drop_point_outgoing')->
+        $data['delivery_zone'] = DeliveryZone::selectRaw('denda_delivery_periode.*, master_collection_point.zona_delivery, master_collection_point.nama_cp, delivery_zone.drop_point_ttd ,delivery_zone.is_show, delivery_zone.collection_point_id')->leftJoin('denda_delivery_periode', 'denda_delivery_periode.drop_point_outgoing', '=', 'delivery_zone.drop_point_outgoing')->
         leftJoin('master_collection_point', 'master_collection_point.id', 'delivery_zone.collection_point_id')->get();
         $data['grading'] = 1;
         $data['denda'] = $exist ?? new Denda();
         return view('delivery::_parts._form-denda', $data);
     }
 
-    public function setDeliveryFee($data) {
+    public function setDeliveryFee($data)
+    {
         return view('delivery::_parts._form-delivery-fee', $data);
     }
 
-    public function viewDetail($data) {
+    public function viewDetail($data)
+    {
         $data['code'] = $data->code;
         return view('delivery::_parts._view-detail', $data);
     }
@@ -85,7 +87,7 @@ class DeliveryDatatables extends Datatables
     public function action($data)
     {
         $period_delivery = PeriodeDelivery::where('code', $data->code)->first();
-        $cashback_schema = 'delivery_'.strtolower($period_delivery->month).'_'.$period_delivery->year;
+        $cashback_schema = 'delivery_' . strtolower($period_delivery->month) . '_' . $period_delivery->year;
         $period_cashback = PeriodeDelivery::where('code', $cashback_schema)->get();
         $data['code'] = $data->code;
         $data['is_locked'] = $data->is_locked;

@@ -9,7 +9,6 @@ use Illuminate\Notifications\Notification;
 
 class ResetPasswordNotification extends Notification implements ShouldQueue
 {
-
     use Queueable;
 
     protected $email;
@@ -46,7 +45,7 @@ class ResetPasswordNotification extends Notification implements ShouldQueue
      */
     public function toMail($notifiable)
     {
-        return (new MailMessage)
+        return (new MailMessage())
             ->subject(config('app.name') . ' - Reset Password')
             ->line('You are receiving this email because we received a password reset request for your account.')
             ->action('Reset Password', route("ladmin.password.reset", [$this->token, 'email' => $this->email]))

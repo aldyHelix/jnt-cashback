@@ -206,7 +206,7 @@ class GenerateDPFService {
     }
 
     public function cashbackRegulerDPF($schema) {
-        // $ppn = 1 + (intval(GlobalSetting::where('code', 'ppn')->first()->value) / 100);
+        // $ppn = 1 + (intval(Globalsetting::where('code', 'ppn')->first()->value) / 100);
         $ppn = 1.011;
         $cashback_reguler_diskon = CashbackSetting::where('jenis_paket', 'REGULER')->first()->diskon;
         $category = CategoryKlienPengiriman::where('cashback_type', 'reguler')->orderBy('id', 'ASC')->get();
@@ -268,7 +268,7 @@ class GenerateDPFService {
     }
 
     public function cashbackMarketplaceCod($schema){
-        // $ppn = 1 + (intval(GlobalSetting::where('code', 'ppn')->first()->value) / 100);
+        // $ppn = 1 + (intval(Globalsetting::where('code', 'ppn')->first()->value) / 100);
         $ppn = 1.011;
         $cashback_marketplace_diskon = intval(CashbackSetting::where('jenis_paket', 'MARKETPLACE')->first()->diskon) / 100;
         $bukalapak = "( COALESCE(sbk.bukalapak, 0) + COALESCE(sbk.bukaexpress, 0) + COALESCE(sbk.bukasend, 0) )";
@@ -331,7 +331,7 @@ class GenerateDPFService {
     }
 
     public function cashbackMarketplaceNonCod($schema){
-        // $ppn = 1 + (intval(GlobalSetting::where('code', 'ppn')->first()->value) / 100);
+        // $ppn = 1 + (intval(Globalsetting::where('code', 'ppn')->first()->value) / 100);
         $ppn = 1.011;
 
         $cashback_marketplace_diskon = intval(CashbackSetting::where('jenis_paket', 'MARKETPLACE')->first()->diskon) / 100;
@@ -405,7 +405,7 @@ class GenerateDPFService {
     }
 
     public function cashbackKlienVIP($schema){
-        // $ppn = 1 + (intval(GlobalSetting::where('code', 'ppn')->first()->value) / 100);
+        // $ppn = 1 + (intval(Globalsetting::where('code', 'ppn')->first()->value) / 100);
         $ppn = 1.011;
 
         $vip_diskon = intval(CashbackSetting::where('jenis_paket', 'VIP')->first()->diskon) / 100;

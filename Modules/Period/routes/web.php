@@ -14,7 +14,7 @@ use Modules\Period\Http\Controllers\PeriodeController;
 |
 */
 
-ladmin()->route(function() {
+ladmin()->route(function () {
 
     Route::group(['prefix' => 'period', 'as' => 'period.'], function () {
 

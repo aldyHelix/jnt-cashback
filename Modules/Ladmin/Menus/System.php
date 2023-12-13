@@ -9,7 +9,6 @@ use Modules\Ladmin\Menus\Submenus\UserActivity;
 
 class System extends BaseMenu
 {
-
     /**
      * Gate name for accessing module
      *
@@ -25,7 +24,7 @@ class System extends BaseMenu
     protected $name = 'System';
 
     /**
-     * Font icons 
+     * Font icons
      *
      * @var string
      */

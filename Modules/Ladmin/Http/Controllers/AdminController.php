@@ -18,13 +18,13 @@ class AdminController extends Controller
 
         ladmin()->allows(['ladmin.admin.index']);
         /**
-         * Sometimes we need more than one table on a page. 
-         * You can also create custom routes for rendering data from datatables. 
+         * Sometimes we need more than one table on a page.
+         * You can also create custom routes for rendering data from datatables.
          * Ladmin uses the index route as a simple example.
-         * 
+         *
          * Look at the \Modules\Ladmin\Datatables\AdminDatatables file in the ajax method
          */
-        if( request()->has('datatables') ) {
+        if(request()->has('datatables')) {
             return AdminDatatables::renderData();
         }
 
@@ -52,10 +52,10 @@ class AdminController extends Controller
     public function store(AdminRequest $request)
     {
         ladmin()->allows(['ladmin.admin.create']);
-        
+
         return $request->adminCreate();
     }
-    
+
     /**
      * Show the form for editing the specified resource.
      *
@@ -80,11 +80,11 @@ class AdminController extends Controller
     public function update(AdminRequest $request, $id)
     {
         ladmin()->allows(['ladmin.admin.update']);
-        
+
         return $request->updateAdmin(
             ladmin()->admin()->findOrFail($id)
         );
 
     }
-    
+
 }

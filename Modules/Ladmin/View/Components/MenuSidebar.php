@@ -6,7 +6,6 @@ use Illuminate\View\Component;
 
 class MenuSidebar extends Component
 {
-
     public $menus;
 
     public $permissions;

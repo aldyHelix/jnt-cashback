@@ -32,10 +32,10 @@ class PeriodDatatables extends Datatables
      *
      * @return String
      */
-        public function ajax()
-        {
-            return route('ladmin.period.index', ['datatables']);
-        }
+    public function ajax()
+    {
+        return route('ladmin.period.index', ['datatables']);
+    }
 
 
     /**
@@ -46,28 +46,28 @@ class PeriodDatatables extends Datatables
     public function handle()
     {
         return $this->eloquent($this->query)
-            ->addColumn('period', function($row) {
-                return $row->month.'/'.$row->year;
+            ->addColumn('period', function ($row) {
+                return $row->month . '/' . $row->year;
             })
-            ->addColumn('total_biaya_kirim', function($row){
+            ->addColumn('total_biaya_kirim', function ($row) {
                 // return Schema::hasTable('cashback_may_2023.sum_all_biaya_kirim');
-                return 'Rp'.rupiah_format(DB::table($row->code.'.sum_all_biaya_kirim')->first()->sum ?? 0) ;
+                return 'Rp' . rupiah_format(DB::table($row->code . '.sum_all_biaya_kirim')->first()->sum ?? 0) ;
 
             })
-            ->editColumn('processed_row', function($row){
+            ->editColumn('processed_row', function ($row) {
                 return decimal_format($row->processed_row ?? 0);
             })
-            ->editColumn('count_row', function($row){
+            ->editColumn('count_row', function ($row) {
                 return decimal_format($row->count_row ?? 0);
             })
-            ->editColumn('inserted_row', function($row){
-                return decimal_format(DB::table($row->code.'.data_mart')->count() ?? 0);
+            ->editColumn('inserted_row', function ($row) {
+                return decimal_format(DB::table($row->code . '.data_mart')->count() ?? 0);
             })
-            ->editColumn('processed_by', function($row) {
+            ->editColumn('processed_by', function ($row) {
                 $user = ladmin()->admin()->where('id', $row->processed_by)->first();
                 return $user ? $user->name : 'SYSTEM';
             })
-            ->editColumn('updated_at', function($row){
+            ->editColumn('updated_at', function ($row) {
                 return $row->updated_at->format('d-m-Y h:i');
             })
             ->addColumn('action', function ($row) {
@@ -75,7 +75,8 @@ class PeriodDatatables extends Datatables
             });
     }
 
-    public function viewDetail($data) {
+    public function viewDetail($data)
+    {
         $data['code'] = $data->code;
         return view('period::_parts._view-detail', $data);
     }

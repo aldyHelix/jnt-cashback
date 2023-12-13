@@ -8,7 +8,6 @@ use Ladmin\Engine\Supports\BaseMenu;
 
 class PeriodeMenu extends BaseMenu
 {
-
     /**
      * Gate name for accessing module
      *

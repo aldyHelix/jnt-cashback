@@ -4,7 +4,6 @@ namespace Modules\Ladmin\Datatables;
 
 class AdminDatatables extends Datatables
 {
-
     /**
      * Page Title
      *

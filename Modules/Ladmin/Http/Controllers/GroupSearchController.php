@@ -18,7 +18,7 @@ class GroupSearchController extends Controller
     public function __invoke(Request $request)
     {
 
-        if(! $request->ajax()) {
+        if(!$request->ajax()) {
             abort(403);
         }
 

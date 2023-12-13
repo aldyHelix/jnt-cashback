@@ -14,7 +14,8 @@ class PeriodServiceProvider extends ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(
-            __DIR__ . '/../config/module.php', 'period'
+            __DIR__ . '/../config/module.php',
+            'period'
         );
     }
 
@@ -78,7 +79,7 @@ class PeriodServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    protected function registerBladeView() 
+    protected function registerBladeView()
     {
         $this->loadViewsFrom(__DIR__ . '/../Resources/views', 'period');
     }

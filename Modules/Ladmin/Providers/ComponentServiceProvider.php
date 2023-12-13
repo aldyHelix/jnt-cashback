@@ -54,5 +54,5 @@ class ComponentServiceProvider extends ServiceProvider
             Modal::class,
         ]);
     }
-    
+
 }

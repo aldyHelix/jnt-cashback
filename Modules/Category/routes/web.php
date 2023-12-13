@@ -14,7 +14,7 @@ use Modules\Category\Http\Controllers\CategoryKlienPengirimanController;
 |
 */
 
-ladmin()->route(function() {
+ladmin()->route(function () {
 
     Route::group(['prefix' => 'category', 'as' => 'category.'], function () {
 

@@ -9,7 +9,6 @@ use Modules\Ladmin\Menus\Submenus\Role;
 
 class Access extends BaseMenu
 {
-
     /**
      * Gate of default menu
      *

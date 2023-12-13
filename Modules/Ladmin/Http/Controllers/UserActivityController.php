@@ -9,7 +9,6 @@ use Ladmin\Engine\Models\LadminLoggable;
 
 class UserActivityController extends Controller
 {
-
     protected $messages = [];
 
     /**

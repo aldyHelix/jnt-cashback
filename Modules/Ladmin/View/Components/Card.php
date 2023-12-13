@@ -6,7 +6,6 @@ use Illuminate\View\Component;
 
 class Card extends Component
 {
-
     public $class;
 
     /**

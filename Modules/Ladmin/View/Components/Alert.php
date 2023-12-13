@@ -6,7 +6,6 @@ use Illuminate\View\Component;
 
 class Alert extends Component
 {
-
     public $types;
 
     public $class;

@@ -6,7 +6,6 @@ use Illuminate\Support\ServiceProvider;
 use Illuminate\Pagination\Paginator;
 use Modules\Ladmin\Console\Commands\GenerateDataTablesCommand;
 
-
 class LadminServiceProvider extends ServiceProvider
 {
     /**

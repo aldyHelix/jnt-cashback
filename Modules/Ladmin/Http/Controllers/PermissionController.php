@@ -32,7 +32,7 @@ class PermissionController extends Controller
             return redirect()->back();
         }
 
-        
+
         $role->gates = $request->gates;
         $role->save();
 

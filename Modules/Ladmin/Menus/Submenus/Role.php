@@ -7,7 +7,6 @@ use Ladmin\Engine\Supports\BaseMenu;
 
 class Role extends BaseMenu
 {
-
     /**
      * Gate of default menu
      *

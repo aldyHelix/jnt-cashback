@@ -17,9 +17,9 @@ class SystemLogController extends Controller
     {
         ladmin()->allows('system.log.index');
 
-        $data['files'] = (new ReadLog)->get_files();
-        $data['file'] = request()->get('log', (new ReadLog)->default_file());
-        $data['logs'] = (new ReadLog)->json($data['file']);
+        $data['files'] = (new ReadLog())->get_files();
+        $data['file'] = request()->get('log', (new ReadLog())->default_file());
+        $data['logs'] = (new ReadLog())->json($data['file']);
 
         return ladmin()->view('logs.index', $data);
     }

@@ -7,7 +7,6 @@ use Hexters\Ladmin\Datatables as BaseDatatables;
 
 class Datatables extends BaseDatatables
 {
-    
     /**
      * DataTables using Eloquent Builder.
      *
@@ -17,7 +16,7 @@ class Datatables extends BaseDatatables
     {
         //
     }
-    
+
     /**
      * Table headers
      *

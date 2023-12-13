@@ -15,7 +15,7 @@ class NotificationController extends Controller
      */
     public function index(Request $request)
     {
-        
+
         if ($request->has('search')) {
             $data['notifications'] =  in_array($request->state, ['all', null]) ? auth()->user()->notifications()->where(DB::raw('LOWER(data)'), 'LIKE', '%' . strtolower($request->search) . '%')->paginate(10) : auth()->user()->unreadNotifications()->where(DB::raw('LOWER(data)'), 'LIKE', '%' . $request->search . '%')->paginate(10);
         } else {

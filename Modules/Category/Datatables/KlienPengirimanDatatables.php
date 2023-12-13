@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\Blade;
 
 class KlienPengirimanDatatables extends Datatables
 {
-
     /**
      * Page title
      *

@@ -7,7 +7,6 @@ use Ladmin\Engine\Models\LadminLoggable;
 
 class UserActivityDatatables extends Datatables
 {
-
     /**
      * Page title
      *

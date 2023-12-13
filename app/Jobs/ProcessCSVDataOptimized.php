@@ -16,7 +16,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Modules\UploadFile\Models\UploadFile;
+use Modules\Uploadfile\Models\Uploadfile;
 use Throwable;
 use App\Http\Livewire\QueueProcessor;
 use App\Models\LogResi;

@@ -6,7 +6,6 @@ use Illuminate\View\Component;
 
 class GuestLayout extends Component
 {
-    
     public $metaTitle;
 
     /**
@@ -14,7 +13,7 @@ class GuestLayout extends Component
      *
      * @return void
      */
-    public function __construct( $metaTitle = null )
+    public function __construct($metaTitle = null)
     {
         $this->metaTitle = $metaTitle ?? config('app.name');
     }

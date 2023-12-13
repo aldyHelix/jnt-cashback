@@ -1,7 +1,7 @@
 <?php
 
 use Illuminate\Support\Facades\Route;
-use Modules\UploadFile\Http\Controllers\UploadController;
+use Modules\Uploadfile\Http\Controllers\UploadController;
 use App\Http\Controllers\QueueWorkerController;
 
 /*

@@ -6,7 +6,6 @@ use Illuminate\View\Component;
 
 class DataTables extends Component
 {
-
     public $options;
 
     public $headers;
@@ -16,8 +15,8 @@ class DataTables extends Component
      *
      * @return void
      */
-    public function __construct( $options = [], $headers = [] )
-    {   
+    public function __construct($options = [], $headers = [])
+    {
         $this->options = $options;
         $this->headers = $headers;
     }

@@ -79,7 +79,7 @@ class RoleController extends Controller
 
         if($id == 1) {
             session()->flash('danger', $role->name . ' can\'t be deleted!');
-        } else if ($role->admins->count() < 1) {
+        } elseif ($role->admins->count() < 1) {
             $role->delete();
             session()->flash('success', 'Role has been deleted!');
         } else {

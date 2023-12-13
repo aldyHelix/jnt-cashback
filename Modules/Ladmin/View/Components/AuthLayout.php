@@ -19,7 +19,7 @@ class AuthLayout extends Component
      *
      * @return void
      */
-    public function __construct( $metaTitle = null )
+    public function __construct($metaTitle = null)
     {
         $this->metaTitle = $metaTitle ?? 'Administrator | ' . config('app.name');
         $this->user = auth()->user();

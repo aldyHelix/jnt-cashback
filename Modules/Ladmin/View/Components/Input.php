@@ -6,7 +6,6 @@ use Illuminate\View\Component;
 
 class Input extends Component
 {
-
     public $label;
 
     public $name;
@@ -36,9 +35,9 @@ class Input extends Component
      *
      * @return void
      */
-    public function __construct($type = 'text', $id = null,  $label = null, $name = null, $placeholder = null, $readonly = null, $disabled = null, $value = null, $required = null, $help = null, $class = null, $row = [])
+    public function __construct($type = 'text', $id = null, $label = null, $name = null, $placeholder = null, $readonly = null, $disabled = null, $value = null, $required = null, $help = null, $class = null, $row = [])
     {
-        $this->label = is_array($label) ? $label :  (is_null($label) ? null : [$label]);
+        $this->label = is_array($label) ? $label : (is_null($label) ? null : [$label]);
         $this->type = $type;
         $this->id = $id ?? uniqid();
         $this->name = $name;

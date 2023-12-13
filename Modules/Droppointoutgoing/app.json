@@ -1,0 +1,10 @@
+{
+    "name": "droppointoutgoing",
+    "namespace": "Modules\\Droppointoutgoing\\",
+    "providers": [
+        "Modules\\Droppointoutgoing\\Providers\\DroppointoutgoingServiceProvider",
+        "Modules\\Droppointoutgoing\\Providers\\EventServiceProvider",
+        "Modules\\Droppointoutgoing\\Providers\\RouteServiceProvider"
+    ],
+    "status": "enabled"
+}

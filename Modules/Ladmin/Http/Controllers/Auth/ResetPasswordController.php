@@ -12,7 +12,6 @@ use Illuminate\Support\Str;
 
 class ResetPasswordController extends Controller
 {
-
     public function showResetForm(Request $request, $token = null)
     {
         return ladmin()->view('auth.passwords.reset', ['token' => $token, 'email' => $request->email]);
@@ -33,7 +32,7 @@ class ResetPasswordController extends Controller
             'password' => ['required', 'confirmed', 'min:6'],
         ]);
 
-        $response = Password::broker(config('ladmin.auth.broker'))->reset($this->credentials($request), fn ($user, $password)  => $this->resetPassword($user, $password));
+        $response = Password::broker(config('ladmin.auth.broker'))->reset($this->credentials($request), fn($user, $password) => $this->resetPassword($user, $password));
 
         return $response == Password::PASSWORD_RESET
             ? redirect()->route('ladmin.index')->with('success', [__($response)])

@@ -14,7 +14,8 @@ class CategoryServiceProvider extends ServiceProvider
     public function register()
     {
         $this->mergeConfigFrom(
-            __DIR__ . '/../config/module.php', 'category'
+            __DIR__ . '/../config/module.php',
+            'category'
         );
     }
 
@@ -78,7 +79,7 @@ class CategoryServiceProvider extends ServiceProvider
      *
      * @return void
      */
-    protected function registerBladeView() 
+    protected function registerBladeView()
     {
         $this->loadViewsFrom(__DIR__ . '/../Resources/views', 'category');
     }

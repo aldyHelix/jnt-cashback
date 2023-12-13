@@ -10,7 +10,6 @@ use Modules\Ladmin\Http\Controllers\Controller;
 
 class LoginController extends Controller
 {
-
     /**
      * Login form
      *
@@ -35,10 +34,10 @@ class LoginController extends Controller
             'password' => ['required'],
         ]);
 
-        if (Auth::guard( config('ladmin.auth.guard') )->attempt($data, $request->remember)) {
+        if (Auth::guard(config('ladmin.auth.guard'))->attempt($data, $request->remember)) {
             $request->session()->regenerate();
 
-            event(new LadminLoginEvent(auth()->guard( config('ladmin.auth.guard') )->user()));
+            event(new LadminLoginEvent(auth()->guard(config('ladmin.auth.guard'))->user()));
 
             return redirect()->route('ladmin.index');
         }

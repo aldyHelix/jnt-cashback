@@ -14,23 +14,25 @@ use Modules\Period\Datatables\PeriodDatatables;
 
 class PeriodeController extends Controller
 {
-    public function index(){
+    public function index()
+    {
         ladmin()->allows(['ladmin.periode.index']);
 
-        if( request()->has('datatables') ) {
+        if(request()->has('datatables')) {
             return PeriodDatatables::renderData();
         }
 
         return view('period::index');
     }
 
-    public function viewSetting($code) {
+    public function viewSetting($code)
+    {
         $data['periode'] = Periode::where('code', $code)->first();
 
-        $data['dp_data_mart'] = DB::table($code.'.data_mart')->selectRaw('DISTINCT(drop_point_outgoing)')
+        $data['dp_data_mart'] = DB::table($code . '.data_mart')->selectRaw('DISTINCT(drop_point_outgoing)')
         ->orderBy('drop_point_outgoing')->get();
 
-        $data['dp'] = DB::table($code.'.data_mart')
+        $data['dp'] = DB::table($code . '.data_mart')
             ->selectRaw('DISTINCT(data_mart.drop_point_outgoing), COALESCE(setting_dp_periode.id, 0) as id ,COALESCE(setting_dp_periode.retur_klien_pengirim_hq, 0) as retur_klien_pengirim_hq, COALESCE(setting_dp_periode.retur_belum_terpotong, 0) as retur_belum_terpotong,COALESCE(setting_dp_periode.pengurangan_total, 0) as pengurangan_total, COALESCE(setting_dp_periode.penambahan_total, 0) as penambahan_total, COALESCE(setting_dp_periode.diskon_cod, 0) as diskon_cod')
             ->leftJoin('setting_dp_periode', function ($join) use ($data) {
                 $join->on('setting_dp_periode.drop_point_outgoing', '=', 'data_mart.drop_point_outgoing')
@@ -40,9 +42,10 @@ class PeriodeController extends Controller
             ->get();
 
 
-        $data['sumber_waybill'] = DB::table($code.'.data_mart')->selectRaw('DISTINCT(sumber_waybill)')->orderBy('sumber_waybill')->pluck('sumber_waybill')->toArray();
+        $data['sumber_waybill'] = DB::table($code . '.data_mart')->selectRaw('DISTINCT(sumber_waybill)')->orderBy('sumber_waybill')->pluck('sumber_waybill')->toArray();
 
-        $data['klien_pengiriman'] = DB::table($code.'.data_mart'
+        $data['klien_pengiriman'] = DB::table(
+            $code . '.data_mart'
         )->selectRaw('DISTINCT(data_mart.klien_pengiriman), COALESCE(master_klien_pengiriman_setting.is_reguler, 0) as is_reguler, COALESCE(master_klien_pengiriman_setting.is_dfod, 0) as is_dfod, COALESCE(master_klien_pengiriman_setting.is_super, 0) as is_super')
         ->leftJoin('master_klien_pengiriman_setting', function ($join) use ($data) {
             $join->on('master_klien_pengiriman_setting.klien_pengiriman', '=', 'data_mart.klien_pengiriman')
@@ -55,10 +58,12 @@ class PeriodeController extends Controller
 
     }
 
-    public function viewDetail($code) {
+    public function viewDetail($code)
+    {
         $data['periode'] = Periode::where('code', $code)->first();
-        $data['sumber_waybill'] = DB::table($code.'.data_mart')->selectRaw('DISTINCT(sumber_waybill)')->orderBy('sumber_waybill')->pluck('sumber_waybill')->toArray();
-        $data['klien_pengiriman'] = DB::table($code.'.data_mart'
+        $data['sumber_waybill'] = DB::table($code . '.data_mart')->selectRaw('DISTINCT(sumber_waybill)')->orderBy('sumber_waybill')->pluck('sumber_waybill')->toArray();
+        $data['klien_pengiriman'] = DB::table(
+            $code . '.data_mart'
         )->selectRaw('DISTINCT(data_mart.klien_pengiriman), COALESCE(master_klien_pengiriman_setting.is_reguler, 0) as is_reguler, COALESCE(master_klien_pengiriman_setting.is_dfod, 0) as is_dfod, COALESCE(master_klien_pengiriman_setting.is_super, 0) as is_super')
         ->leftJoin('master_klien_pengiriman_setting', function ($join) use ($data) {
             $join->on('master_klien_pengiriman_setting.klien_pengiriman', '=', 'data_mart.klien_pengiriman')
@@ -68,10 +73,10 @@ class PeriodeController extends Controller
         ->get();
 
         // dd($data['klien_pengiriman'], $data['klien_pengiriman_kat'], array_($data['klien_pengiriman'], $data['klien_pengiriman_kat']));
-        $data['row_total'] = DB::table($data['periode']->code.'.data_mart')->count();
-        $data['cp_grade_a'] = DB::table('master_collection_point AS cp')->join($data['periode']->code.'.cp_dp_all_count_sum AS pivot', 'cp.drop_point_outgoing', '=', 'pivot.drop_point_outgoing')->select('cp.kode_cp', 'cp.nama_cp', 'pivot.count', 'pivot.sum')->where('cp.grading_pickup', 'A')->get();
-        $data['cp_grade_b'] = DB::table('master_collection_point AS cp')->join($data['periode']->code.'.cp_dp_all_count_sum AS pivot', 'cp.drop_point_outgoing', '=', 'pivot.drop_point_outgoing')->select('cp.kode_cp', 'cp.nama_cp', 'pivot.count', 'pivot.sum')->where('cp.grading_pickup', 'B')->get();
-        $data['cp_grade_c'] = DB::table('master_collection_point AS cp')->join($data['periode']->code.'.cp_dp_all_count_sum AS pivot', 'cp.drop_point_outgoing', '=', 'pivot.drop_point_outgoing')->select('cp.kode_cp', 'cp.nama_cp', 'pivot.count', 'pivot.sum')->where('cp.grading_pickup', 'C')->get();
+        $data['row_total'] = DB::table($data['periode']->code . '.data_mart')->count();
+        $data['cp_grade_a'] = DB::table('master_collection_point AS cp')->join($data['periode']->code . '.cp_dp_all_count_sum AS pivot', 'cp.drop_point_outgoing', '=', 'pivot.drop_point_outgoing')->select('cp.kode_cp', 'cp.nama_cp', 'pivot.count', 'pivot.sum')->where('cp.grading_pickup', 'A')->get();
+        $data['cp_grade_b'] = DB::table('master_collection_point AS cp')->join($data['periode']->code . '.cp_dp_all_count_sum AS pivot', 'cp.drop_point_outgoing', '=', 'pivot.drop_point_outgoing')->select('cp.kode_cp', 'cp.nama_cp', 'pivot.count', 'pivot.sum')->where('cp.grading_pickup', 'B')->get();
+        $data['cp_grade_c'] = DB::table('master_collection_point AS cp')->join($data['periode']->code . '.cp_dp_all_count_sum AS pivot', 'cp.drop_point_outgoing', '=', 'pivot.drop_point_outgoing')->select('cp.kode_cp', 'cp.nama_cp', 'pivot.count', 'pivot.sum')->where('cp.grading_pickup', 'C')->get();
         $data['cp_dp_mp_count_waybill'] = PivotTable::getPivotMPCountWaybill($code);
         $data['cp_dp_mp_sum_biaya_kirim'] = PivotTable::getPivotMPSumBiayaKirim($code);
         $data['cp_dp_mp_retur_count_waybill'] = PivotTable::getPivotMPReturCountWaybill($code);
@@ -117,10 +122,11 @@ class PeriodeController extends Controller
         return view('period::summary-periode', $data);
     }
 
-    public function updateSettingDP(Request $request, $id) {
+    public function updateSettingDP(Request $request, $id)
+    {
         $periode = Periode::where('id', $id)->first();
 
-        if(!isset($request['dp'] )){
+        if(!isset($request['dp'])) {
             toastr()->error('Could not save setting, no field filled!', 'Error');
             return redirect()->back();
         }
@@ -160,7 +166,8 @@ class PeriodeController extends Controller
         return redirect()->back();
     }
 
-    public function updateKlien(Request $request, $id) {
+    public function updateKlien(Request $request, $id)
+    {
         $periode = Periode::where('id', $id)->first();
 
         $is_reguler = [];
@@ -187,15 +194,15 @@ class PeriodeController extends Controller
             }
 
             if(intval($item['reguler'])) {
-                $is_reguler[] = "'".$item['item']."'";
+                $is_reguler[] = "'" . $item['item'] . "'";
             }
 
             if (intval($item['dfod'])) {
-                $is_dfod[] = "'".$item['item']."'";
+                $is_dfod[] = "'" . $item['item'] . "'";
             }
 
             if (intval($item['super'])) {
-                $is_super[] = "'".$item['item']."'";
+                $is_super[] = "'" . $item['item'] . "'";
             }
         }
 
@@ -211,12 +218,14 @@ class PeriodeController extends Controller
         return redirect()->back();
     }
 
-    public function viewResiChecker(){
+    public function viewResiChecker()
+    {
         $data['periode'] = Periode::get();
         return view('period::resi-checker', $data);
     }
 
-    public function resiCheckerProcess(Request $request){
+    public function resiCheckerProcess(Request $request)
+    {
         ini_set("memory_limit", "-1");
 
         $file = $request->file('file');
@@ -234,7 +243,7 @@ class PeriodeController extends Controller
             // Process each shipping ID in $line
 
             // Example: Check if shipping ID exists
-            $exists = DB::table($periode.'.data_mart')->where('no_waybill', trim($line))->exists();
+            $exists = DB::table($periode . '.data_mart')->where('no_waybill', trim($line))->exists();
 
             if (!$exists) {
                 $nonExistingIds[] = trim($line);

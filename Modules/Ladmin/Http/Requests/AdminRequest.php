@@ -37,7 +37,7 @@ class AdminRequest extends FormRequest
             $roles['email'] = ['required', Rule::unique(ladmin()->getAdminTable(), 'email')->ignore($this->id), 'email'];
             $roles['password'] = ['nullable', 'confirmed', 'min:6'];
         }
-        
+
         return $roles;
     }
 
@@ -46,8 +46,9 @@ class AdminRequest extends FormRequest
      *
      * @return void
      */
-    public function adminCreate() {
-        
+    public function adminCreate()
+    {
+
         $admin = ladmin()->admin()->create([
             'name' => $this->name,
             'email' => $this->email,
@@ -56,7 +57,7 @@ class AdminRequest extends FormRequest
 
         $admin->roles()->sync($this->roles);
 
-        
+
         session()->flash('success', $this->name . ' has been created!');
 
         return redirect()->route('ladmin.admin.edit', $admin->id);
@@ -77,10 +78,10 @@ class AdminRequest extends FormRequest
             'email' => $this->email,
         ];
 
-        if(! is_null($this->password)) {
+        if(!is_null($this->password)) {
             $data['password'] = Hash::make($this->password);
         }
-        
+
         $admin->update($data);
         $admin->roles()->sync($this->roles);
 

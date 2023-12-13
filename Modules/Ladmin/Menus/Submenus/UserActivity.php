@@ -7,7 +7,6 @@ use Ladmin\Engine\Supports\BaseMenu;
 
 class UserActivity extends BaseMenu
 {
-
     /**
      * Gate name for accessing module
      *
@@ -23,7 +22,7 @@ class UserActivity extends BaseMenu
     protected $name = 'User Activity';
 
     /**
-     * Font icons 
+     * Font icons
      *
      * @var string
      */

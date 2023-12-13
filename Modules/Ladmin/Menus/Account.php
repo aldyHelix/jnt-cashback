@@ -8,7 +8,6 @@ use Modules\Ladmin\Menus\Submenus\Admin;
 
 class Account extends BaseMenu
 {
-
     /**
      * Gate of default menu
      *

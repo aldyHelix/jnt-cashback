@@ -6,7 +6,6 @@ use Ladmin\Engine\Models\LadminRole;
 
 class RoleDatatables extends Datatables
 {
-
     /**
      * Page title
      *

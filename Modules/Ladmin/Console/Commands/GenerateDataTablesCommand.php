@@ -8,7 +8,6 @@ use Symfony\Component\Console\Input\InputOption;
 
 class GenerateDataTablesCommand extends GeneratorCommand
 {
-
     use BaseCommandTrait;
 
     /**

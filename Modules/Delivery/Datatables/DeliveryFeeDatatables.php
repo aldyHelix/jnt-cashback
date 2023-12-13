@@ -10,7 +10,6 @@ use Modules\Delivery\Models\DeliveryFee;
 
 class DeliveryFeeDatatables extends Datatables
 {
-
     /**
      * Page title
      *
@@ -43,7 +42,7 @@ class DeliveryFeeDatatables extends Datatables
      */
     public function handle()
     {
-        $this->query = $this->query->setTable($this->data['code'].'.direct_fee')->query();
+        $this->query = $this->query->setTable($this->data['code'] . '.direct_fee')->query();
         return $this->eloquent($this->query);
     }
 

@@ -1,0 +1,10 @@
+{
+    "name": "collectionpoint",
+    "namespace": "Modules\\Collectionpoint\\",
+    "providers": [
+        "Modules\\Collectionpoint\\Providers\\CollectionpointServiceProvider",
+        "Modules\\Collectionpoint\\Providers\\EventServiceProvider",
+        "Modules\\Collectionpoint\\Providers\\RouteServiceProvider"
+    ],
+    "status": "enabled"
+}

@@ -17,7 +17,7 @@ use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
-use Modules\UploadFile\Models\UploadFile;
+use Modules\Uploadfile\Models\Uploadfile;
 use Throwable;
 
 class ProcessCSVDataDeliveryOptimized implements ShouldQueue
@@ -58,7 +58,7 @@ class ProcessCSVDataDeliveryOptimized implements ShouldQueue
     {
         Redis::throttle('jnt_cashback_horizon')->block(30)->allow(60)->every(40)->then(function () {
             try {
-                $uploaded_file = UploadFile::where('id', $this->uploaded_file->id)->first();
+                $uploaded_file = Uploadfile::where('id', $this->uploaded_file->id)->first();
                 $uploaded_file->update(['processing_status'=> 'ON PROCESSING']);
                 $periode = PeriodeDelivery::where('id', $this->period_id)->first();
 

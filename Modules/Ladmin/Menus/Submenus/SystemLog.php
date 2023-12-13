@@ -7,7 +7,6 @@ use Ladmin\Engine\Supports\BaseMenu;
 
 class SystemLog extends BaseMenu
 {
-
     /**
      * Gate name for accessing module
      *
@@ -23,7 +22,7 @@ class SystemLog extends BaseMenu
     protected $name = 'System Log';
 
     /**
-     * Font icons 
+     * Font icons
      *
      * @var string
      */

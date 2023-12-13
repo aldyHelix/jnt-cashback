@@ -14,7 +14,7 @@ use Modules\Delivery\Http\Controllers\DeliveryController;
 |
 */
 
-ladmin()->route(function() {
+ladmin()->route(function () {
 
     Route::group(['prefix' => 'delivery', 'as' => 'delivery.'], function () {
 

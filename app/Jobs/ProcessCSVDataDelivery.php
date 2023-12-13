@@ -16,7 +16,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Modules\UploadFile\Models\UploadFile;
+use Modules\Uploadfile\Models\Uploadfile;
 use Throwable;
 
 class ProcessCSVDataDelivery implements ShouldQueue
@@ -69,7 +69,7 @@ class ProcessCSVDataDelivery implements ShouldQueue
     public function handle(): void
     {
         try {
-            $uploaded_file = UploadFile::where('id', $this->uploaded_file->id)->first();
+            $uploaded_file = Uploadfile::where('id', $this->uploaded_file->id)->first();
             $uploaded_file->update(['processing_status'=> 'ON PROCESSING']);
             $periode = PeriodeDelivery::where('id', $this->period_id)->first();
 

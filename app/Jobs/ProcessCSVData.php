@@ -16,7 +16,7 @@ use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Modules\UploadFile\Models\UploadFile;
+use Modules\Uploadfile\Models\Uploadfile;
 use Throwable;
 use App\Http\Livewire\QueueProcessor;
 use Illuminate\Support\Facades\Broadcast;
@@ -79,7 +79,7 @@ class ProcessCSVData implements ShouldQueue
             info('Lock obtained...');
                     // try {
             // usleep(100000);
-            $uploaded_file = UploadFile::where('id', $this->uploaded_file->id)->first();
+            $uploaded_file = Uploadfile::where('id', $this->uploaded_file->id)->first();
             $periode = Periode::where('id', $this->period_id)->first();
 
             $uploaded_file->update(['processing_status'=> 'ON PROCESSING '.$this->batch()->progress]);

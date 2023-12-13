@@ -8,7 +8,6 @@ use Ladmin\Engine\Supports\BaseMenu;
 
 class DeliveryMenu extends BaseMenu
 {
-
     /**
      * Gate name for accessing module
      *

@@ -15,11 +15,12 @@ use Modules\Category\Models\CategoryKlienPengiriman;
 
 class CategoryKlienPengirimanController extends Controller
 {
-    public function syncKlienPengiriman(Request $request){
+    public function syncKlienPengiriman(Request $request)
+    {
         $data = json_decode($request->data_not_sync);
         $data = get_object_vars($data);
 
-        $data = array_map(function($data) {
+        $data = array_map(function ($data) {
             $check = GlobalKlienPengiriman::where('klien_pengiriman', $data)->first();
             if($check == 0) {
                 return array(
@@ -33,11 +34,12 @@ class CategoryKlienPengirimanController extends Controller
         return redirect()->back()->with('success', 'Sukses mengsinkronasikan klien pengiriman');
     }
 
-    public function syncMetodePembayaran(Request $request){
+    public function syncMetodePembayaran(Request $request)
+    {
         $data = json_decode($request->data_not_sync);
         $data = get_object_vars($data);
 
-        $data = array_map(function($data) {
+        $data = array_map(function ($data) {
             $check = GlobalMetodePembayaran::where('metode_pembayaran', $data)->first();
             if($check == 0) {
                 return array(
@@ -51,11 +53,12 @@ class CategoryKlienPengirimanController extends Controller
         return redirect()->back()->with('success', 'Sukses mengsinkronasikan klien pengiriman');
     }
 
-    public function syncKategoriResi(Request $request){
+    public function syncKategoriResi(Request $request)
+    {
         $data = json_decode($request->data_not_sync);
         $data = get_object_vars($data);
 
-        $data = array_map(function($data) {
+        $data = array_map(function ($data) {
             $check = GlobalKatResi::where('kat', $data)->first();
             if($check == 0) {
                 return array(
@@ -69,11 +72,12 @@ class CategoryKlienPengirimanController extends Controller
         return redirect()->back()->with('success', 'Sukses mengsinkronasikan klien pengiriman');
     }
 
-    public function importKlienPengiriman(Request $request){
+    public function importKlienPengiriman(Request $request)
+    {
         $periode_id = $request->periode_id;
         $get_global_klien_pengiriman = DB::table('category_klien_pengiriman')->get();
 
-        $periode_klien_pengiriman = $get_global_klien_pengiriman->map(function ($data) use ($periode_id){
+        $periode_klien_pengiriman = $get_global_klien_pengiriman->map(function ($data) use ($periode_id) {
             return [
                 'periode_id' => intval($periode_id),
                 'category_id' => $data->category_id,
@@ -86,7 +90,8 @@ class CategoryKlienPengirimanController extends Controller
         return redirect()->back()->with('success', 'Sukses import klien pengiriman');
     }
 
-    public function index(){
+    public function index()
+    {
         ladmin()->allows(['ladmin.category.index']);
 
         // if( request()->has('datatables') ) {
@@ -99,15 +104,15 @@ class CategoryKlienPengirimanController extends Controller
 
         foreach($periode as $item) {
             //get all distict klien pengiriman
-            $klien_pengiriman = DB::table($item->code.'.data_mart')->selectRaw("DISTINCT(klien_pengiriman)")->get()->pluck('klien_pengiriman')->toArray();
+            $klien_pengiriman = DB::table($item->code . '.data_mart')->selectRaw("DISTINCT(klien_pengiriman)")->get()->pluck('klien_pengiriman')->toArray();
             $klien_pengiriman_cashback = array_merge($klien_pengiriman_cashback, $klien_pengiriman);
 
             //get all distict metode pembayaran
-            $metode_pembayaran_list = DB::table($item->code.'.data_mart')->selectRaw("DISTINCT(metode_pembayaran)")->get()->pluck('metode_pembayaran')->toArray();
+            $metode_pembayaran_list = DB::table($item->code . '.data_mart')->selectRaw("DISTINCT(metode_pembayaran)")->get()->pluck('metode_pembayaran')->toArray();
             $metode_pembayaran = array_merge($metode_pembayaran, $metode_pembayaran_list);
 
             //get all distict resi
-            $kat_list = DB::table($item->code.'.data_mart')->selectRaw("DISTINCT(kat)")->get()->pluck('kat')->toArray();
+            $kat_list = DB::table($item->code . '.data_mart')->selectRaw("DISTINCT(kat)")->get()->pluck('kat')->toArray();
             $kat_resi = array_merge($kat_resi, $kat_list);
         }
 
@@ -127,24 +132,25 @@ class CategoryKlienPengirimanController extends Controller
         return view('category::index', $data);
     }
 
-    public function saveSetting(Request $request) {
+    public function saveSetting(Request $request)
+    {
 
         $setting = [];
 
-        foreach($request->klien_pengiriman as $key => $item){
+        foreach($request->klien_pengiriman as $key => $item) {
             // do while
             $x = 1;
             $length = count($item);
-            foreach($item as $catId => $catItem){
-                if(intval($catItem)){
+            foreach($item as $catId => $catItem) {
+                if(intval($catItem)) {
                     $check = DB::table('category_klien_pengiriman')->where(['category_id' => $catId, 'klien_pengiriman_id' => $key])->first();
-                    if(!$check){
+                    if(!$check) {
                         $setting[] = [
                             'category_id' => $catId,
                             'klien_pengiriman_id' => $key
                         ];
                     }
-                    //insert into category_klien_pengiriman
+                //insert into category_klien_pengiriman
                 } else {
                     $query = DB::table('category_klien_pengiriman')->where(['category_id' => $catId, 'klien_pengiriman_id' => $key]);
                     $check = $query->first();
@@ -158,56 +164,57 @@ class CategoryKlienPengirimanController extends Controller
         }
 
         $saveSetting = DB::table('category_klien_pengiriman')->insert($setting);
-         if($saveSetting) {
-             toastr()->success('Data setting kategori klien pengiriman has been saved successfully!', 'Congrats');
-         } else {
+        if($saveSetting) {
+            toastr()->success('Data setting kategori klien pengiriman has been saved successfully!', 'Congrats');
+        } else {
             toastr()->error('The Data not saved, please try again', 'Opps!');
-         }
+        }
 
         return redirect()->back();
     }
 
-    public function show(){
+    public function show() {}
 
-    }
-
-    public function storeKategori(Request $request){
+    public function storeKategori(Request $request)
+    {
         $saveSetting = CategoryKlienPengiriman::create([
             'nama_kategori' => strtoupper($request->nama_kategori),
             'kode_kategori' => strtolower(str_replace(" ", "_", $request->nama_kategori)),
-            'metode_pembayaran' => implode(";" ,$request->metode_pembayaran),
+            'metode_pembayaran' => implode(";", $request->metode_pembayaran),
             'kat' => implode(";", $request->kat)
         ]);
 
         if($saveSetting) {
             toastr()->success('Data setting kategori klien pengiriman has been saved successfully!', 'Congrats');
         } else {
-           toastr()->error('The Data not saved, please try again', 'Opps!');
+            toastr()->error('The Data not saved, please try again', 'Opps!');
         }
 
         return redirect()->back();
     }
 
-    public function updateKategori(Request $request, $id){
+    public function updateKategori(Request $request, $id)
+    {
         $data = CategoryKlienPengiriman::where('id', $id)->first();
 
         $saveSetting = $data->update([
             'nama_kategori' => strtoupper($request->nama_kategori),
             'kode_kategori' => strtolower(str_replace(" ", "_", $request->nama_kategori)),
-            'metode_pembayaran' => implode(";" ,$request->metode_pembayaran),
+            'metode_pembayaran' => implode(";", $request->metode_pembayaran),
             'kat' => implode(";", $request->kat)
         ]);
 
         if($saveSetting) {
             toastr()->success('Data setting kategori klien pengiriman has been saved successfully!', 'Congrats');
         } else {
-           toastr()->error('The Data not saved, please try again', 'Opps!');
+            toastr()->error('The Data not saved, please try again', 'Opps!');
         }
 
         return redirect()->back();
     }
 
-    public function storeKlienPengiriman(Request $request){
+    public function storeKlienPengiriman(Request $request)
+    {
         $saveSetting = KlienPengiriman::create([
             'klien_pengiriman' => $request->klien_pengiriman,
         ]);
@@ -215,30 +222,23 @@ class CategoryKlienPengirimanController extends Controller
         if($saveSetting) {
             toastr()->success('Data setting klien pengiriman has been saved successfully!', 'Congrats');
         } else {
-           toastr()->error('The Data not saved, please try again', 'Opps!');
+            toastr()->error('The Data not saved, please try again', 'Opps!');
         }
 
         return redirect()->back();
     }
 
-    public function importToPeride($periodId) {
+    public function importToPeride($periodId)
+    {
 
         return redirect()->back();
     }
 
-    public function store() {
+    public function store() {}
 
-    }
+    public function edit() {}
 
-    public function edit() {
+    public function update() {}
 
-    }
-
-    public function update() {
-
-    }
-
-    public function destroy() {
-
-    }
+    public function destroy() {}
 }
