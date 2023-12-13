@@ -546,9 +546,9 @@ class UploadController extends Controller
             // GradingProcess::generateGrading($period_id, $grade);
 
             //process dpf
-            GenerateDPF::runRekapGenerator($code, $id);
+            GenerateDPF::runRekapGenerator($code, $period_id);
 
-            GradingProcess::generateGrading($id, 'dpf');
+            GradingProcess::generateGrading($period_id, 'dpf');
 
             //generate denda default 0
 
