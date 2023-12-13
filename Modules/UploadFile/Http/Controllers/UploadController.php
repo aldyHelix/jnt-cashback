@@ -534,9 +534,9 @@ class UploadController extends Controller
 
             $code = $schema_name;
 
-            GeneratePivot::createOrReplacePivot($code, $period_id);
+            GeneratePivotTableService::createOrReplacePivot($code, $period_id);
 
-            GeneratePivot::runMPGenerator($code);
+            GeneratePivotTableService::runMPGenerator($code);
 
             GeneratePivotRekap::runRekapGenerator($code);
 
