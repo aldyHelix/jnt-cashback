@@ -15,6 +15,7 @@ use Modules\Ladmin\Http\Controllers\Controller;
 use Modules\Ladmin\Http\Requests\ProfileRequest;
 use Modules\Uploadfile\Models\Uploadfile;
 use Ramsey\Uuid\Type\Integer;
+use App\Facades\GeneratePivot;
 
 class ProfileController extends Controller
 {
@@ -39,6 +40,8 @@ class ProfileController extends Controller
             $sum = DB::table($periode->code . '.data_mart')->select('biaya_kirim')->sum('biaya_kirim');
             $data['period'][$periode->month . '-' . $periode->year] = $sum;
         }
+
+        dd(GeneratePivot::test());
         return ladmin()->view('profile.index', $data);
     }
 

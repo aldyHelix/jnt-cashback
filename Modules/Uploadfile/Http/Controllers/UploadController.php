@@ -33,6 +33,13 @@ use App\Models\PeriodeKlienPengiriman;
 
 class UploadController extends Controller
 {
+    private $generatePivotTableService;
+
+    public function __construct(
+        GeneratePivotTableService $generatePivotTableService,
+    ) {
+        $this->generatePivotTableService = $generatePivotTableService;
+    }
     /**
      * Display a listing of the resource.
      *
@@ -534,7 +541,7 @@ class UploadController extends Controller
 
                 $code = $schema_name;
 
-                GeneratePivot::createOrReplacePivot($code, $period_id);
+                $this->generatePivotTableService::createOrReplacePivot($code, $period_id);
 
                 GeneratePivot::runMPGenerator($code);
 

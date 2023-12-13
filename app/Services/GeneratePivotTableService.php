@@ -1,4 +1,4 @@
-<?
+<?php
 namespace App\Services;
 
 use App\Models\GlobalSumberWaybill;
@@ -8,6 +8,10 @@ use Illuminate\Support\Facades\Schema;
 use Modules\Category\Models\CategoryKlienPengiriman;
 
 class GeneratePivotTableService {
+
+    public function test(){
+        return 'test';
+    }
 
     public function runMPGenerator($schema){
         $this->generateMPCountWaybill($schema);

@@ -2,6 +2,7 @@
 
 namespace App\Providers;
 
+use App\Services\GeneratePivotTableService;
 use Illuminate\Support\ServiceProvider;
 
 class FacadeServiceProvider extends ServiceProvider
@@ -20,5 +21,8 @@ class FacadeServiceProvider extends ServiceProvider
     public function boot(): void
     {
         //
+        $this->app->bind(
+            GeneratePivotTableService::class
+        );
     }
 }

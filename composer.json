@@ -42,11 +42,8 @@
             "Database\\Factories\\": "database/factories/",
             "Database\\Seeders\\": "database/seeders/",
             "Modules\\": "Modules\\",
-            "Services\\": "services/"
-        },
-        "classmap": [
-            "app/Services"
-        ]
+            "Services\\": "app/Services/"
+        }
     },
     "autoload-dev": {
         "psr-4": {
