@@ -188,6 +188,7 @@ return [
         'Excel' => Maatwebsite\Excel\Facades\Excel::class,
         'Debugbar' => Barryvdh\Debugbar\Facades\Debugbar::class,
         // 'Example' => App\Facades\Example::class,
+'GeneratePivot' => App\Facades\GeneratePivot::class,
     ])->toArray(),
 
 ];
