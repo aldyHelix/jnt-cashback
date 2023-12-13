@@ -40,8 +40,7 @@ class ProfileController extends Controller
             $sum = DB::table($periode->code . '.data_mart')->select('biaya_kirim')->sum('biaya_kirim');
             $data['period'][$periode->month . '-' . $periode->year] = $sum;
         }
-
-        dd(GeneratePivot::test());
+        
         return ladmin()->view('profile.index', $data);
     }
 
