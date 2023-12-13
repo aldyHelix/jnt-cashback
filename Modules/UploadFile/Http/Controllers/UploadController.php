@@ -31,8 +31,6 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Broadcast;
 use App\Models\PeriodeKlienPengiriman;
 
-use App\Services\GeneratePivotTableService;
-
 class UploadController extends Controller
 {
     /**
@@ -274,9 +272,9 @@ class UploadController extends Controller
 
                 $periode = Periode::where('code', $code)->first();
 
-                GeneratePivotTableService::createOrReplacePivot($code, $period_id);
+                GeneratePivot::createOrReplacePivot($code, $period_id);
 
-                GeneratePivotTableService::runMPGenerator($code);
+                GeneratePivot::runMPGenerator($code);
 
                 GeneratePivotRekap::runRekapGenerator($code);
 
@@ -534,9 +532,9 @@ class UploadController extends Controller
 
             $code = $schema_name;
 
-            GeneratePivotTableService::createOrReplacePivot($code, $period_id);
+            GeneratePivot::createOrReplacePivot($code, $period_id);
 
-            GeneratePivotTableService::runMPGenerator($code);
+            GeneratePivot::runMPGenerator($code);
 
             GeneratePivotRekap::runRekapGenerator($code);
 
