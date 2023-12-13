@@ -189,6 +189,7 @@ return [
         'Debugbar' => Barryvdh\Debugbar\Facades\Debugbar::class,
         // 'Example' => App\Facades\Example::class,
 'GeneratePivot' => App\Facades\GeneratePivot::class,
+        'GeneratePivotTableService' => App\Services\GeneratePivotTableService::class,
     ])->toArray(),
 
 ];
