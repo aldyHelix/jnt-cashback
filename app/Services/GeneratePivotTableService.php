@@ -323,18 +323,23 @@ class GeneratePivotTableService {
     }
 
     public function checkAndRunSchema($schema, $query){
-        if(Schema::hasTable($schema.'.data_mart')) {
-            $run = DB::connection('pgsql')->unprepared(
-                "
-                SET search_path TO $schema, public; \n
+        try {
+            if(Schema::hasTable($schema.'.data_mart')) {
+                $run = DB::connection('pgsql')->unprepared(
+                    "
+                    SET search_path TO $schema, public; \n
 
-                ".$query."
-            ");
+                    ".$query."
+                ");
 
-            return $run;
-        };
+                return $run;
+            };
 
-        return false;
+            return false;
+        } catch(\Illuminate\Database\QueryException $ex){
+            dd($ex->getMessage());
+            // Note any method of class PDOException can be called on $ex.
+        }
     }
 
     public function generateMPResultSumBiayaKirim($schema){
