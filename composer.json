@@ -43,7 +43,10 @@
             "Database\\Seeders\\": "database/seeders/",
             "Modules\\": "Modules\\",
             "App\\Services\\": "app\\Services\\"
-        }
+        },
+        "classmap": [
+            "app/Services"
+        ]
     },
     "autoload-dev": {
         "psr-4": {
