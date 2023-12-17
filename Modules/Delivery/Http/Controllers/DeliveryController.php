@@ -33,6 +33,7 @@ class DeliveryController extends Controller
 
     public function viewDetail($code)
     {
+
         $data['periode'] = PeriodeDelivery::where('code', $code)->first();
         $direct_fee = new DirectFee();
         $query = $direct_fee->setTable($data['periode']->code . '.direct_fee')->query();
@@ -47,6 +48,9 @@ class DeliveryController extends Controller
         $data['delivery_fee_summary'] = DB::table($data['periode']->code . '.delivery_fee_summary')->get();
         $data['rekap_denda_delivery_fee_summary'] = DB::table($data['periode']->code . '.rekap_denda_delivery_fee_summary')->get();
         $data['pivot'] = [];
+
+        //process update pivot ttd
+        $this->process($code, $data['periode']->id );
 
         foreach($ttd_list as $ttd) {
             $data['pivot'][strtolower($ttd)] = DB::table($data['periode']->code . '.mp_' . strtolower($ttd))->get();

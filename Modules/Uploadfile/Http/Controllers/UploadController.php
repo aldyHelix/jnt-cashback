@@ -69,6 +69,8 @@ class UploadController extends Controller
 
             if(!Schema::hasTable($schema_name . '.' . 'data_mart')) {
                 $schema = CreateSchema::createSchemaDelivery(strtolower($request->month_period), $request->year_period);
+
+                CreateSchema::DeliveryPivot($schema_name);
             }
 
             $file = $request->file('file');
