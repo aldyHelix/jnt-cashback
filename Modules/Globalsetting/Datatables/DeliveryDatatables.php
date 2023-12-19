@@ -46,7 +46,9 @@ class DeliveryDatatables extends Datatables
     public function handle()
     {
         return $this->eloquent($this->query)
-
+            ->editColumn('collection_point_id', function ($row){
+                return $row->collection_point ? $row->collection_point->nama_cp : '-';
+            })
             ->addColumn('action', function ($row) {
                 return $this->action($row);
             });
@@ -56,7 +58,7 @@ class DeliveryDatatables extends Datatables
 
     public function action($data)
     {
-        return '';
+        return view('globalsetting::delivery._partials._action', $data);
     }
 
     /**
@@ -72,7 +74,6 @@ class DeliveryDatatables extends Datatables
             'TTD',
             'KPI Target',
             'KPI Reduce',
-            'Status',
             'Aksi' => ['class' => 'text-center'],
         ];
     }
@@ -91,7 +92,6 @@ class DeliveryDatatables extends Datatables
             ['data' => 'drop_point_ttd', 'class' => 'text-center'],
             ['data' => 'kpi_target_count', 'class' => 'text-center'],
             ['data' => 'kpi_reduce_not_achievement', 'class' => 'text-center'],
-            ['data' => 'is_show', 'class' => 'text-center'],
             ['data' => 'action', 'class' => 'text-center', 'orderable' => false]
         ];
     }

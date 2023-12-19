@@ -3,6 +3,8 @@
 namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromCollection;
+use Maatwebsite\Excel\Concerns\ShouldAutoSize;
+use Maatwebsite\Excel\Concerns\WithHeadings;
 
 class CashbackGradingDeliveryExport implements FromCollection, ShouldAutoSize, WithHeadings
 {

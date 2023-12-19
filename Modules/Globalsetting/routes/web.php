@@ -50,11 +50,11 @@ ladmin()->route(function () {
 
             // Access module in authentication access
             Route::get('/', [DeliverySettingController::class, 'index'])->name('index');
-            // Route::get('/create', [GeneralSettingController::class, 'create'])->name('create');
-            // Route::post('/store', [GeneralSettingController::class, 'store'])->name('store');
-            // Route::get('/edit/{id}', [GeneralSettingController::class, 'edit'])->name('edit');
-            // Route::put('/update/{id}', [GeneralSettingController::class, 'update'])->name('update');
-            // Route::delete('/delete/{id}', [GeneralSettingController::class, 'destroy'])->name('destroy');
+            Route::get('/create', [DeliverySettingController::class, 'create'])->name('create');
+            Route::post('/store', [DeliverySettingController::class, 'store'])->name('store');
+            Route::get('/edit/{id}', [DeliverySettingController::class, 'edit'])->name('edit');
+            Route::put('/update/{id}', [DeliverySettingController::class, 'update'])->name('update');
+            Route::delete('/delete/{id}', [DeliverySettingController::class, 'destroy'])->name('destroy');
         });
 
         Route::group(['prefix' => 'rekap', 'as' => 'rekap.'], function () {

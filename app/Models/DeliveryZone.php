@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Modules\Collectionpoint\Models\Collectionpoint;
 
 class DeliveryZone extends Model
 {
@@ -19,4 +20,8 @@ class DeliveryZone extends Model
         'kpi_reduce_not_achievement',
         'is_show'
     ];
+
+    public function collection_point(){
+        return $this->belongsTo(Collectionpoint::class, 'collection_point_id', 'id');
+    }
 }

@@ -1,6 +1,6 @@
 <x-ladmin-auth-layout>
     <x-slot name="title">Setting Delivery</x-slot>
-    @can(['ladmin.globalsetting.delivey.create'])
+    @can(['ladmin.globalsetting.delivery.create'])
     <x-slot name="button">
         <a href="{{ route('ladmin.globalsetting.delivery.create', ladmin()->back()) }}" class="btn btn-primary">&plus; Buat Delivery Setting</a>
     </x-slot>
