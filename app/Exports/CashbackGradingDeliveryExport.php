@@ -33,6 +33,15 @@ class CashbackGradingDeliveryExport implements FromCollection, ShouldAutoSize, W
         $this->collection = collect($output);
     }
 
+    public function headings(): array
+    {
+        return [
+           ['' ,'PT ORIENTAL JAYA MANDIRI INDAH ( J&T EXPRESS )'],
+           ['' , 'DATA DELIVERY CUSTOMER CP'],
+        ];
+    }
+
+
     public function collection()
     {
         return $this->collection;
