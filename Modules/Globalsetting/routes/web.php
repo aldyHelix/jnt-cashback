@@ -2,6 +2,7 @@
 
 use Illuminate\Support\Facades\Route;
 use Modules\Globalsetting\Http\Controllers\GeneralSettingController;
+use Modules\Globalsetting\Http\Controllers\DeliverySettingController;
 use Modules\Globalsetting\Http\Controllers\RekapSettingController;
 use Modules\Globalsetting\Http\Controllers\SumberWaybillSettingController;
 
@@ -38,6 +39,17 @@ ladmin()->route(function () {
             // Access module in authentication access
             Route::get('/', [SumberWaybillSettingController::class, 'index'])->name('index');
             Route::post('/sync', [SumberWaybillSettingController::class, 'syncSumberWaybill'])->name('sync');
+            // Route::get('/create', [GeneralSettingController::class, 'create'])->name('create');
+            // Route::post('/store', [GeneralSettingController::class, 'store'])->name('store');
+            // Route::get('/edit/{id}', [GeneralSettingController::class, 'edit'])->name('edit');
+            // Route::put('/update/{id}', [GeneralSettingController::class, 'update'])->name('update');
+            // Route::delete('/delete/{id}', [GeneralSettingController::class, 'destroy'])->name('destroy');
+        });
+
+        Route::group(['prefix' => 'delivery', 'as' => 'delivery.'], function () {
+
+            // Access module in authentication access
+            Route::get('/', [DeliverySettingController::class, 'index'])->name('index');
             // Route::get('/create', [GeneralSettingController::class, 'create'])->name('create');
             // Route::post('/store', [GeneralSettingController::class, 'store'])->name('store');
             // Route::get('/edit/{id}', [GeneralSettingController::class, 'edit'])->name('edit');

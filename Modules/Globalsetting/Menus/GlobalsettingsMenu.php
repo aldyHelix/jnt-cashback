@@ -92,6 +92,8 @@ class GlobalsettingsMenu extends BaseMenu
             SettingsMenu::class,
 
             SumberWaybillMenu::class,
+
+            DeliverySettingMenu::class,
         ];
     }
 }
