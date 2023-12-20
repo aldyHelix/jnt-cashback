@@ -15,9 +15,9 @@
                 </div>
                 <div class="col-6">
                     <div class="container text-end">
-                        <a href="{{ route('ladmin.period.resi-checker') }}" class="btn btn-primary">Resi Checker</a>
+                        {{-- <a href="{{ route('ladmin.period.resi-checker') }}" class="btn btn-primary">Resi Checker</a> --}}
                         <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadCashback">Upload Data Cashback</button>
-                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadTTD">Upload TTD</button>
+                        <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#uploadTTD">Upload Delivery TTD</button>
                     </div>
                 </div>
             </div>
@@ -38,7 +38,11 @@
                             </div>
                             <div class="modal-body">
                                 <div class="alert alert-info" role="alert">
-                                    Please wait until the process done. don't close the window!
+                                    <ul>
+                                        <li>Please wait until the process done. don't close the window!</li>
+                                        <li>Max File Size 100MB</li>
+                                        <li>Max Row processed 500.000 row per file, recommend 100.000 row per file</li>
+                                    </ul>
                                 </div>
                                 <div class="mb-3">
                                     <label for="formFile" class="form-label">File</label>

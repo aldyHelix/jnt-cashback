@@ -30,6 +30,7 @@ use Throwable;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Broadcast;
 use App\Models\PeriodeKlienPengiriman;
+use Illuminate\Validation\Rules\File;
 
 class UploadController extends Controller
 {
@@ -52,6 +53,18 @@ class UploadController extends Controller
     public function uploadFileDelivery(Request $request)
     {
         try {
+            $validated = $request->validate([
+                'file' => 'required|file|max:102400', //max 100MB
+                'month_period' => 'required',
+                'year_period' => 'required',
+            ]);
+
+            if(!$validated){
+                toastr()->error('The file may too big or not CSV format', 'Opps!');
+
+                return redirect()->back();
+            }
+
             $schema_name = 'delivery_' . strtolower($request->month_period) . '_' . $request->year_period;
             $csv    = file($request->file);
 
@@ -446,6 +459,19 @@ class UploadController extends Controller
     public function uploadFile(Request $request)
     {
         try {
+            //validator
+            $validated = $request->validate([
+                'file' => 'required|file|max:102400', //max 100MB
+                'month_period' => 'required',
+                'year_period' => 'required',
+            ]);
+
+            if(!$validated){
+                toastr()->error('The file may too big or not CSV format', 'Opps!');
+
+                return redirect()->back();
+            }
+
             $schema_name = 'cashback_' . strtolower($request->month_period) . '_' . $request->year_period;
             $csv    = file($request->file);
 
