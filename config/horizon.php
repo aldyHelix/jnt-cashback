@@ -194,20 +194,6 @@ return [
             'tryAfter' => 1300,
             'nice' => 0,
         ],
-        'supervisor-2' => [
-            'connection' => 'redis',
-            'queue' => ['default'],
-            'balance' => 'simple',
-            'autoScalingStrategy' => 'time',
-            'maxProcesses' => 20,
-            'maxTime' => 0,
-            'maxJobs' => 5000,
-            'memory' => 128,
-            'tries' => 5,
-            'timeout' => 1200,
-            'tryAfter' => 1300,
-            'nice' => 0,
-        ],
     ],
 
     'environments' => [
@@ -217,18 +203,10 @@ return [
                 'balanceMaxShift' => 1,
                 'balanceCooldown' => 3,
             ],
-            'supervisor-2' => [
-                'maxProcesses' => 20,
-                'balanceMaxShift' => 1,
-                'balanceCooldown' => 3,
-            ],
         ],
 
         'local' => [
             'supervisor-1' => [
-                'maxProcesses' => 20,
-            ],
-            'supervisor-2' => [
                 'maxProcesses' => 20,
             ],
         ],
