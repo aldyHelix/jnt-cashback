@@ -37,15 +37,15 @@
                     <th scope="row">{{ $item->zona_delivery }}</th>
                     <td>{{ $item->nama_cp}}</td>
                     <td><x-ladmin-input id="denda_lost_scan_kirim" type="text" class="mb-3 col" required name="data[{{ $key }}][denda_lost_scan_kirim]"
-                        value="{{ old('denda_lost_scan_kirim', $denda->denda_lost_scan_kirim) }}" placeholder="Denda Lost Scan Kirim" /></td>
+                        value="{{ old('denda_lost_scan_kirim', $item->denda_lost_scan_kirim) }}" placeholder="Denda Lost Scan Kirim" /></td>
                     <td><x-ladmin-input id="denda_late_pickup_reg" type="text" class="mb-3 col" required name="data[{{ $key }}][denda_late_pickup_reg]"
-                        value="{{ old('denda_late_pickup_reg', $denda->denda_late_pickup_reg) }}" placeholder="Denda Late Pickup Reguler" /></td>
+                        value="{{ old('denda_late_pickup_reg', $item->denda_late_pickup_reg) }}" placeholder="Denda Late Pickup Reguler" /></td>
                     <td><x-ladmin-input id="denda_auto_claim" type="text" class="mb-3 col" required name="data[{{ $key }}][denda_auto_claim]"
-                        value="{{ old('denda_auto_claim', $denda->denda_auto_claim) }}" placeholder="Denda Auto Claim" /></td>
+                        value="{{ old('denda_auto_claim', $item->denda_auto_claim) }}" placeholder="Denda Auto Claim" /></td>
                     <td><x-ladmin-input id="tarif" type="text" class="mb-3 col" required name="data[{{ $key }}][tarif]"
-                        value="{{ old('tarif', $denda->tarif) }}" placeholder="Tarif" /></td>
+                        value="{{ old('tarif', $item->tarif) }}" placeholder="Tarif" /></td>
                     <td><x-ladmin-input id="admin_bank" type="text" class="mb-3 col" required name="data[{{ $key }}][admin_bank]"
-                        value="{{ old('admin_bank', $denda->admin_bank) }}" placeholder="Admin Bank" /></td>
+                        value="{{ old('admin_bank', $item->admin_bank) }}" placeholder="Admin Bank" /></td>
                 </tr>
                 @endforeach
             </tbody>
