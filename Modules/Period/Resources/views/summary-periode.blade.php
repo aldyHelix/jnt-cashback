@@ -68,7 +68,7 @@
                                             <td style="text-align: left">Processed By</td>
                                             <td style="text-align: left;width: 200px;">: {{ $periode->processed_by ?? 'SYSTEM' }} </td>
                                         </tr>
-                                        <tr>
+                                        {{-- <tr>
                                             <td style="text-align: left">Is Processed Done</td>
                                             <td style="text-align: left;width: 200px;">: {{ $periode->is_processing_done ? 'TRUE' : 'FALSE' }} </td>
                                         </tr>
@@ -79,7 +79,7 @@
                                         <tr>
                                             <td style="text-align: left">Locked</td>
                                             <td style="text-align: left;width: 200px;">: {{ $periode->is_locked ? 'TRUE' : 'FALSE' }} </td>
-                                        </tr>
+                                        </tr> --}}
                                         <tr>
                                             <td style="text-align: left">Proccesed at</td>
                                             <td style="text-align: left;width: 200px;">: {{ $periode->start_processed_at ?? 'Not Started' }} </td>
@@ -113,7 +113,7 @@
                                     </table>
                                 </div>
                             </div>
-                            <div class="col-4" style="max-height: 100vh">
+                            {{-- <div class="col-4" style="max-height: 100vh">
                                 Summary Klien pengiriman
                                 <div class="table-responsive" style="height: 500px">
                                     <form action="{{ route('ladmin.period.update-klien', $periode->id) }}" method="POST">
@@ -161,7 +161,7 @@
                                     </form>
 
                                 </div>
-                            </div>
+                            </div> --}}
                          </div>
                     </div>
                     <div class="tab-pane fade" id="rate-grading-tab-pane" role="tabpanel" aria-labelledby="rate-grading-tab" tabindex="0">

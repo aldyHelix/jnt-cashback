@@ -255,4 +255,47 @@ class PeriodeController extends Controller
         return response()->json(['non_existing_ids' => $nonExistingIds]);
 
     }
+
+    public function lockPeriod($code)
+    {
+        $periode = Periode::where('code', $code)->first();
+
+        //can locked if grading 1,2,3 is locked
+
+        if($periode->locked_grade_1 && $periode->locked_grade_2 && $periode->locked_grade_3) {
+            $periode->update([
+                'is_locked' => 1,
+                'status' => 'LOCKED',
+                'is_pivot_processing_done' => 1,
+            ]);
+            toastr()->success('lock succesfully saved', 'Success');
+            return redirect()->back();
+        } else {
+            toastr()->warning('unable to lock grading not all locked', 'Error');
+            return redirect()->back();
+        }
+    }
+
+    public function unlockPeriod($code)
+    {
+        $periode = Periode::where('code', $code)->first();
+
+        if($periode->locked_grade_1 && $periode->locked_grade_2 && $periode->locked_grade_3) {
+            $periode->update([
+                'is_locked' => 0,
+                'status' => 'OPENNED',
+                'locked_grade_1' => 0,
+                'locked_grade_2' => 0,
+                'locked_grade_3' => 0,
+            ]);
+            toastr()->success('unlock succesfully saved', 'Success');
+            return redirect()->back();
+        } else {
+            toastr()->warning('unable to unlock grading need to locked all', 'Error');
+            return redirect()->back();
+        }
+
+        toastr()->success('lock succesfully saved', 'Success');
+        return redirect()->back();
+    }
 }

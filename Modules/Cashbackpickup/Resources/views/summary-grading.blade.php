@@ -11,7 +11,7 @@
                   <div class="col text-end">
                     <div class="btn-group" role="group" aria-label="Basic example">
                         {{-- <button type="button" class="btn btn-primary"><i class="fa fa-download"></i> CSV</button> --}}
-                        <button type="button" class="btn btn-primary" onclick="processCashback('{{ route('ladmin.cashbackpickup.process', ['code' => $periode->code, 'grade' => $grading ,'id' => $periode->id]) }}')"><i class="fa fa-replace"></i>  Process Grade {{$grading}}</button> &nbsp;
+                        <button type="button" class="btn btn-primary {{$locked ? 'disabled' : ''}}" onclick="processCashback('{{ route('ladmin.cashbackpickup.process', ['code' => $periode->code, 'grade' => $grading ,'id' => $periode->id]) }}')"><i class="fa fa-replace"></i>  Process Grade {{$grading}}</button> &nbsp;
                         <button type="button" class="btn btn-primary" onclick="downloadExcel('{{ route('ladmin.cashbackpickup.download', ['filename' => $filename]) }}')"><i class="fa fa-download"></i>  Download Excel</button>
                         {{-- <button type="button" class="btn btn-primary"><i class="fa fa-download"></i> PDF</button> --}}
                     </div>

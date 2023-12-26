@@ -89,7 +89,7 @@ class Grading2Datatables extends Datatables
         if($denda->count() > 0) {
             $data['has_denda'] = true;
         }
-        $data['is_locked'] = $data->is_locked;
+        $data['is_locked'] = $data->locked_grade_2;
         $data['code'] = $data->code;
         $data['grading'] = 2;
         return view('cashbackpickup::_parts.table-action', $data);

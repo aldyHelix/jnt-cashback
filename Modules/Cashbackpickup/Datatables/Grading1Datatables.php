@@ -88,7 +88,7 @@ class Grading1Datatables extends Datatables
         if($denda->count() > 0) {
             $data['has_denda'] = true;
         }
-        $data['is_locked'] = $data->is_locked;
+        $data['is_locked'] = $data->locked_grade_1;
         $data['code'] = $data->code;
         $data['grading'] = 1;
 

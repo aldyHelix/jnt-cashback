@@ -78,6 +78,20 @@ class CashbackpickupController extends Controller
         $data['denda'] = Denda::where(['periode_id' => $data['periode']->id, 'grading_type' => $grade])->get();
         $data['filename'] = strtoupper($data['periode']->month) . '-' . $data['periode']->year . '-GRADING-' . $grade . '.xlsx';
         $data['grading'] = $grade;
+        switch ($grade) {
+            case 1:
+                $data['locked'] = $data['periode']->locked_grade_1;
+                break;
+            case 2:
+                $data['locked'] = $data['periode']->locked_grade_1;
+                break;
+            case 3:
+                $data['locked'] = $data['periode']->locked_grade_1;
+                break;
+            default:
+                $data['locked'] = $data['periode']->is_locked;
+                break;
+        }
         return view('cashbackpickup::summary-grading', $data);
     }
 

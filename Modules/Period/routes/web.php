@@ -22,6 +22,8 @@ ladmin()->route(function () {
         Route::get('/', [PeriodeController::class, 'index'])->name('index');
         Route::post('/store', [PeriodeController::class, 'store'])->name('store');
         Route::get('/detail/{code}', [PeriodeController::class, 'viewDetail'])->name('detail');
+        Route::get('/lock/{code}', [PeriodeController::class, 'lockPeriod'])->name('lock');
+        Route::get('/unlock/{code}', [PeriodeController::class, 'unlockPeriod'])->name('unlock');
         Route::get('/setting/{code}', [PeriodeController::class, 'viewSetting'])->name('setting');
         Route::get('/edit/{id}', [PeriodeController::class, 'edit'])->name('edit');
         Route::put('/update/{id}', [PeriodeController::class, 'update'])->name('update');

@@ -78,6 +78,7 @@ class PeriodDatatables extends Datatables
     public function viewDetail($data)
     {
         $data['code'] = $data->code;
+        $data['row'] = $data;
         return view('period::_parts._view-detail', $data);
     }
 

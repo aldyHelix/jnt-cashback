@@ -46,7 +46,7 @@
                                         <td style="text-align: left">Processed By</td>
                                         <td style="text-align: left;width: 200px;">: {{ $periode->processed_by ?? 'SYSTEM' }} </td>
                                     </tr>
-                                    <tr>
+                                    {{-- <tr>
                                         <td style="text-align: left">Is Processed Done</td>
                                         <td style="text-align: left;width: 200px;">: {{ $periode->is_processing_done ? 'TRUE' : 'FALSE' }} </td>
                                     </tr>
@@ -65,7 +65,7 @@
                                     <tr>
                                         <td style="text-align: left">Done Proccesed at</td>
                                         <td style="text-align: left;width: 200px;">: {{ $periode->done_proccesed_at ?? 'Undone' }} </td>
-                                    </tr>
+                                    </tr> --}}
                                     <tr>
                                         <td style="text-align: left">Periode Created at</td>
                                         <td style="text-align: left;width: 200px;">: {{ $periode->created_at->format('d-m-Y h:i') }} </td>
