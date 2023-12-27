@@ -4,6 +4,14 @@
 
     <x-ladmin-card>
         <x-slot name="body">
+        @if($periode->is_locked)
+            <div class="alert alert-warning" role="alert">
+                <ul>
+                    <li>Data Setting telah di kunci, denda tidak dapat disimpan.</li>
+                    <li>Silahkan membuka kunci di periode untuk melakukan edit.</li>
+                </ul>
+            </div>
+        @endif
         <form action="{{ route('ladmin.cashbackpickup.denda') }}" method="POST">
             @csrf
                 <input type="hidden" name="periode_id" value="{{$id}}">
@@ -66,15 +74,11 @@
             </tbody>
           </table>
           <div>
-              <x-ladmin-button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</x-ladmin-button>
-              <x-ladmin-button type="submit" class="text-white" color="primary">Simpan</x-ladmin-button>
+              <x-ladmin-button type="submit" class="text-white {{ $periode->is_locked ? 'disabled' : ''}}" color="primary">Simpan</x-ladmin-button>
           </div>
           </form>
         </x-slot>
         </x-ladmin-card>
-        <x-slot name="scripts">
-
-        </x-slot>
         <x-slot name="scripts">
 
         </x-slot>

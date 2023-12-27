@@ -150,6 +150,7 @@ class CashbackpickupController extends Controller
     public function viewDenda($id, $grade)
     {
         //change into page : because its too heavy to load
+        $data['periode'] = Periode::where('id', $id)->first();
         $exist = Denda::where(['periode_id' => $id, 'grading_type' => $grade])->first();
         $data['id'] = $id;
         $data['cp'] = Collectionpoint::where('grading_pickup', grading_map($grade))->orderBy('drop_point_outgoing', 'ASC')->get();

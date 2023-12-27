@@ -9,6 +9,14 @@
                     <h4>Setting</h4>
                 </div>
             </div>
+            @if($periode->is_locked)
+                <div class="alert alert-warning" role="alert">
+                    <ul>
+                        <li>Data Setting telah di kunci, setting summary tidak dapat disimpan.</li>
+                        <li>Silahkan membuka kunci di periode untuk melakukan edit.</li>
+                    </ul>
+                </div>
+            @endif
             <div class="row" style="margin-bottom: 10px;">
                 <div class="col-12">
                     Setting drop point outgoing
@@ -66,7 +74,7 @@
                                 @endif
                             </tbody>
                         </table>
-                        <button class="btn btn-primary" type="submit">Save</button>
+                        <button class="btn btn-primary {{ $periode->is_locked ? 'disabled' : ''}}" type="submit">Save</button>
                         </form>
                     </div>
                 </div>
