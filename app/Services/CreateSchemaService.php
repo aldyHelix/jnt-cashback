@@ -45,7 +45,7 @@ class CreateSchemaService {
                     sum(data_mart.biaya_kirim) AS sum
                     FROM ".$schema.".data_mart
                 WHERE
-                (data_mart.kat = 'CP' OR data_mart.kat = 'DP')
+                (data_mart.zona = 'CP' OR data_mart.zona = 'DP')
                 AND
                 (data_mart.metode_pembayaran = 'PP_PM' OR data_mart.metode_pembayaran = 'PP_CASH' OR data_mart.metode_pembayaran = '')
                 AND
@@ -65,7 +65,7 @@ class CreateSchemaService {
                 count(data_mart.no_waybill) AS count,
                 sum(data_mart.biaya_kirim) AS SUM
             FROM ".$schema.".data_mart
-            WHERE (data_mart.kat = 'CP' OR data_mart.kat = 'DP')
+            WHERE (data_mart.zona = 'CP' OR data_mart.zona = 'DP')
             AND (data_mart.metode_pembayaran ='CC_CASH')
             AND
                 (data_mart.klien_pengiriman IN (
@@ -85,7 +85,7 @@ class CreateSchemaService {
                 count(data_mart.no_waybill) AS count,
                 sum(data_mart.total_biaya_setelah_diskon) AS SUM
             FROM ".$schema.".data_mart
-            WHERE (data_mart.kat = 'CP' OR data_mart.kat = 'DP')
+            WHERE (data_mart.zona = 'CP' OR data_mart.zona = 'DP')
             AND data_mart.klien_pengiriman IN (".$item.")
             GROUP BY data_mart.drop_point_outgoing";
     }
@@ -1701,13 +1701,28 @@ class CreateSchemaService {
         $schema = "cashback_".$month."_".$year;
 		$created = DB::connection('pgsql')->unprepared("
             CREATE SCHEMA ".$schema."
-            CREATE TABLE data_mart (no_waybill varchar unique, tgl_pengiriman date, drop_point_outgoing varchar, sprinter_pickup text,tempat_tujuan text,keterangan text, berat_yang_ditagih float, cod integer, biaya_asuransi integer, biaya_kirim integer, biaya_lainnya integer, total_biaya integer, klien_pengiriman text, metode_pembayaran text, nama_pengirim text, sumber_waybill text, paket_retur text, waktu_ttd timestamp, layanan text, diskon integer, total_biaya_setelah_diskon integer, agen_tujuan text, nik text, kode_promo text, kat text)
-
+            CREATE TABLE data_mart (
+                no_waybill varchar unique,
+                tgl_pengiriman date,
+                drop_point_outgoing varchar,
+                sprinter_pickup text,
+                tempat_tujuan text,
+                berat_yang_ditagih float,
+                biaya_cod integer,
+                biaya_asuransi integer,
+                biaya_kirim integer,
+                biaya_lainnya integer,
+                total_biaya integer,
+                klien_pengiriman text,
+                metode_pembayaran text,
+                nama_pengirim text,
+                sumber_waybill text,
+                paket_retur text,
+                waktu_ttd timestamp,
+                diskon integer,
+                total_biaya_setelah_diskon integer,
+                zona text)
             ");
-
-            // ".$this->allSumBiayaKirim($schema)."
-
-            // ".$this->DPFAllCountSum($schema)."
 
             // ".$this->DPFRegulerCountSum($schema)."
 
@@ -1813,28 +1828,12 @@ class CreateSchemaService {
         return $created;
 	}
 
-    public function allSumBiayaKirim($schema) {
-        return "
-            CREATE OR REPLACE VIEW sum_all_biaya_kirim AS
-                SELECT SUM(data_mart.biaya_kirim)
-                FROM ".$schema.".data_mart";
-    }
-
-    public function CPDPAllCountSum($schema) {
-        return "
-            CREATE OR REPLACE VIEW cp_dp_all_count_sum AS
-                SELECT DISTINCT data_mart.drop_point_outgoing, COUNT(data_mart.no_waybill), SUM(data_mart.biaya_kirim)
-                FROM ".$schema.".data_mart
-                WHERE (data_mart.kat = 'CP' OR data_mart.kat = 'DP')
-                GROUP BY data_mart.drop_point_outgoing";
-    }
-
     public function DPFAllCountSum($schema) {
         return "
             CREATE OR REPLACE VIEW dpf_all_count_sum AS
                 SELECT DISTINCT data_mart.drop_point_outgoing, COUNT(data_mart.no_waybill), SUM(data_mart.biaya_kirim)
                 FROM ".$schema.".data_mart
-                WHERE (data_mart.kat = 'DPF')
+                WHERE (data_mart.zona = 'DPF')
                 GROUP BY data_mart.drop_point_outgoing";
     }
 
@@ -1845,7 +1844,7 @@ class CreateSchemaService {
                     count(data_mart.no_waybill) AS count,
                     sum(data_mart.biaya_kirim) AS sum
                     FROM ".$schema.".data_mart
-                WHERE (data_mart.kat = 'DPF')
+                WHERE (data_mart.zona = 'DPF')
                 AND (data_mart.metode_pembayaran = 'PP_PM' OR data_mart.metode_pembayaran = 'PP_CASH')
                 GROUP BY data_mart.drop_point_outgoing";
     }
@@ -1857,7 +1856,7 @@ class CreateSchemaService {
                 count(data_mart.no_waybill) AS count,
                 sum(data_mart.biaya_kirim) AS SUM
             FROM ".$schema.".data_mart
-            WHERE (data_mart.kat = 'DPF')
+            WHERE (data_mart.zona = 'DPF')
             AND (
                 (data_mart.metode_pembayaran ='CC_CASH')
                     AND
@@ -1873,7 +1872,7 @@ class CreateSchemaService {
                 count(data_mart.no_waybill) AS count,
                 sum(data_mart.total_biaya_setelah_diskon) AS SUM
             FROM ".$schema.".data_mart
-            WHERE (data_mart.kat = 'DPF')
+            WHERE (data_mart.zona = 'DPF')
             AND data_mart.klien_pengiriman IN ('SUPERINJND', 'SUPERINJSD', 'SUPEROUT', 'JNDSUPER')
             GROUP BY data_mart.drop_point_outgoing";
     }
@@ -1899,7 +1898,7 @@ class CreateSchemaService {
                     SUM(CASE WHEN dm.sumber_waybill IN ('AKULAKUOB', 'BUKAEXPRESS', 'BUKALAPAK', 'BUKASEND', 'EVERMOSAPI', 'LAZADA', 'LAZADA COD', 'MAGELLAN', 'MAGELLAN COD', 'MENGANTAR', 'ORDIVO', 'SHOPEE', 'SHOPEE COD', 'TOKOPEDIA') THEN 1 ELSE 0 END) AS grand_total
                 FROM
                     ".$schema.".data_mart dm
-                WHERE (dm.kat = 'DPF')
+                WHERE (dm.zona = 'DPF')
                 GROUP BY
                     dm.drop_point_outgoing";
     }
@@ -1943,7 +1942,7 @@ class CreateSchemaService {
                         SUM(CASE WHEN dm.sumber_waybill = 'TOKOPEDIA' THEN dm.biaya_kirim ELSE 0 END) AS TOKOPEDIA
                     FROM
                     ".$schema.".data_mart dm
-                    WHERE (dm.kat = 'DPF')
+                    WHERE (dm.zona = 'DPF')
                     GROUP BY
                         dm.drop_point_outgoing
                 ) AS subquery";
@@ -1970,7 +1969,7 @@ class CreateSchemaService {
                     SUM(CASE WHEN dm.sumber_waybill IN ('AKULAKUOB', 'BUKAEXPRESS', 'BUKALAPAK', 'BUKASEND', 'EVERMOSAPI', 'LAZADA', 'LAZADA COD', 'MAGELLAN', 'MAGELLAN COD', 'MENGANTAR', 'ORDIVO', 'SHOPEE', 'SHOPEE COD', 'TOKOPEDIA') THEN 1 ELSE 0 END) AS grand_total
                 FROM
                 ".$schema.".data_mart dm
-                WHERE (dm.kat = 'DPF')
+                WHERE (dm.zona = 'DPF')
                 AND (dm.paket_retur = '1' OR dm.paket_retur = 'Returned' OR (dm.paket_retur ~ '^\\d+$' AND CAST(dm.paket_retur AS INTEGER) = 1))
                 GROUP BY
                     dm.drop_point_outgoing";
@@ -2015,7 +2014,7 @@ class CreateSchemaService {
                 SUM(CASE WHEN dm.sumber_waybill = 'TOKOPEDIA' THEN dm.biaya_kirim ELSE 0 END) AS TOKOPEDIA
             FROM
             ".$schema.".data_mart dm
-            WHERE (dm.kat = 'DPF')
+            WHERE (dm.zona = 'DPF')
             AND (dm.paket_retur = '1' OR dm.paket_retur = 'Returned' OR (dm.paket_retur ~ '^\\d+$' AND CAST(dm.paket_retur AS INTEGER) = 1))
             GROUP BY
                 dm.drop_point_outgoing
@@ -2027,7 +2026,7 @@ class CreateSchemaService {
             CREATE OR REPLACE VIEW Zonasi_all_count_sum AS
                 SELECT DISTINCT data_mart.drop_point_outgoing, COUNT(data_mart.no_waybill), SUM(data_mart.biaya_kirim)
                 FROM ".$schema.".data_mart
-                WHERE (data_mart.kat = 'ZONASI')
+                WHERE (data_mart.zona = 'ZONASI')
                 GROUP BY data_mart.drop_point_outgoing";
     }
 
@@ -2038,7 +2037,7 @@ class CreateSchemaService {
                     count(data_mart.no_waybill) AS count,
                     sum(data_mart.biaya_kirim) AS sum
                     FROM ".$schema.".data_mart
-                WHERE (data_mart.kat = 'ZONASI')
+                WHERE (data_mart.zona = 'ZONASI')
                 AND (data_mart.metode_pembayaran = 'PP_PM' OR data_mart.metode_pembayaran = 'PP_CASH')
                 GROUP BY data_mart.drop_point_outgoing";
     }
@@ -2050,7 +2049,7 @@ class CreateSchemaService {
                 count(data_mart.no_waybill) AS count,
                 sum(data_mart.biaya_kirim) AS SUM
             FROM ".$schema.".data_mart
-            WHERE (data_mart.kat = 'ZONASI')
+            WHERE (data_mart.zona = 'ZONASI')
             AND (data_mart.metode_pembayaran ='CC_CASH')
                     AND (data_mart.klien_pengiriman IN ('ALWAHHIJAB', 'BLIBLIAPI', 'MAULAGI', 'TRIES', 'WEEKENDBGR', 'BITESHIP', NULL))
             GROUP BY data_mart.drop_point_outgoing";
@@ -2063,7 +2062,7 @@ class CreateSchemaService {
                 count(data_mart.no_waybill) AS count,
                 sum(data_mart.total_biaya_setelah_diskon) AS SUM
             FROM ".$schema.".data_mart
-            WHERE (data_mart.kat = 'ZONASI')
+            WHERE (data_mart.zona = 'ZONASI')
             AND data_mart.klien_pengiriman IN ('SUPERINJND', 'SUPERINJSD', 'SUPEROUT', 'JNDSUPER')
             GROUP BY data_mart.drop_point_outgoing";
     }
@@ -2089,7 +2088,7 @@ class CreateSchemaService {
                     SUM(CASE WHEN dm.sumber_waybill IN ('AKULAKUOB', 'BUKAEXPRESS', 'BUKALAPAK', 'BUKASEND', 'EVERMOSAPI', 'LAZADA', 'LAZADA COD', 'MAGELLAN', 'MAGELLAN COD', 'MENGANTAR', 'ORDIVO', 'SHOPEE', 'SHOPEE COD', 'TOKOPEDIA') THEN 1 ELSE 0 END) AS grand_total
                 FROM
                     ".$schema.".data_mart dm
-                WHERE (dm.kat = 'ZONASI')
+                WHERE (dm.zona = 'ZONASI')
                 GROUP BY
                     dm.drop_point_outgoing";
     }
@@ -2133,7 +2132,7 @@ class CreateSchemaService {
                         SUM(CASE WHEN dm.sumber_waybill = 'TOKOPEDIA' THEN dm.biaya_kirim ELSE 0 END) AS TOKOPEDIA
                     FROM
                     ".$schema.".data_mart dm
-                    WHERE (dm.kat = 'ZONASI')
+                    WHERE (dm.zona = 'ZONASI')
                     GROUP BY
                         dm.drop_point_outgoing
                 ) AS subquery";
@@ -2160,7 +2159,7 @@ class CreateSchemaService {
                     SUM(CASE WHEN dm.sumber_waybill IN ('AKULAKUOB', 'BUKAEXPRESS', 'BUKALAPAK', 'BUKASEND', 'EVERMOSAPI', 'LAZADA', 'LAZADA COD', 'MAGELLAN', 'MAGELLAN COD', 'MENGANTAR', 'ORDIVO', 'SHOPEE', 'SHOPEE COD', 'TOKOPEDIA') THEN 1 ELSE 0 END) AS grand_total
                 FROM
                 ".$schema.".data_mart dm
-                WHERE (dm.kat = 'ZONASI')
+                WHERE (dm.zona = 'ZONASI')
                 AND (dm.paket_retur = '1' OR dm.paket_retur = 'Returned' OR (dm.paket_retur ~ '^\\d+$' AND CAST(dm.paket_retur AS INTEGER) = 1))
                 GROUP BY
                     dm.drop_point_outgoing";
@@ -2205,7 +2204,7 @@ class CreateSchemaService {
                 SUM(CASE WHEN dm.sumber_waybill = 'TOKOPEDIA' THEN dm.biaya_kirim ELSE 0 END) AS TOKOPEDIA
             FROM
             ".$schema.".data_mart dm
-            WHERE (dm.kat = 'ZONASI')
+            WHERE (dm.zona = 'ZONASI')
             AND (dm.paket_retur = '1' OR dm.paket_retur = 'Returned' OR (dm.paket_retur ~ '^\\d+$' AND CAST(dm.paket_retur AS INTEGER) = 1))
             GROUP BY
                 dm.drop_point_outgoing
@@ -2217,7 +2216,7 @@ class CreateSchemaService {
             CREATE OR REPLACE VIEW dc_all_count_sum AS
                 SELECT DISTINCT data_mart.drop_point_outgoing, COUNT(data_mart.no_waybill), SUM(data_mart.biaya_kirim)
                 FROM ".$schema.".data_mart
-                WHERE (data_mart.kat = 'DC')
+                WHERE (data_mart.zona = 'DC')
                 GROUP BY data_mart.drop_point_outgoing";
     }
 
@@ -2228,7 +2227,7 @@ class CreateSchemaService {
                     count(data_mart.no_waybill) AS count,
                     sum(data_mart.biaya_kirim) AS sum
                     FROM ".$schema.".data_mart
-                WHERE (data_mart.kat = 'DC')
+                WHERE (data_mart.zona = 'DC')
                 AND (data_mart.metode_pembayaran = 'PP_PM' OR data_mart.metode_pembayaran = 'PP_CASH')
                 GROUP BY data_mart.drop_point_outgoing";
     }
@@ -2240,7 +2239,7 @@ class CreateSchemaService {
                 count(data_mart.no_waybill) AS count,
                 sum(data_mart.biaya_kirim) AS SUM
             FROM ".$schema.".data_mart
-            WHERE (data_mart.kat = 'DC')
+            WHERE (data_mart.zona = 'DC')
             AND ((data_mart.metode_pembayaran ='CC_CASH')
                     AND (data_mart.klien_pengiriman IN ('ALWAHHIJAB', 'BLIBLIAPI', 'MAULAGI', 'TRIES', 'WEEKENDBGR', 'BITESHIP', NULL)))
             GROUP BY data_mart.drop_point_outgoing";
@@ -2253,7 +2252,7 @@ class CreateSchemaService {
                 count(data_mart.no_waybill) AS count,
                 sum(data_mart.total_biaya_setelah_diskon) AS SUM
             FROM ".$schema.".data_mart
-            WHERE (data_mart.kat = 'DC')
+            WHERE (data_mart.zona = 'DC')
             AND data_mart.klien_pengiriman IN ('SUPERINJND', 'SUPERINJSD', 'SUPEROUT', 'JNDSUPER')
             GROUP BY data_mart.drop_point_outgoing";
     }
@@ -2279,7 +2278,7 @@ class CreateSchemaService {
                     SUM(CASE WHEN dm.sumber_waybill IN ('AKULAKUOB', 'BUKAEXPRESS', 'BUKALAPAK', 'BUKASEND', 'EVERMOSAPI', 'LAZADA', 'LAZADA COD', 'MAGELLAN', 'MAGELLAN COD', 'MENGANTAR', 'ORDIVO', 'SHOPEE', 'SHOPEE COD', 'TOKOPEDIA') THEN 1 ELSE 0 END) AS grand_total
                 FROM
                     ".$schema.".data_mart dm
-                WHERE (dm.kat = 'DC')
+                WHERE (dm.zona = 'DC')
                 GROUP BY
                     dm.drop_point_outgoing";
     }
@@ -2323,7 +2322,7 @@ class CreateSchemaService {
                         SUM(CASE WHEN dm.sumber_waybill = 'TOKOPEDIA' THEN dm.biaya_kirim ELSE 0 END) AS TOKOPEDIA
                     FROM
                     ".$schema.".data_mart dm
-                    WHERE (dm.kat = 'DC')
+                    WHERE (dm.zona = 'DC')
                     GROUP BY
                         dm.drop_point_outgoing
                 ) AS subquery";
@@ -2350,7 +2349,7 @@ class CreateSchemaService {
                     SUM(CASE WHEN dm.sumber_waybill IN ('AKULAKUOB', 'BUKAEXPRESS', 'BUKALAPAK', 'BUKASEND', 'EVERMOSAPI', 'LAZADA', 'LAZADA COD', 'MAGELLAN', 'MAGELLAN COD', 'MENGANTAR', 'ORDIVO', 'SHOPEE', 'SHOPEE COD', 'TOKOPEDIA') THEN 1 ELSE 0 END) AS grand_total
                 FROM
                 ".$schema.".data_mart dm
-                WHERE (dm.kat = 'DC')
+                WHERE (dm.zona = 'DC')
                 AND (dm.paket_retur = '1' OR dm.paket_retur = 'Returned' OR (dm.paket_retur ~ '^\\d+$' AND CAST(dm.paket_retur AS INTEGER) = 1))
                 GROUP BY
                     dm.drop_point_outgoing";
@@ -2395,7 +2394,7 @@ class CreateSchemaService {
                 SUM(CASE WHEN dm.sumber_waybill = 'TOKOPEDIA' THEN dm.biaya_kirim ELSE 0 END) AS TOKOPEDIA
             FROM
             ".$schema.".data_mart dm
-            WHERE (dm.kat = 'DC')
+            WHERE (dm.zona = 'DC')
             AND (dm.paket_retur = '1' OR dm.paket_retur = 'Returned' OR (dm.paket_retur ~ '^\\d+$' AND CAST(dm.paket_retur AS INTEGER) = 1))
             GROUP BY
                 dm.drop_point_outgoing
@@ -2407,7 +2406,7 @@ class CreateSchemaService {
             CREATE OR REPLACE VIEW na_all_count_sum AS
                 SELECT DISTINCT data_mart.drop_point_outgoing, COUNT(data_mart.no_waybill), SUM(data_mart.biaya_kirim)
                 FROM ".$schema.".data_mart
-                WHERE (data_mart.kat = '#N/A')
+                WHERE (data_mart.zona = '#N/A')
                 GROUP BY data_mart.drop_point_outgoing";
     }
 
@@ -2418,7 +2417,7 @@ class CreateSchemaService {
                     count(data_mart.no_waybill) AS count,
                     sum(data_mart.biaya_kirim) AS sum
                     FROM ".$schema.".data_mart
-                WHERE (data_mart.kat = '#N/A')
+                WHERE (data_mart.zona = '#N/A')
                 AND (data_mart.metode_pembayaran = 'PP_PM' OR data_mart.metode_pembayaran = 'PP_CASH')
                 GROUP BY data_mart.drop_point_outgoing";
     }
@@ -2430,7 +2429,7 @@ class CreateSchemaService {
                 count(data_mart.no_waybill) AS count,
                 sum(data_mart.biaya_kirim) AS SUM
             FROM ".$schema.".data_mart
-            WHERE (data_mart.kat = '#N/A')
+            WHERE (data_mart.zona = '#N/A')
             AND ((data_mart.metode_pembayaran ='CC_CASH')
                     AND (data_mart.klien_pengiriman IN ('ALWAHHIJAB', 'BLIBLIAPI', 'MAULAGI', 'TRIES', 'WEEKENDBGR', 'BITESHIP', NULL)))
             GROUP BY data_mart.drop_point_outgoing";
@@ -2443,7 +2442,7 @@ class CreateSchemaService {
                 count(data_mart.no_waybill) AS count,
                 sum(data_mart.total_biaya_setelah_diskon) AS SUM
             FROM ".$schema.".data_mart
-            WHERE (data_mart.kat = '#N/A')
+            WHERE (data_mart.zona = '#N/A')
             AND data_mart.klien_pengiriman IN ('SUPERINJND', 'SUPERINJSD', 'SUPEROUT', 'JNDSUPER')
             GROUP BY data_mart.drop_point_outgoing";
     }
@@ -2469,7 +2468,7 @@ class CreateSchemaService {
                     SUM(CASE WHEN dm.sumber_waybill IN ('AKULAKUOB', 'BUKAEXPRESS', 'BUKALAPAK', 'BUKASEND', 'EVERMOSAPI', 'LAZADA', 'LAZADA COD', 'MAGELLAN', 'MAGELLAN COD', 'MENGANTAR', 'ORDIVO', 'SHOPEE', 'SHOPEE COD', 'TOKOPEDIA') THEN 1 ELSE 0 END) AS grand_total
                 FROM
                     ".$schema.".data_mart dm
-                WHERE (dm.kat = '#N/A')
+                WHERE (dm.zona = '#N/A')
                 GROUP BY
                     dm.drop_point_outgoing";
     }
@@ -2513,7 +2512,7 @@ class CreateSchemaService {
                         SUM(CASE WHEN dm.sumber_waybill = 'TOKOPEDIA' THEN dm.biaya_kirim ELSE 0 END) AS TOKOPEDIA
                     FROM
                     ".$schema.".data_mart dm
-                    WHERE (dm.kat = '#N/A')
+                    WHERE (dm.zona = '#N/A')
                     GROUP BY
                         dm.drop_point_outgoing
                 ) AS subquery";
@@ -2540,7 +2539,7 @@ class CreateSchemaService {
                     SUM(CASE WHEN dm.sumber_waybill IN ('AKULAKUOB', 'BUKAEXPRESS', 'BUKALAPAK', 'BUKASEND', 'EVERMOSAPI', 'LAZADA', 'LAZADA COD', 'MAGELLAN', 'MAGELLAN COD', 'MENGANTAR', 'ORDIVO', 'SHOPEE', 'SHOPEE COD', 'TOKOPEDIA') THEN 1 ELSE 0 END) AS grand_total
                 FROM
                 ".$schema.".data_mart dm
-                WHERE (dm.kat = '#N/A')
+                WHERE (dm.zona = '#N/A')
                 AND (dm.paket_retur = '1' OR dm.paket_retur = 'Returned' OR (dm.paket_retur ~ '^\\d+$' AND CAST(dm.paket_retur AS INTEGER) = 1))
                 GROUP BY
                     dm.drop_point_outgoing";
@@ -2585,7 +2584,7 @@ class CreateSchemaService {
                 SUM(CASE WHEN dm.sumber_waybill = 'TOKOPEDIA' THEN dm.biaya_kirim ELSE 0 END) AS TOKOPEDIA
             FROM
             ".$schema.".data_mart dm
-            WHERE (dm.kat = '#N/A')
+            WHERE (dm.zona = '#N/A')
             AND (dm.paket_retur = '1' OR dm.paket_retur = 'Returned' OR (dm.paket_retur ~ '^\\d+$' AND CAST(dm.paket_retur AS INTEGER) = 1))
             GROUP BY
                 dm.drop_point_outgoing

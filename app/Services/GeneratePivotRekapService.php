@@ -540,7 +540,7 @@ class GeneratePivotRekapService {
                             ELSE 0
                         END) AS klien_pengiriman_vip
                   FROM $schema.data_mart dm
-                  WHERE dm.kat = 'CP'::text OR dm.kat = 'DP'::text
+                  WHERE dm.zona = 'CP'::text OR dm.zona = 'DP'::text
                   GROUP BY dm.drop_point_outgoing) as sq
             join master_collection_point mcp on sq.drop_point_outgoing = mcp.nama_cp
             WHERE mcp.grading_pickup = 'A'
