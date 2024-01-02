@@ -60,7 +60,7 @@ class GeneratePivotZonasiService {
                 FROM ( SELECT dm.drop_point_outgoing,
                         $subquery
                     FROM $schema.data_mart dm
-                    WHERE dm.kat = 'LUAR ZONASI'::text
+                    WHERE dm.zona = 'LUAR ZONASI'::text
                     GROUP BY dm.drop_point_outgoing) sq;
         ";
 
@@ -115,7 +115,7 @@ class GeneratePivotZonasiService {
                             ELSE 0
                         END) AS total_waybill_luar_zona
                 FROM $schema.data_mart dm
-                WHERE dm.kat = 'LUAR ZONASI'
+                WHERE dm.zona = 'LUAR ZONASI'
                 GROUP BY dm.drop_point_outgoing;
         ";
 
@@ -171,7 +171,7 @@ class GeneratePivotZonasiService {
                             ELSE 0
                         END) AS total_waybill_luar_zona
                 FROM $schema.data_mart dm
-                WHERE (dm.kat = 'LUAR ZONASI')
+                WHERE (dm.zona = 'LUAR ZONASI')
                     AND (dm.paket_retur = '1' OR dm.paket_retur = 'Returned' OR (dm.paket_retur ~ '^\\d+$' AND CAST(dm.paket_retur AS INTEGER) = 1))
                 GROUP BY dm.drop_point_outgoing;
         ";

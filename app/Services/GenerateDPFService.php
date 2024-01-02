@@ -144,14 +144,14 @@ class GenerateDPFService {
             'CIAMPEA',
         ];
 
-        $dalam_zona = "or (data_mart.drop_point_outgoing = 'PAMOYANAN_BOGOR' and data_mart.kat = 'DALAM ZONASI')";
+        $dalam_zona = "or (data_mart.drop_point_outgoing = 'PAMOYANAN_BOGOR' and data_mart.zona = 'DALAM ZONASI')";
 
         $query .= "
 
             CREATE OR REPLACE VIEW dpf_all_count_sum AS
                 SELECT DISTINCT (data_mart.drop_point_outgoing), COUNT(data_mart.no_waybill), SUM(data_mart.biaya_kirim)
                 FROM ".$schema.".data_mart
-                WHERE (data_mart.kat = 'DPF' $dalam_zona)
+                WHERE (data_mart.zona = 'DPF' $dalam_zona)
                 GROUP BY data_mart.drop_point_outgoing;
 
         ";
@@ -170,8 +170,8 @@ class GenerateDPFService {
             //get KAT
             $kat = "";
             //get metode pembayaran
-            $kat = str_replace(";","' OR data_mart.kat = '",$cat->kat);
-            $kat = "data_mart.kat = '".$kat."'";
+            $kat = str_replace(";","' OR data_mart.zona = '",$cat->kat);
+            $kat = "data_mart.zona = '".$kat."'";
             $metode_pembayaran = "";
             $metode_pembayaran = str_replace(";","' OR data_mart.metode_pembayaran = '",$cat->metode_pembayaran);
             $metode_pembayaran = str_replace("(blank)","",$metode_pembayaran);
@@ -192,7 +192,7 @@ class GenerateDPFService {
                         sum(data_mart.$sum_column) AS sum
                         FROM ".$schema.".data_mart
                     WHERE
-                        ( data_mart.kat = 'DPF' $dalam_zona)
+                        ( data_mart.zona = 'DPF' $dalam_zona)
                     AND
                     ($metode_pembayaran)
                     AND
@@ -504,7 +504,7 @@ class GenerateDPFService {
                             ELSE 0
                         END) AS klien_pengiriman_vip
                   FROM $schema.data_mart dm
-                  WHERE dm.kat = 'DPF'::text
+                  WHERE dm.zona = 'DPF'::text
                   GROUP BY dm.drop_point_outgoing) as sq
             join master_collection_point mcp on sq.drop_point_outgoing = mcp.nama_cp
             WHERE mcp.grading_pickup = 'DPF'
@@ -619,7 +619,7 @@ class GenerateDPFService {
 
         $sumber_waybill_sum = implode(",", $sumber_waybill_sum->toArray());
 
-        $dalam_zona = "or (dm.drop_point_outgoing = 'PAMOYANAN_BOGOR' and dm.kat = 'DALAM ZONASI')";
+        $dalam_zona = "or (dm.drop_point_outgoing = 'PAMOYANAN_BOGOR' and dm.zona = 'DALAM ZONASI')";
 
         $query .= "
             CREATE OR REPLACE VIEW dpf_mp_sum_biaya_kirim AS
@@ -633,7 +633,7 @@ class GenerateDPFService {
                     $sumber_waybill_sum
                 FROM
                 ".$schema.".data_mart dm
-                WHERE (dm.kat = 'DPF' $dalam_zona)
+                WHERE (dm.zona = 'DPF' $dalam_zona)
                 GROUP BY
                     dm.drop_point_outgoing
             ) AS sq
@@ -669,7 +669,7 @@ class GenerateDPFService {
 
         $sumber_waybill_sum = implode(",", $sumber_waybill_sum->toArray());
 
-        $dalam_zona = "or (dm.drop_point_outgoing = 'PAMOYANAN_BOGOR' and dm.kat = 'DALAM ZONASI')";
+        $dalam_zona = "or (dm.drop_point_outgoing = 'PAMOYANAN_BOGOR' and dm.zona = 'DALAM ZONASI')";
 
         $query .= "
             CREATE OR REPLACE VIEW dpf_mp_retur_sum_biaya_kirim AS
@@ -683,7 +683,7 @@ class GenerateDPFService {
                     $sumber_waybill_sum
                 FROM
                 ".$schema.".data_mart dm
-                WHERE (dm.kat = 'DPF' $dalam_zona)
+                WHERE (dm.zona = 'DPF' $dalam_zona)
                 AND (dm.paket_retur = '1' OR dm.paket_retur = 'Returned' OR (dm.paket_retur ~ '^\\d+$' AND CAST(dm.paket_retur AS INTEGER) = 1))
                 GROUP BY
                     dm.drop_point_outgoing
@@ -717,7 +717,7 @@ class GenerateDPFService {
 
         $sumber_waybill_count = implode(",", $sumber_waybill_count->toArray());
 
-        $dalam_zona = "or (dm.drop_point_outgoing = 'PAMOYANAN_BOGOR' and dm.kat = 'DALAM ZONASI')";
+        $dalam_zona = "or (dm.drop_point_outgoing = 'PAMOYANAN_BOGOR' and dm.zona = 'DALAM ZONASI')";
 
         $query = "
             CREATE OR REPLACE VIEW dpf_mp_count_waybill AS
@@ -726,7 +726,7 @@ class GenerateDPFService {
                     SUM(CASE WHEN dm.sumber_waybill IN ('$sumber_waybill_sum') THEN 1 ELSE 0 END) AS grand_total
                 FROM
                     ".$schema.".data_mart dm
-                WHERE (dm.kat = 'DPF' $dalam_zona)
+                WHERE (dm.zona = 'DPF' $dalam_zona)
                 GROUP BY
                     dm.drop_point_outgoing
         ";
@@ -758,7 +758,7 @@ class GenerateDPFService {
 
         $sumber_waybill_count = implode(",", $sumber_waybill_count->toArray());
 
-        $dalam_zona = "or (dm.drop_point_outgoing = 'PAMOYANAN_BOGOR' and dm.kat = 'DALAM ZONASI')";
+        $dalam_zona = "or (dm.drop_point_outgoing = 'PAMOYANAN_BOGOR' and dm.zona = 'DALAM ZONASI')";
 
         $query = "
             CREATE OR REPLACE VIEW dpf_mp_retur_count_waybill AS
@@ -767,7 +767,7 @@ class GenerateDPFService {
                     SUM(CASE WHEN dm.sumber_waybill IN ('$sumber_waybill_sum') THEN 1 ELSE 0 END) AS grand_total
                 FROM
                     ".$schema.".data_mart dm
-                WHERE (dm.kat = 'DPF' $dalam_zona)
+                WHERE (dm.zona = 'DPF' $dalam_zona)
                     AND (dm.paket_retur = '1' OR dm.paket_retur = 'Returned' OR (dm.paket_retur ~ '^\\d+$' AND CAST(dm.paket_retur AS INTEGER) = 1))
                 GROUP BY
                     dm.drop_point_outgoing

@@ -15,6 +15,7 @@ use App\Jobs\ProcessCSVDataDelivery;
 use App\Jobs\ProcessCSVDataDeliveryOptimized;
 use App\Jobs\ProcessCSVDataOptimized;
 use App\Models\Cashback;
+use App\Models\FileJobs;
 use App\Models\Periode;
 use App\Models\PeriodeDelivery;
 use Illuminate\Bus\Batch;
@@ -30,7 +31,9 @@ use Throwable;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Broadcast;
 use App\Models\PeriodeKlienPengiriman;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Validation\Rules\File;
+use PhpOffice\PhpSpreadsheet\Reader;
 
 class UploadController extends Controller
 {
@@ -244,91 +247,6 @@ class UploadController extends Controller
         }
     }
 
-    public function uploadFileDEV(Request $request)
-    {
-        try {
-            $schema_name = 'cashback_' . strtolower($request->month_period) . '_' . $request->year_period;
-            $file_path = $request->file('file')->path();
-            $file_size = filesize($file_path); // Use filesize() to get the file size
-            $handle = fopen($file_path, 'r');
-            // Assuming your CSV file contains a header, read and skip it
-            $header = fgetcsv($handle);
-            $batchSize = 500; // Set the batch size to your desired value
-            $batch = []; // Initialize an empty batch array
-
-
-
-            $uploaded_file = Uploadfile::create([
-                'file_name' => $request->file('file')->getClientOriginalName(),
-                'month_period' => $request->month_period,
-                'year_period' => $request->year_period,
-                'file_size' => $file_size,
-                'table_name' => $schema_name . '.' . 'data_mart',
-                'processed_by' => auth()->user()->id,
-                'type_file' => 0, //0 cashback; 1 ttd;
-                'processing_status' => 'ON QUEUE',
-            ]);
-
-            $existing_periode = Periode::firstOrCreate(
-                ['code' => $schema_name],
-                [
-                    'month' => $request->month_period,
-                    'year' => $request->year_period,
-                    'status' => 'ON QUEUE',
-                ]
-            );
-
-            $period_id = $existing_periode->id;
-
-            // Create the schema if it doesn't exist
-            if (!Schema::hasTable($schema_name . '.' . 'data_mart')) {
-                // $schema = CreateSchema::createSchemaCashback(strtolower($request->month_period), $request->year_period);
-
-                $code = $schema_name;
-
-                $periode = Periode::where('code', $code)->first();
-
-                GeneratePivot::createOrReplacePivot($code, $period_id);
-
-                GeneratePivot::runMPGenerator($code);
-
-                GeneratePivotRekap::runRekapGenerator($code);
-
-                GenerateRekapLuarZona::runZonasiGenerator($code);
-
-                GenerateSummary::runSummaryGenerator($code, $existing_periode);
-            }
-
-            while (($csv = fgetcsv($handle)) !== false) {
-                // Convert the line to UTF-8 Encoding
-                array_walk($csv, function (&$cell) {
-                    $cell = mb_convert_encoding($cell, 'UTF-8', 'UTF-8');
-                    $cell = mb_check_encoding($cell, 'UTF-8') ? $cell : '';
-                });
-
-                $batch[] = $csv[0];
-
-                // Process the batch when it reaches the desired size
-                if (count($batch) === $batchSize) {
-                    $this->processBatch($batch, $schema_name, $uploaded_file, $existing_periode);
-                    $batch = []; // Clear the batch for the next set of rows
-                }
-            }
-
-            // Process any remaining rows that did not form a complete batch
-            if (!empty($batch)) {
-                $this->processBatch($batch, $schema_name, $uploaded_file, $existing_periode);
-            }
-
-            fclose($handle);
-            // $batch->dispatch();
-
-            return redirect()->back();
-        } catch (\Throwable $th) {
-            throw $th;
-        }
-    }
-
     // Helper function to process a batch of rows
     private function processBatch(array $batch, string $schema_name, $uploaded_file, $existing_periode)
     {
@@ -472,30 +390,284 @@ class UploadController extends Controller
                 return redirect()->back();
             }
 
+            $file = $request->file('file');
+
             $schema_name = 'cashback_' . strtolower($request->month_period) . '_' . $request->year_period;
-            $csv    = file($request->file);
+
+            /**
+             * STEP upload
+             * get file -> rename format month_year_timestamp
+             * format accepted xslx, xls, csv
+             * upload to storage
+             * save logs into upload.logs
+             * insert to db file_jobs
+             *
+             * trigger endpoint file-jobs/start (no scheduler and using guzzle)
+             * response 200 is done
+             * response 405 file not found
+             * response 500 file not imported
+             * response 501 file read column not match
+             * response 502 file size overload
+             */
+            if($request->hasFile('file')){
+                // Get filename with the extension
+                $filenameWithExt = $request->file('file')->getClientOriginalName();
+                //Get just filename
+                $filename = pathinfo($filenameWithExt, PATHINFO_FILENAME);
+                // Get just ext
+                $extension = $request->file('file')->getClientOriginalExtension();
+                // Filename to store
+                $fileNameToStore = $filename.'_'.time().'.'.$extension;
+                $file = $request->file('file');
+                $name = $file->hashName();
+                // Upload Image
+                $path = $request->file('file')->storeAs('public/file_upload/'.$schema_name.'',$name);
+                //path to read file ./jnt-cashback/public/storage/file_upload/cashback_jan_2022/bH8txro3h1X4RcOpS1OjCLFHW98U7r5GBrQZw7J6.xlsx
+                // ../jnt-cashback/storage/app/public/file_upload/cashback_jan_2022/bH8txro3h1X4RcOpS1OjCLFHW98U7r5GBrQZw7J6.xlsx
+                $fileJobCreated = FileJobs::create([
+                    'path' => $path,
+                    'schema_name' => $schema_name,
+                    'file_name' => $name,
+                    'file_hash' => "../jnt-cashback/storage/app/".$path,
+                    'extension' => $file->getClientMimeType(),
+                    'disk' => 'local',
+                    'collection' => 'cashback',
+                    'type_file' => 0,
+                    'is_uploaded' => 1,
+                    'is_imported' => 0,
+                    'is_schema_created' => 0,
+                    'size' => $file->getSize(),
+                ]);
+
+                // dd($fileJobCreated);
+                /**
+                 * checkpoint uploadded not read no execution just upload
+                 */
+
+                if($fileJobCreated) {
+                    //as logger
+                    $uploaded_file = Uploadfile::create([
+                        'file_name' => $file->getClientOriginalName(),
+                        'month_period' => $request->month_period,
+                        'year_period' => $request->year_period,
+                        'count_row' => 0,
+                        'file_size' => $file->getSize(),
+                        'table_name' => $schema_name . '.' . 'data_mart',
+                        'is_pivot_processing_done' => 1,
+                        'processed_by' => auth()->user()->id,
+                        'type_file' => 0, //0 cashback; 1 ttd;
+                        'processing_status' => 'UPLOADED',
+                    ]);
+
+                    if(!Schema::hasTable($schema_name . '.' . 'data_mart')) {
+                        $schema = CreateSchema::createSchemaCashback(strtolower($request->month_period), $request->year_period);
+
+                        $fileJobCreated->update([
+                            'is_schema_created' => 1,
+                        ]);
+                    }
+
+                    $queue_name = 'QUEUE CASHBACK : ' . $file->getClientOriginalName() . ';SCHEMA : ' . $schema_name . ';TIME UPLOAD : ' . $uploaded_file->created_at;
+                    $count_db_dm = DB::table($schema_name . '.data_mart')->selectRaw('COUNT(no_waybill)')->first();
+                    $existing_periode = Periode::where('code', $schema_name)->first();
+
+                    if(!$existing_periode) {
+
+                        $existing_periode = Periode::create([
+                            'code' => $schema_name,
+                            'month' => $request->month_period,
+                            'year' => $request->year_period,
+                            'count_row' => 0,
+                            'status' => 'ON QUEUE',
+                        ]);
+
+                        $period_id = $existing_periode->id;
+                    } else {
+                        $existing_periode->update([
+                            'count_row' => $count_db_dm->count + 0
+                        ]);
+                        $period_id = $existing_periode->id;
+                    }
+
+                    //import klien pengiriman
+
+                    $get_global_klien_pengiriman = DB::table('category_klien_pengiriman')->get();
+
+                    $periode_klien_pengiriman = $get_global_klien_pengiriman->map(function ($data) use ($period_id) {
+                        return [
+                            'periode_id' => intval($period_id),
+                            'category_id' => $data->category_id,
+                            'klien_pengiriman_id' => $data->klien_pengiriman_id
+                        ];
+                    });
+
+                    //check this current periode before insert (try to not make duplicate) //not support update
+                    $get_periode_klien_pengiriman = PeriodeKlienPengiriman::where('periode_id', $period_id)->count();
+
+
+                    if($get_periode_klien_pengiriman <= 0) {
+                        PeriodeKlienPengiriman::insert($periode_klien_pengiriman->toArray());
+                    }
+
+                    if(Schema::hasTable($schema_name . '.' . 'data_mart')) {
+                        // $schema = CreateSchema::createSchemaCashback(strtolower($request->month_period), $request->year_period);
+
+                        $code = $schema_name;
+
+                        GeneratePivot::createOrReplacePivot($code, $period_id);
+
+                        GeneratePivot::runMPGenerator($code);
+
+                        GeneratePivotRekap::runRekapGenerator($code);
+
+                        GenerateRekapLuarZona::runZonasiGenerator($code);
+
+                        GenerateSummary::runSummaryGenerator($code, $existing_periode);
+
+                        //process grading
+                        // GradingProcess::generateGrading($period_id, $grade);
+
+                        //process dpf
+                        GenerateDPF::runRekapGenerator($code, $period_id);
+
+                        GradingProcess::generateGrading($period_id, 'dpf');
+
+                        //generate denda default 0
+
+
+                    }
+
+                    if($uploaded_file) {
+                        //call Guzzle endpoint
+                        $serviceUrl = config('services.go.upload_service');
+                        $response = Http::timeout(180)->connectTimeout(60)->get($serviceUrl.'/file-job/', [
+                            'month' => strtolower($request->month_period),
+                            'year' => $request->year_period,
+                        ]);
+
+                        /**
+                         * Benchmark here
+                         *
+                         * 100
+                         * 10k data 1,7s
+                         * 100k data 17s
+                         * 650k data 1m34s
+                         * 1000k data +- 170s 3min
+                         */
+
+                        $response_result = json_decode($response->body());
+                        //dd($response_result);
+
+                        //response log
+
+                        /**
+                         * success execution
+                         */
+
+                        if($response_result->result->StatusCode == 200){
+                            toastr()->success('Data Raw has been uploaded successfully! please wait the data to be processed!', 'Congrats');
+                            return redirect()->back();
+                        }
+                    }
+                }
+            //save success
+            }
+
+        } catch (\Throwable $th) {
+            throw $th;
+            toastr()->error('file not uploaded', 'Opps!');
+            return redirect()->back();
+        }
+    }
+
+    public function uploadFileBAK(Request $request)
+    {
+        try {
+            //validator
+            $validated = $request->validate([
+                'file' => 'required|file|max:102400', //max 100MB
+                'month_period' => 'required',
+                'year_period' => 'required',
+            ]);
+
+            if(!$validated){
+                toastr()->error('The file may too big or not CSV format', 'Opps!');
+
+                return redirect()->back();
+            }
+
+            $file = $request->file('file');
+            // $csv    = file($request->file);
+            //dd($file);
+
+            // $spreadsheet = $reader->load($file);
+            $reader = \PhpOffice\PhpSpreadsheet\IOFactory::createReaderForFile($file);
+            $reader->setReadDataOnly(true);
+            $reader->load($file);
+
+            /**
+             * Load Test pass
+             * 10K -> loaded
+             * 100K -> failed
+             */
+            //$workSheet = $spreadsheet->getActiveSheet();
+            dd($reader);
+
+            //using maatwebsite caused to much ram
+
+            // if($file->extension() != 'csv'){
+            //     //xlsx / xls
+            //     $import = Excel::toArray(new CashbackImport, $request->file);
+            //     unset($import[0][0]);
+            //     $import = $import[0];
+            // } else {
+            //     //is csv
+            //     $import    = file($request->file);
+            //     // $import = Excel::toArray(new CashbackImport)->import($request->file, null, \Maatwebsite\Excel\Excel::CSV);
+            // }
+
+            if(count($import[1]) !== 21 ){
+                toastr()->error('The file may not match with template, check your file upload', 'Opps!');
+
+                return redirect()->back();
+            }
+
+            /**
+             * Counter Log checkpoint
+             * 10K row -> save
+             * 100K row -> too long wait 502 Gateway (toomuch ram maybe)
+             */
+            // dd($import)
+
+            $schema_name = 'cashback_' . strtolower($request->month_period) . '_' . $request->year_period;
+            // $csv    = file($request->file);
+
 
             //i need to convert this file to UTF-8 Encoding
-            foreach ($csv as $cellIndex => $cell) {
+            foreach ($import as $cellIndex => $cell) {
                 $cell = mb_convert_encoding($cell, 'UTF-8', 'UTF-8');
                 $cell = mb_check_encoding($cell, 'UTF-8') ? $cell : '';
 
-                $csv[$cellIndex] = $cell;
+                $import[$cellIndex] = $cell;
                 //remove empty rows
                 if($cell == ";;;;;;;;;;;;;;;;;;;;;;;;;;\r\n") {
-                    unset($csv[$cellIndex]);
+                    unset($import[$cellIndex]);
                 }
 
                 if($cell == ";;;;;;;;;;;;;;;;;;;;;;;;;;") {
-                    unset($csv[$cellIndex]);
+                    unset($import[$cellIndex]);
                 }
             }
 
-            $chunks = array_chunk($csv, 500);
-            $count_csv = (count($csv) - 1);
+            $chunks = array_chunk($import, 500);
+            $count_csv = (count($import) - 1);
             $timeout = 1200;
 
-            $file = $request->file('file');
+            /**
+             * checkpoint it here
+             * 10k -> chunked 500 -> passed
+             */
+            dd($chunks[0]);
 
             //as logger
             $uploaded_file = Uploadfile::create([
