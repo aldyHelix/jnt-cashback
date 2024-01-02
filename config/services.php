@@ -31,4 +31,8 @@ return [
         'region' => env('AWS_DEFAULT_REGION', 'us-east-1'),
     ],
 
+    'go' => [
+        'upload_service' => env('GO_UPLOAD_SERVICE', 'http://localhost:8080'),
+    ],
+
 ];

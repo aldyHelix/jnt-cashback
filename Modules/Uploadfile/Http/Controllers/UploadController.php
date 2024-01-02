@@ -539,7 +539,7 @@ class UploadController extends Controller
 
                     if($uploaded_file) {
                         //call Guzzle endpoint
-                        $serviceUrl = 'http://localhost:8080';
+                        $serviceUrl = config('services.go.upload_service');
                         $response = Http::timeout(180)->connectTimeout(60)->get($serviceUrl.'/file-job/', [
                             'month' => strtolower($request->month_period),
                             'year' => $request->year_period,
