@@ -556,7 +556,7 @@ class UploadController extends Controller
                          */
 
                         $response_result = json_decode($response->body());
-                        //dd($response_result);
+                        dd($response_result);
 
                         //response log
 
