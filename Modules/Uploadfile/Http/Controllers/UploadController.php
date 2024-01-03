@@ -540,7 +540,7 @@ class UploadController extends Controller
                     if($uploaded_file) {
                         //call Guzzle endpoint
                         $serviceUrl = config('services.go.upload_service');
-                        $response = Http::timeout(180)->connectTimeout(60)->get($serviceUrl.'/file-job/', [
+                        $response = Http::timeout(600)->connectTimeout(60)->get($serviceUrl.'/file-job/', [
                             'month' => strtolower($request->month_period),
                             'year' => $request->year_period,
                         ]);
@@ -556,7 +556,6 @@ class UploadController extends Controller
                          */
 
                         $response_result = json_decode($response->body());
-                        dd($response_result);
 
                         //response log
 
@@ -565,7 +564,32 @@ class UploadController extends Controller
                          */
 
                         if($response_result->result->StatusCode == 200){
+                            $res = $response_result->result;
+
+                            //success rate
+                            //100% - duplicated % - failture %
+                            //if error != null status contain error log
+
+                            //log upload here
+
+                            //update uploaded file
+                            $uploaded_file->update([
+                                'count_row' => $res->DataLog->RowTotal,
+                                'processing_status' => $res->FileStatus,
+                            ]);
+
+                            //update existing periode
+                            $existing_periode->update([
+                                'count_row' => $existing_periode->count_row + $res->DataLog->RowTotal,
+                                'status' => 'ON QUEUE',
+                            ]);
+
                             toastr()->success('Data Raw has been uploaded successfully! please wait the data to be processed!', 'Congrats');
+                            return redirect()->back();
+                        } else {
+                            //update uploadded file
+
+                            toastr()->error('something wrong!', 'Error');
                             return redirect()->back();
                         }
                     }
