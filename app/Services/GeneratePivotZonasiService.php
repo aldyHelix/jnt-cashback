@@ -16,9 +16,9 @@ class GeneratePivotZonasiService {
 
     public function createPivotSumLuarZona($schema){
         $luar_zona_list = [
-            'AKULAKUOB',
-            'ARVEOLI',
-            'BLIBLIAPI',
+            //'AKULAKUOB',
+            //'ARVEOLI',
+            //'BLIBLIAPI',
             'BUKAEXPRESS',
             'BUKALAPAK',
             'BUKASEND',
@@ -26,15 +26,15 @@ class GeneratePivotZonasiService {
             'LAZADA COD',
             'MAGELLAN',
             'MAGELLAN COD',
-            'ORDIVO',
-            'REGULER',
+            //'ORDIVO',
+            //'REGULER',
             'SHOPEE',
             'SHOPEE COD',
             'TOKOPEDIA',
-            'TRIES',
-            'CLODEOHQ',
+            //'TRIES',
+            //'CLODEOHQ',
             'KLIEN PENGIRIM VIP',
-            'MARKETPLACE REGULER'
+            //'MARKETPLACE REGULER'
         ];
 
         $subquery = [];
@@ -60,19 +60,20 @@ class GeneratePivotZonasiService {
                 FROM ( SELECT dm.drop_point_outgoing,
                         $subquery
                     FROM $schema.data_mart dm
-                    WHERE dm.zona = 'LUAR ZONASI'::text
+                    WHERE dm.zona = 'LUAR ZONA'::text
                     GROUP BY dm.drop_point_outgoing) sq;
-        ";
+                    ";
 
-        $this->checkAndRunSchema($schema, $query);
+                    $this->checkAndRunSchema($schema, $query);
+                    // WHERE dm.zona NOT IN ('DP'::text, 'CP'::text)
     }
 
     public function createPivotCountMPLuarZona($schema){
 
         $luar_zona_list = [
-            'AKULAKUOB',
-            'ARVEOLI',
-            'BLIBLIAPI',
+             //'AKULAKUOB',
+            //'ARVEOLI',
+            //'BLIBLIAPI',
             'BUKAEXPRESS',
             'BUKALAPAK',
             'BUKASEND',
@@ -80,15 +81,15 @@ class GeneratePivotZonasiService {
             'LAZADA COD',
             'MAGELLAN',
             'MAGELLAN COD',
-            'ORDIVO',
-            'REGULER',
+            //'ORDIVO',
+            //'REGULER',
             'SHOPEE',
             'SHOPEE COD',
             'TOKOPEDIA',
-            'TRIES',
-            'CLODEOHQ',
+            //'TRIES',
+            //'CLODEOHQ',
             'KLIEN PENGIRIM VIP',
-            'MARKETPLACE REGULER'
+            //'MARKETPLACE REGULER'
         ];
 
         $subquery = [];
@@ -115,7 +116,7 @@ class GeneratePivotZonasiService {
                             ELSE 0
                         END) AS total_waybill_luar_zona
                 FROM $schema.data_mart dm
-                WHERE dm.zona = 'LUAR ZONASI'
+                WHERE dm.zona = 'LUAR ZONA'::text
                 GROUP BY dm.drop_point_outgoing;
         ";
 
@@ -126,9 +127,9 @@ class GeneratePivotZonasiService {
     public function createPivotCountReturMPLuarZona($schema){
 
         $luar_zona_list = [
-            'AKULAKUOB',
-            'ARVEOLI',
-            'BLIBLIAPI',
+             //'AKULAKUOB',
+            //'ARVEOLI',
+            //'BLIBLIAPI',
             'BUKAEXPRESS',
             'BUKALAPAK',
             'BUKASEND',
@@ -136,15 +137,15 @@ class GeneratePivotZonasiService {
             'LAZADA COD',
             'MAGELLAN',
             'MAGELLAN COD',
-            'ORDIVO',
-            'REGULER',
+            //'ORDIVO',
+            //'REGULER',
             'SHOPEE',
             'SHOPEE COD',
             'TOKOPEDIA',
-            'TRIES',
-            'CLODEOHQ',
+            //'TRIES',
+            //'CLODEOHQ',
             'KLIEN PENGIRIM VIP',
-            'MARKETPLACE REGULER'
+            //'MARKETPLACE REGULER'
         ];
 
         $subquery = [];
@@ -171,7 +172,7 @@ class GeneratePivotZonasiService {
                             ELSE 0
                         END) AS total_waybill_luar_zona
                 FROM $schema.data_mart dm
-                WHERE (dm.zona = 'LUAR ZONASI')
+                WHERE dm.zona = 'LUAR ZONA'::text
                     AND (dm.paket_retur = '1' OR dm.paket_retur = 'Returned' OR (dm.paket_retur ~ '^\\d+$' AND CAST(dm.paket_retur AS INTEGER) = 1))
                 GROUP BY dm.drop_point_outgoing;
         ";
@@ -188,14 +189,14 @@ class GeneratePivotZonasiService {
         $awb_retur_shopee = "(lzrcw.shopee + lzrcw.shopee_cod)";
         $awb_retur_magellan = "(lzrcw.magellan + lzrcw.magellan_cod)";
         $awb_retur_lazada = "(lzrcw.lazada + lzrcw.lazada_cod)";
-        $awb_retur_lain_lain = "(lzrcw.akulakuob + lzrcw.tokopedia + lzrcw.ordivo + lzrcw.klien_pengirim_vip)";
+        $awb_retur_lain_lain = "(lzrcw.tokopedia + lzrcw.klien_pengirim_vip)";
         $total_awb = "(
                         (
                             $awb_all_bukalapak +
                             $awb_all_shopee +
                             $awb_all_lazada +
                             $awb_all_magellan +
-                            (lzcw.tokopedia) + (lzcw.akulakuob) + (lzcw.ordivo) + lzcw.klien_pengirim_vip ) -
+                            (lzcw.tokopedia) + lzcw.klien_pengirim_vip ) -
                         (
                             $awb_retur_shopee +
                             $awb_retur_magellan +
@@ -217,8 +218,6 @@ class GeneratePivotZonasiService {
                 $awb_all_lazada as awb_all_lazada,
                 $awb_all_magellan as awb_all_magellan,
                 (lzcw.tokopedia) as awb_tokopedia,
-                (lzcw.akulakuob) as awb_akulakuob,
-                (lzcw.ordivo) as awb_ordivo,
                 (lzcw.klien_pengirim_vip) as awb_klien_pengirim_vip,
                 $awb_retur_shopee as awb_retur_all_shopee,
                 $awb_retur_magellan as awb_retur_all_magellan,
@@ -226,7 +225,7 @@ class GeneratePivotZonasiService {
                 $total_awb as total_awb,
                 ( $total_awb * $awb_per_waybill ) as diskon_awb,
                 ROUND(( $total_awb * $awb_per_waybill ) * ($ppn_percent)) as cashback_ppn,
-                ROUND(( $total_awb * $awb_per_waybill ) / ($ppn)) as total_cashback_luar_zonasi
+                ROUND(( $total_awb * $awb_per_waybill ) / ($ppn_percent)) as total_cashback_luar_zonasi
                 FROM $schema.luar_zona_count_waybill lzcw
                 left join master_collection_point mcp on lzcw.drop_point_outgoing = mcp.drop_point_outgoing
                 left join $schema.luar_zona_retur_count_waybill lzrcw on lzrcw.drop_point_outgoing = lzcw.drop_point_outgoing

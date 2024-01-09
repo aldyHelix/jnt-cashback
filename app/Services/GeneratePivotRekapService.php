@@ -13,7 +13,7 @@ class GeneratePivotRekapService {
 
     public function runRekapGenerator($schema){
 
-        $this->generateKlienPengirimanVIP($schema);
+        //$this->generateKlienPengirimanVIP($schema);
 
         $this->cashbackRegulerA($schema);
         $this->cashbackRegulerB($schema);
@@ -41,35 +41,48 @@ class GeneratePivotRekapService {
         $joins = [];
         $select_column = [];
         $select_sum = [];
+        $select_column_vip = '';
 
         foreach($category as $cat) {
             $joins[] = "LEFT JOIN $schema.cp_dp_".$cat->kode_kategori."_count_sum ON cp.drop_point_outgoing::text = cp_dp_".$cat->kode_kategori."_count_sum.drop_point_outgoing::text";
 
-            $select_column[] = "COALESCE(cp_dp_".$cat->kode_kategori."_count_sum.sum, 0::bigint) AS biaya_kirim_".$cat->kode_kategori;
-            $select_sum[] = "COALESCE(cp_dp_".$cat->kode_kategori."_count_sum.sum, 0::bigint)";
+            if($cat->kode_kategori == 'vip') {
+                $select_column_vip = "COALESCE(cp_dp_".$cat->kode_kategori."_count_sum.sum_setelah_diskon, 0) AS biaya_kirim_".$cat->kode_kategori;
+                $select_sum_vip = "COALESCE(cp_dp_".$cat->kode_kategori."_count_sum.sum_setelah_diskon, 0)";
+            } else {
+                $select_column[] = "COALESCE(cp_dp_".$cat->kode_kategori."_count_sum.sum_setelah_diskon, 0) AS biaya_kirim_".$cat->kode_kategori;
+                $select_sum[] = "COALESCE(cp_dp_".$cat->kode_kategori."_count_sum.sum_setelah_diskon, 0)";
+            }
         }
 
         $joins = implode("\n", $joins);
         $select_column = implode(",\n", $select_column);
         $select_sum = implode("+\n", $select_sum);
+        $select_sum = $select_sum." - COALESCE(cds.tokopedia_reguler, 0)";
 
         $total_biaya_dengan_ppn = "round(($select_sum) / $ppn::float)::bigint";
         $total_biaya_ppn_diskon = "round($total_biaya_dengan_ppn * 0.25)::bigint";
+        $total_biaya_vip_dengan_ppn = "round(($select_sum_vip) / $ppn::float)::bigint";
+        $total_biaya_vip_ppn_diskon = "round($total_biaya_vip_dengan_ppn * 0.10)::bigint";
 
         $query .= "
         CREATE OR REPLACE VIEW cp_dp_cashback_reguler_a AS
             SELECT
                 cp.kode_cp,
                 cp.nama_cp,
-                COALESCE(acs.sum, 0::bigint) AS biaya_kirim_all,
+                COALESCE(cds.tokopedia_reguler, 0) AS marketplace_reguler,
                 $select_column,
                 ($select_sum) AS total_biaya_kirim,
                 $total_biaya_dengan_ppn AS total_biaya_kirim_dikurangi_ppn,
                 $total_biaya_ppn_diskon AS amount_discount_25,
-                ($total_biaya_ppn_diskon) AS total_cashback_reguler
+                $select_column_vip,
+                $total_biaya_vip_dengan_ppn as total_biaya_vip_setelah_ppn,
+                $total_biaya_vip_ppn_diskon as total_biaya_vip_ppn_diskon,
+                $total_biaya_ppn_diskon + $total_biaya_vip_ppn_diskon AS total_cashback_reguler
             FROM master_collection_point cp
                 LEFT JOIN $schema.cp_dp_all_count_sum acs ON cp.drop_point_outgoing::text = acs.drop_point_outgoing::text
                 $joins
+                LEFT JOIN $schema.cp_dp_setting cds ON cp.drop_point_outgoing::text = cds.nama_cp::text
             WHERE cp.grading_pickup::text = 'A'::text;
         ";
 
@@ -80,7 +93,7 @@ class GeneratePivotRekapService {
         // $ppn = 1 + (intval(Globalsetting::where('code', 'ppn')->first()->value) / 100);
         $ppn = 1.011;
         $cashback_reguler_diskon = CashbackSetting::where('jenis_paket', 'REGULER')->first()->diskon;
-        $category = CategoryKlienPengiriman::where('cashback_type', 'reguler')->orderBy('id', 'ASC')->get();
+        $category = CategoryKlienPengiriman::where('cashback_type', 'reguler')->where('kode_kategori', '<>', 'vip')->orderBy('id', 'ASC')->get();
         $query = "";
 
         $joins = [];
@@ -90,15 +103,15 @@ class GeneratePivotRekapService {
         foreach($category as $cat) {
             $joins[] = "LEFT JOIN $schema.cp_dp_".$cat->kode_kategori."_count_sum ON cp.drop_point_outgoing::text = cp_dp_".$cat->kode_kategori."_count_sum.drop_point_outgoing::text";
 
-            $select_column[] = "COALESCE(cp_dp_".$cat->kode_kategori."_count_sum.sum, 0::bigint) AS biaya_kirim_".$cat->kode_kategori;
-            $select_sum[] = "COALESCE(cp_dp_".$cat->kode_kategori."_count_sum.sum, 0::bigint)";
+            $select_column[] = "COALESCE(cp_dp_".$cat->kode_kategori."_count_sum.sum_setelah_diskon, 0::bigint) AS biaya_kirim_".$cat->kode_kategori;
+            $select_sum[] = "COALESCE(cp_dp_".$cat->kode_kategori."_count_sum.sum_setelah_diskon, 0::bigint)";
         }
 
         $joins = implode("\n", $joins);
         $select_column = implode(",\n", $select_column);
         $select_sum = implode("+\n", $select_sum);
 
-        $total_biaya_dengan_ppn = "round(($select_sum) / $ppn::float)::bigint";
+        $total_biaya_dengan_ppn = "round(($select_sum - COALESCE(cds.tokopedia_reguler, 0)) / $ppn::float)::bigint";
         $total_biaya_ppn_diskon = "round($total_biaya_dengan_ppn * 0.25)::bigint";
 
         $query .= "
@@ -106,15 +119,16 @@ class GeneratePivotRekapService {
             SELECT
                 cp.kode_cp,
                 cp.nama_cp,
-                COALESCE(acs.sum, 0::bigint) AS biaya_kirim_all,
                 $select_column,
-                ($select_sum) AS total_biaya_kirim,
+                COALESCE(cds.tokopedia_reguler, 0) AS marketplace_reguler,
+                ($select_sum - COALESCE(cds.tokopedia_reguler, 0)) AS total_biaya_kirim,
                 $total_biaya_dengan_ppn AS total_biaya_kirim_dikurangi_ppn,
                 $total_biaya_ppn_diskon AS amount_discount_25,
                 ($total_biaya_ppn_diskon) AS total_cashback_reguler
             FROM master_collection_point cp
                 LEFT JOIN $schema.cp_dp_all_count_sum acs ON cp.drop_point_outgoing::text = acs.drop_point_outgoing::text
                 $joins
+                LEFT JOIN $schema.cp_dp_setting cds ON cp.drop_point_outgoing::text = cds.nama_cp::text
             WHERE cp.grading_pickup::text = 'B'::text;
         ";
 
@@ -125,7 +139,7 @@ class GeneratePivotRekapService {
         // $ppn = 1 + (intval(Globalsetting::where('code', 'ppn')->first()->value) / 100);
         $ppn = 1.011;
         $cashback_reguler_diskon = CashbackSetting::where('jenis_paket', 'REGULER')->first()->diskon;
-        $category = CategoryKlienPengiriman::where('cashback_type', 'reguler')->orderBy('id', 'ASC')->get();
+        $category = CategoryKlienPengiriman::where('cashback_type', 'reguler')->where('kode_kategori', '<>', 'vip')->orderBy('id', 'ASC')->get();
         $query = "";
 
         $joins = [];
@@ -135,31 +149,32 @@ class GeneratePivotRekapService {
         foreach($category as $cat) {
             $joins[] = "LEFT JOIN $schema.cp_dp_".$cat->kode_kategori."_count_sum ON cp.drop_point_outgoing::text = cp_dp_".$cat->kode_kategori."_count_sum.drop_point_outgoing::text";
 
-            $select_column[] = "COALESCE(cp_dp_".$cat->kode_kategori."_count_sum.sum, 0::bigint) AS biaya_kirim_".$cat->kode_kategori;
-            $select_sum[] = "COALESCE(cp_dp_".$cat->kode_kategori."_count_sum.sum, 0::bigint)";
+            $select_column[] = "COALESCE(cp_dp_".$cat->kode_kategori."_count_sum.sum_setelah_diskon, 0::bigint) AS biaya_kirim_".$cat->kode_kategori;
+            $select_sum[] = "COALESCE(cp_dp_".$cat->kode_kategori."_count_sum.sum_setelah_diskon, 0::bigint)";
         }
 
         $joins = implode("\n", $joins);
         $select_column = implode(",\n", $select_column);
         $select_sum = implode("+\n", $select_sum);
 
-        $total_biaya_dengan_ppn = "round(($select_sum) / $ppn::float)::bigint";
-        $total_biaya_ppn_diskon = "round($total_biaya_dengan_ppn * 0.25)::bigint";
+        $total_biaya_dengan_ppn = "round(($select_sum - COALESCE(cds.tokopedia_reguler, 0)) / $ppn::float)::bigint";
+        $total_biaya_ppn_diskon = "round($total_biaya_dengan_ppn * 0.20)::bigint";
 
         $query .= "
         CREATE OR REPLACE VIEW cp_dp_cashback_reguler_c AS
             SELECT
                 cp.kode_cp,
                 cp.nama_cp,
-                COALESCE(acs.sum, 0::bigint) AS biaya_kirim_all,
+                COALESCE(cds.tokopedia_reguler, 0) AS marketplace_reguler,
                 $select_column,
-                ($select_sum) AS total_biaya_kirim,
+                ($select_sum - COALESCE(cds.tokopedia_reguler, 0)) AS total_biaya_kirim,
                 $total_biaya_dengan_ppn AS total_biaya_kirim_dikurangi_ppn,
-                $total_biaya_ppn_diskon AS amount_discount_25,
+                $total_biaya_ppn_diskon AS amount_discount_20,
                 ($total_biaya_ppn_diskon) AS total_cashback_reguler
             FROM master_collection_point cp
                 LEFT JOIN $schema.cp_dp_all_count_sum acs ON cp.drop_point_outgoing::text = acs.drop_point_outgoing::text
                 $joins
+                LEFT JOIN $schema.cp_dp_setting cds ON cp.drop_point_outgoing::text = cds.nama_cp::text
             WHERE cp.grading_pickup::text = 'C'::text;
         ";
 
@@ -169,62 +184,92 @@ class GeneratePivotRekapService {
     public function cashbackMarketplaceCod($schema){
         // $ppn = 1 + (intval(Globalsetting::where('code', 'ppn')->first()->value) / 100);
         $ppn = 1.011;
-        $cashback_marketplace_diskon = intval(CashbackSetting::where('jenis_paket', 'MARKETPLACE')->first()->diskon) / 100;
+        $cashback_marketplace_diskon = intval(CashbackSetting::where('jenis_paket', 'MARKETPLACE')->first()->diskon ?? 0) / 100;
+        $diskon_platform_pusat_bukalapak = intval(CashbackSetting::where('jenis_paket', 'BUKALAPAK')->first()->diskon ?? 0) / 100;
+        $diskon_platform_pusat_tokopedia = intval(CashbackSetting::where('jenis_paket', 'TOKOPEDIA')->first()->diskon ?? 0) / 100;
+        $diskon_platform_pusat_lazada = intval(CashbackSetting::where('jenis_paket', 'LAZADA')->first()->diskon ?? 0) / 100;
+        $diskon_platform_pusat_magellan_shopee = intval(CashbackSetting::where('jenis_paket', 'MAGELLAN SHOPEE')->first()->diskon ?? 0) / 100;
+
         $bukalapak = "( COALESCE(sbk.bukalapak, 0) + COALESCE(sbk.bukaexpress, 0) + COALESCE(sbk.bukasend, 0) )";
-        $bukalapak_ppn = "CAST( ROUND( ( $bukalapak ) / $ppn::float ) AS BIGINT )";
-        $bukalapak_ppn_diskon = "CAST( ROUND( $bukalapak_ppn * 0.07 ) AS BIGINT )";
-        $shopee_cod = "( COALESCE(sbk.shopee_cod, 0) - COALESCE(srbk.shopee_cod, 0) )";
-        $magellan_cod = "( COALESCE(sbk.magellan_cod, 0) - COALESCE(srbk.magellan_cod, 0) )";
-        $lazada_cod = "( COALESCE(sbk.lazada_cod, 0) - COALESCE(srbk.lazada_cod, 0) ) ";
-        $total_biaya_kirim_cod = "CAST( ROUND( $shopee_cod + $magellan_cod + $lazada_cod ) AS BIGINT ) ";
-        $total_biaya_kirim_cod_ppn = " CAST( ROUND( $shopee_cod + $magellan_cod + $lazada_cod ) / $ppn::float AS BIGINT )";
-        $total_biaya_kirim_cod_ppn_diskon = " CAST( ROUND( ( ( $shopee_cod + $magellan_cod + $lazada_cod ) / $ppn ) * $cashback_marketplace_diskon::float ) AS BIGINT )";
-        $total_biaya_kirim_tokopedia = "COALESCE(sbk.tokopedia, 0) + COALESCE(sbk.marketplace_reguler, 0)";
-        $tokopedia_ppn = "CAST( ROUND( ($total_biaya_kirim_tokopedia) / $ppn::float ) AS BIGINT )";
-        $tokopedia_ppn_diskon = "CAST( ROUND( (($total_biaya_kirim_tokopedia) / $ppn::float) * 0.07 ) AS BIGINT )";
+        $bukalapak_setelah_diskon = "$bukalapak - CAST( ROUND( $bukalapak * $diskon_platform_pusat_bukalapak) AS BIGINT )";
+        $bukalapak_retur = "( COALESCE(srbk.bukalapak, 0) + COALESCE(srbk.bukaexpress, 0) + COALESCE(srbk.bukasend, 0) )";
+
+        $shopee_all = "(COALESCE(sbk.shopee, 0) + COALESCE(sbk.shopee_cod, 0))";
+        $shopee_retur_all = "(COALESCE(srbk.shopee, 0) + COALESCE(srbk.shopee_cod, 0))";
+        $shopee = "$shopee_all - $shopee_retur_all";
+
+        $magellan_all = "(COALESCE(sbk.magellan, 0) + COALESCE(sbk.magellan_cod, 0))";
+        $magellan_retur_all = "(COALESCE(srbk.magellan, 0) + COALESCE(srbk.magellan_cod, 0))";
+        $magellan = "$magellan_all - $magellan_retur_all";
+
+        $lazada_all = "(COALESCE(sbk.lazada, 0) + COALESCE(sbk.lazada_cod, 0))";
+        $lazada_retur_all = "(COALESCE(srbk.lazada, 0) + COALESCE(srbk.lazada_cod, 0))";
+        $lazada = "$lazada_all - $lazada_retur_all";
+        $lazada_setelah_diskon = "($lazada) - CAST( ROUND( ($lazada) * $diskon_platform_pusat_lazada ) AS BIGINT )";
+
+        $shopee_magellan = "($shopee) + ($magellan)";
+        $shopee_magellan_setelah_diskon = "($shopee_magellan) - CAST( ROUND( ($shopee_magellan) * $diskon_platform_pusat_magellan_shopee) AS BIGINT )";
+
+        $total_biaya_kirim_tokopedia = "COALESCE(sbk.tokopedia, 0) + COALESCE(cds.tokopedia_reguler, 0)"; //COALESCE(sbk.marketplace_reguler, 0)
+        $tokopedia_setelah_diskon = "($total_biaya_kirim_tokopedia) - CAST( ROUND( ($total_biaya_kirim_tokopedia) * $diskon_platform_pusat_tokopedia ) AS BIGINT )";
+
+        $retur_lain = "($bukalapak_retur) + COALESCE(srbk.tokopedia, 0) + COALESCE(srbk.klien_pengirim_vip, 0) + COALESCE(cds.retur_klien_pengirim_hq, 0)";
+        $total_biaya_kirim = "(($bukalapak_setelah_diskon) + ($tokopedia_setelah_diskon) + ($lazada_setelah_diskon) + ($shopee_magellan_setelah_diskon))";
+        $total_biaya_kirim_setelah_diskon = "$total_biaya_kirim - ($retur_lain) - COALESCE(cds.retur_belum_terpotong, 0)";
+        $total_biaya_kirim_setelah_ppn = "CAST( ROUND( ($total_biaya_kirim_setelah_diskon) / $ppn::float) AS BIGINT )";
+        $total_diskon = "CAST( ROUND( $total_biaya_kirim_setelah_ppn * 0.1) AS BIGINT)";
+
         $query = "
             CREATE OR REPLACE VIEW cp_dp_cashback_marketplace_cod AS
             SELECT
                 cp.kode_cp,
                 cp.nama_cp,
                 $bukalapak AS bukalapak,
-                $bukalapak AS total_biaya_kirim_bukalapak,
-                $bukalapak_ppn AS total_biaya_kirim_bukalapak_dikurangi_ppn,
-                $bukalapak_ppn_diskon AS discount_bukalapak_7,
+                $diskon_platform_pusat_bukalapak AS diskon_platform_bukalapak,
+                $bukalapak_setelah_diskon AS total_setelah_diskon_bukalapak,
+
                 COALESCE(sbk.tokopedia, 0) AS tokopedia,
-                COALESCE(sbk.marketplace_reguler, 0) AS tokopedia_reguler,
+                COALESCE(cds.tokopedia_reguler, 0) AS tokopedia_reguler,
                 $total_biaya_kirim_tokopedia AS total_biaya_kirim_tokopedia,
-                $tokopedia_ppn AS total_biaya_kirim_tokopedia_dikurangi_ppn,
-                $tokopedia_ppn_diskon AS discount_tokopedia_7,
-                ($bukalapak + $total_biaya_kirim_tokopedia) AS total_biaya_kirim_bukalapak_tokopedia,
-                COALESCE(sbk.shopee_cod, 0) AS shopee_cod,
-                COALESCE(srbk.shopee_cod, 0) AS retur_shopee_cod,
-                $shopee_cod AS total_biaya_kirim_shopee_cod,
-                COALESCE(sbk.magellan_cod, 0) AS magellan_cod,
-                COALESCE(srbk.magellan_cod, 0) AS retur_magellan_cod,
-                $magellan_cod AS total_biaya_kirim_magellan_cod,
-                COALESCE(sbk.lazada_cod, 0) AS lazada_cod,
-                COALESCE(srbk.lazada_cod, 0) AS retur_lazada_cod,
-                $lazada_cod AS total_biaya_kirim_lazada_cod,
-                $total_biaya_kirim_cod AS total_biaya_kirim_cod,
-                $total_biaya_kirim_cod_ppn AS total_biaya_kirim_cod_dikurangi_ppn,
-                $total_biaya_kirim_cod_ppn_diskon AS diskon_cod_7,
-                CAST(
-                    (
-                        $bukalapak_ppn_diskon +
-                        $total_biaya_kirim_cod_ppn_diskon +
-                        $tokopedia_ppn_diskon
-                    ) AS BIGINT
-                ) AS cashback_marketplace
+                $diskon_platform_pusat_tokopedia AS diskon_platform_tokopedia,
+                $tokopedia_setelah_diskon AS total_setelah_diskon_tokopedia,
+
+                $lazada_all AS lazada_all,
+                $lazada_retur_all AS lazada_retur_all,
+                $lazada AS total_biaya_kirim_lazada_cod,
+                $diskon_platform_pusat_lazada AS diskon_platform_lazada,
+                $lazada_setelah_diskon AS total_setelah_diskon_lazada,
+
+                $magellan_all AS magellan_all,
+                $magellan_retur_all AS magellan_retur_all,
+
+                $shopee_all AS shopee_all,
+                $shopee_retur_all AS shopee_retur_all,
+
+                $shopee_magellan AS total_biaya_kirim_shopee_magellan,
+                $diskon_platform_pusat_magellan_shopee AS diskon_platform_shopee_magellan,
+                $shopee_magellan_setelah_diskon AS total_setelah_diskon_shopee_magellan,
+
+                $retur_lain AS retur_lain,
+                COALESCE(cds.retur_belum_terpotong, 0) AS retur_belum_terpotong,
+                $total_biaya_kirim_setelah_diskon AS total_setelah_diskon_pusat,
+
+                $total_biaya_kirim_setelah_ppn AS total_biaya_kirim_dikurangi_ppn,
+                $total_diskon AS diskon_marketplace,
+                $total_diskon AS cashback_marketplace
             FROM
                 PUBLIC.master_collection_point AS cp
             LEFT JOIN
                 ".$schema.".cp_dp_mp_sum_biaya_kirim AS sbk ON cp.drop_point_outgoing = sbk.drop_point_outgoing
             LEFT JOIN
                 ".$schema.".cp_dp_mp_retur_sum_biaya_kirim AS srbk ON cp.drop_point_outgoing = srbk.drop_point_outgoing
+            LEFT JOIN
+                ".$schema.".cp_dp_setting cds ON cp.drop_point_outgoing::text = cds.nama_cp::text
             WHERE
                 cp.grading_pickup = 'A'
         ";
+
+        //$total_biaya_kirim AS total_biaya_kirim,
 
         $this->checkAndRunSchema($schema, $query);
     }
@@ -244,14 +289,13 @@ class GeneratePivotRekapService {
         $retur_magellan = "( COALESCE(srbk.magellan, 0) + COALESCE(srbk.magellan_cod, 0) )";
 
         $retur_list = [
-            'akulakuob',
-            'evermosapi',
-            'mengantar',
-            'ordivo',
+            'bukalapak',
+            'bukaexpress',
+            'bukasend',
             'tokopedia',
             'lazada',
+            'lazada_cod',
             'klien_pengirim_vip',
-            'clodeohq'
         ];
 
         $retur_select_list = [];
@@ -262,7 +306,7 @@ class GeneratePivotRekapService {
 
         $retur_select_sum = implode("+\n", $retur_select_list);
 
-        $total_awb_cod = "( $bukalapak +  $shopee + $lazada + $magellan + COALESCE(sbk.tokopedia, 0) + COALESCE(sbk.klien_pengirim_vip, 0) ) - ($retur_shopee + $retur_magellan + ($retur_select_sum) )";
+        $total_awb_cod = "( $bukalapak +  $shopee + $lazada + $magellan + COALESCE(sbk.tokopedia, 0) + COALESCE(sbk.klien_pengirim_vip, 0) ) - ($retur_shopee + $retur_magellan + ($retur_select_sum) + COALESCE(cds.retur_belum_terpotong, 0))";
         $query = "
             CREATE OR REPLACE VIEW cp_dp_cashback_marketplace_awb_cod AS
             SELECT
@@ -279,9 +323,9 @@ class GeneratePivotRekapService {
                 ($retur_select_sum) as retur_pilihan,
                 COALESCE(cds.retur_belum_terpotong, 0) AS retur_belum_terpotong,
                 $total_awb_cod as total_awb,
-                CAST(($discount_per_awb * $total_awb_cod ) AS BIGINT) as discount_per_awb,
-                FLOOR(($discount_per_awb * $total_awb_cod ) * ($ppn_percent)) as ppn,
-                ROUND(($discount_per_awb * $total_awb_cod) / $ppn) as total_cashback_marketplace
+                CAST((($total_awb_cod) * $discount_per_awb) AS BIGINT) as discount_per_awb,
+                FLOOR(( ($total_awb_cod) * $discount_per_awb ) * ($ppn_percent)) as ppn,
+                ROUND( CAST((($total_awb_cod) * $discount_per_awb) AS BIGINT) - FLOOR(( ($total_awb_cod) * $discount_per_awb ) * ($ppn_percent)) ) as total_cashback_marketplace
             FROM
                 PUBLIC.master_collection_point AS cp
             LEFT JOIN
@@ -312,14 +356,13 @@ class GeneratePivotRekapService {
         $retur_magellan = "( COALESCE(srbk.magellan, 0) + COALESCE(srbk.magellan_cod, 0) )";
 
         $retur_list = [
-            'akulakuob',
-            'evermosapi',
-            'mengantar',
-            'ordivo',
+            'bukalapak',
+            'bukaexpress',
+            'bukasend',
             'tokopedia',
             'lazada',
+            'lazada_cod',
             'klien_pengirim_vip',
-            'clodeohq'
         ];
 
         $retur_select_list = [];
@@ -330,7 +373,7 @@ class GeneratePivotRekapService {
 
         $retur_select_sum = implode("+\n", $retur_select_list);
 
-        $total_awb_cod = "( $bukalapak +  $shopee + $lazada + $magellan + COALESCE(sbk.tokopedia, 0) + COALESCE(sbk.klien_pengirim_vip, 0) ) - ($retur_shopee + $retur_magellan + ($retur_select_sum) )";
+        $total_awb_cod = "( $bukalapak +  $shopee + $lazada + $magellan + COALESCE(sbk.tokopedia, 0) + COALESCE(sbk.klien_pengirim_vip, 0) ) - ($retur_shopee + $retur_magellan + ($retur_select_sum) + COALESCE(cds.retur_belum_terpotong, 0))";
         $query = "
             CREATE OR REPLACE VIEW cp_dp_cashback_marketplace_awb_g3_cod AS
             SELECT
@@ -347,9 +390,9 @@ class GeneratePivotRekapService {
                 ($retur_select_sum) as retur_pilihan,
                 COALESCE(cds.retur_belum_terpotong, 0) AS retur_belum_terpotong,
                 $total_awb_cod as total_awb,
-                CAST(($discount_per_awb * $total_awb_cod ) AS BIGINT) as discount_per_awb,
-                FLOOR(($discount_per_awb * $total_awb_cod ) * ($ppn_percent)) as ppn,
-                ROUND(($discount_per_awb * $total_awb_cod) / $ppn) as total_cashback_marketplace
+                CAST((($total_awb_cod) * $discount_per_awb) AS BIGINT) as discount_per_awb,
+                FLOOR(( ($total_awb_cod) * $discount_per_awb ) * ($ppn_percent)) as ppn,
+                ROUND( CAST((($total_awb_cod) * $discount_per_awb) AS BIGINT) - FLOOR(( ($total_awb_cod) * $discount_per_awb ) * ($ppn_percent)) ) as total_cashback_marketplace
             FROM
                 PUBLIC.master_collection_point AS cp
             LEFT JOIN
@@ -372,15 +415,15 @@ class GeneratePivotRekapService {
         $cashback_marketplace_diskon = intval(CashbackSetting::where('jenis_paket', 'MARKETPLACE')->first()->diskon) / 100;
 
         $retur_list = [
-            'akulakuob',
+            //'akulakuob',
             'bukaexpress',
             'bukalapak',
             'bukasend',
-            'evermosapi',
-            'mengantar',
-            'ordivo',
+            //'evermosapi',
+            //'mengantar',
+            //'ordivo',
             'tokopedia',
-            'clodeohq'
+            //'clodeohq'
         ];
 
         $retur_select_list = [];
@@ -399,7 +442,7 @@ class GeneratePivotRekapService {
         $lazada_cod = "( COALESCE(sbk.lazada_cod, 0) - COALESCE(srbk.lazada_cod, 0) ) ";
         $total_biaya_kirim_cod = "CAST( ROUND( $shopee_cod + $magellan_cod + $lazada_cod ) AS BIGINT ) ";
         $bukalapak = "( COALESCE(sbk.bukalapak, 0) + COALESCE(sbk.bukaexpress, 0) + COALESCE(sbk.bukasend, 0) )";
-        $tokopedia = "COALESCE(sbk.tokopedia, 0) + COALESCE(sbk.marketplace_reguler, 0)";
+        $tokopedia = "COALESCE(sbk.tokopedia, 0) + 0"; //COALESCE(sbk.marketplace_reguler, 0)
         $total_biaya_kirim_marketplace = "CAST(($bukalapak + $tokopedia) AS BIGINT) + CAST($total_biaya_kirim_cod AS BIGINT) + CAST(( $total_biaya_kirim_non_cod - ($retur_select_sum + COALESCE(cds.retur_belum_terpotong, 0))) AS BIGINT)";
         $total_biaya_kirim_non_cod_ppn = "CAST(($total_biaya_kirim_marketplace) / $ppn::float AS BIGINT)";
         $total_biaya_kirim_non_cod_ppn_diskon = "CAST($total_biaya_kirim_non_cod_ppn * $cashback_marketplace_diskon AS BIGINT)";
@@ -449,10 +492,10 @@ class GeneratePivotRekapService {
         $category = CategoryKlienPengiriman::where('nama_kategori', 'VIP')->first();
 
         $marketplace_list = [
-            'akulakuob',
-            'ordivo',
-            'evermosapi',
-            'mengantar',
+            // 'akulakuob',
+            // 'ordivo',
+            // 'evermosapi',
+            // 'mengantar',
             'klien_pengirim_vip'
         ];
 

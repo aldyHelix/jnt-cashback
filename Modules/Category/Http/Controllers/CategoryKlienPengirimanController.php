@@ -104,7 +104,7 @@ class CategoryKlienPengirimanController extends Controller
 
         foreach($periode as $item) {
             //get all distict klien pengiriman
-            $klien_pengiriman = DB::table($item->code . '.data_mart')->selectRaw("DISTINCT(klien_pengiriman)")->get()->pluck('klien_pengiriman')->toArray();
+            $klien_pengiriman = DB::table($item->code . '.data_mart')->selectRaw("DISTINCT(klien_pengiriman)")->orderBy('klien_pengiriman', 'ASC')->get()->pluck('klien_pengiriman')->toArray();
             $klien_pengiriman_cashback = array_merge($klien_pengiriman_cashback, $klien_pengiriman);
 
             //get all distict metode pembayaran
@@ -112,14 +112,14 @@ class CategoryKlienPengirimanController extends Controller
             $metode_pembayaran = array_merge($metode_pembayaran, $metode_pembayaran_list);
 
             //get all distict resi
-            $kat_list = DB::table($item->code . '.data_mart')->selectRaw("DISTINCT(kat)")->get()->pluck('kat')->toArray();
+            $kat_list = DB::table($item->code . '.data_mart')->selectRaw("DISTINCT(zona)")->get()->pluck('zona')->toArray();
             $kat_resi = array_merge($kat_resi, $kat_list);
         }
 
         $klien_pengiriman_cashback = array_unique($klien_pengiriman_cashback);
         $kat_resi = array_unique($kat_resi);
         $metode_pembayaran = array_unique($metode_pembayaran);
-        $data['klien_pengiriman'] = GlobalKlienPengiriman::orderBy('klien_pengiriman')->get()->pluck('klien_pengiriman');
+        $data['klien_pengiriman'] = GlobalKlienPengiriman::orderBy('klien_pengiriman', 'ASC')->get()->pluck('klien_pengiriman');
         $data['metode_pembayaran_list'] = GlobalMetodePembayaran::orderBy('metode_pembayaran')->get()->pluck('metode_pembayaran');
         $data['kat_list'] = GlobalKatResi::orderBy('kat')->get()->pluck('kat');
         $data['list_klien_pengiriman'] = GlobalKlienPengiriman::orderBy('klien_pengiriman')->get();

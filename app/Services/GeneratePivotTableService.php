@@ -34,9 +34,9 @@ class GeneratePivotTableService {
         // $schema = 'cashback_feb_2022'; //for debuging
 
         $dalam_zona = "or
-            (data_mart.drop_point_outgoing = 'CP_BNR' and data_mart.zona = 'DALAM ZONASI') or
-            (data_mart.drop_point_outgoing = 'PESONA_DARUSSALAM' and data_mart.zona = 'DALAM ZONASI') or
-            (data_mart.drop_point_outgoing = 'PAMOYANAN_BOGOR' and data_mart.zona = 'DALAM ZONASI')";
+            (data_mart.drop_point_outgoing = 'CP_BNR') or
+            (data_mart.drop_point_outgoing = 'PESONA_DARUSSALAM') or
+            (data_mart.drop_point_outgoing = 'PAMOYANAN_BOGOR')";
 
         $query .= "
 
@@ -45,7 +45,11 @@ class GeneratePivotTableService {
                 FROM ".$schema.".data_mart;
 
             CREATE OR REPLACE VIEW cp_dp_all_count_sum AS
-                SELECT DISTINCT (data_mart.drop_point_outgoing), COUNT(data_mart.no_waybill), SUM(data_mart.biaya_kirim)
+                SELECT DISTINCT
+                    (data_mart.drop_point_outgoing),
+                    COUNT(data_mart.no_waybill) as count,
+                    SUM(data_mart.biaya_kirim) as sum,
+                    sum(data_mart.total_biaya_setelah_diskon) AS sum_setelah_diskon
                 FROM ".$schema.".data_mart
                 WHERE (data_mart.zona = 'CP' OR data_mart.zona = 'DP' $dalam_zona)
                 GROUP BY data_mart.drop_point_outgoing;
@@ -56,6 +60,7 @@ class GeneratePivotTableService {
                     mcp.nama_cp,
                     coalesce (sdp.retur_klien_pengirim_hq, 0) as retur_klien_pengirim_hq,
                     coalesce (sdp.retur_belum_terpotong,0) as retur_belum_terpotong,
+                    coalesce (sdp.tokopedia_reguler,0) as tokopedia_reguler,
                     coalesce (sdp.pengurangan_total,0) as pengurangan_total ,
                     coalesce (sdp.penambahan_total,0) as penambahan_total,
                     coalesce (sdp.setting_pph,0) as setting_pph,
@@ -80,9 +85,9 @@ class GeneratePivotTableService {
         foreach($category as $cat) {
             $sum_column = 'biaya_kirim';
 
-            if($cat->kode_kategori == 'super') {
-                $sum_column = 'total_biaya_setelah_diskon';
-            }
+            // if($cat->kode_kategori == 'super') {
+            //     $sum_column = 'total_biaya_setelah_diskon';
+            // }
             //get periode klien pengiriman
             $periode_klien_pengiriman = PeriodeKlienPengiriman::with('klien_pengiriman')->where(['periode_id' => $periode_id, 'category_id'=> $cat->id])->get()->pluck('klien_pengiriman.klien_pengiriman')->toArray();
 
@@ -104,27 +109,40 @@ class GeneratePivotTableService {
                 $klien_pengiriman = str_replace("''","'',NULL ",$klien_pengiriman);
             }
 
+            // $dalam_zona = "or
+            // (data_mart.drop_point_outgoing = 'CP_BNR' and data_mart.zona = 'DALAM ZONASI') or
+            // (data_mart.drop_point_outgoing = 'PESONA_DARUSSALAM' and data_mart.zona = 'DALAM ZONASI') or
+            // (data_mart.drop_point_outgoing = 'PAMOYANAN_BOGOR' and data_mart.zona = 'DALAM ZONASI')";
+
             $dalam_zona = "or
-            (data_mart.drop_point_outgoing = 'CP_BNR' and data_mart.zona = 'DALAM ZONASI') or
-            (data_mart.drop_point_outgoing = 'PESONA_DARUSSALAM' and data_mart.zona = 'DALAM ZONASI') or
-            (data_mart.drop_point_outgoing = 'PAMOYANAN_BOGOR' and data_mart.zona = 'DALAM ZONASI')";
+            (data_mart.drop_point_outgoing = 'CP_BNR') or
+            (data_mart.drop_point_outgoing = 'PESONA_DARUSSALAM') or
+            (data_mart.drop_point_outgoing = 'PAMOYANAN_BOGOR')";
+
+            $sumber_waybill = $cat->nama_kategori;
+
+            if($sumber_waybill == 'DFOD'){
+                $sumber_waybill = 'REGULER';
+            }
 
             $query .= "
                 CREATE OR REPLACE VIEW cp_dp_".$cat->kode_kategori."_count_sum AS
                     SELECT DISTINCT data_mart.drop_point_outgoing,
                         count(data_mart.no_waybill) AS count,
-                        sum(data_mart.$sum_column) AS sum
+                        sum(data_mart.$sum_column) AS sum,
+                        sum(data_mart.total_biaya_setelah_diskon) AS sum_setelah_diskon
                         FROM ".$schema.".data_mart
                     WHERE
                         ($kat  $dalam_zona)
                     AND
                     ($metode_pembayaran)
                     AND
-                    (data_mart.klien_pengiriman IN ( $klien_pengiriman ))
+                    (data_mart.sumber_waybill = '$sumber_waybill'::text)
                     GROUP BY data_mart.drop_point_outgoing;
-
             ";
         }
+
+        //(data_mart.klien_pengiriman IN ( $klien_pengiriman )
 
         return $this->checkAndRunSchema($schema, $query);
 
@@ -157,10 +175,15 @@ class GeneratePivotTableService {
 
         $sumber_waybill_sum = implode(",", $sumber_waybill_sum->toArray());
 
+        // $dalam_zona = "or
+        // (dm.drop_point_outgoing = 'CP_BNR' and dm.zona = 'DALAM ZONASI') or
+        // (dm.drop_point_outgoing = 'PESONA_DARUSSALAM' and dm.zona = 'DALAM ZONASI') or
+        // (dm.drop_point_outgoing = 'PAMOYANAN_BOGOR' and dm.zona = 'DALAM ZONASI')";
+
         $dalam_zona = "or
-            (dm.drop_point_outgoing = 'CP_BNR' and dm.zona = 'DALAM ZONASI') or
-            (dm.drop_point_outgoing = 'PESONA_DARUSSALAM' and dm.zona = 'DALAM ZONASI') or
-            (dm.drop_point_outgoing = 'PAMOYANAN_BOGOR' and dm.zona = 'DALAM ZONASI')";
+        (dm.drop_point_outgoing = 'CP_BNR') or
+        (dm.drop_point_outgoing = 'PESONA_DARUSSALAM') or
+        (dm.drop_point_outgoing = 'PAMOYANAN_BOGOR')";
 
         $query .= "
             CREATE OR REPLACE VIEW cp_dp_mp_sum_biaya_kirim AS
@@ -205,15 +228,20 @@ class GeneratePivotTableService {
             $column = ($sumber_waybill != '' ? str_replace(' ','_',$sumber_waybill) : "");
             $as_column = ($sumber_waybill != "" ? str_replace(" ","_",$sumber_waybill) : 'blank');
             $as_column = str_replace("-","_",$as_column);
-            return "SUM(CASE WHEN dm.sumber_waybill = '$sumber_waybill' THEN dm.biaya_kirim ELSE 0 END) AS $as_column";
+            $sum_column = 'biaya_kirim';
+
+            if($sumber_waybill == 'KLIEN PENGIRIM VIP'){
+                $sum_column = 'total_biaya_setelah_diskon';
+            }
+            return "SUM(CASE WHEN dm.sumber_waybill = '$sumber_waybill' THEN dm.$sum_column ELSE 0 END) AS $as_column";
         });
 
         $sumber_waybill_sum = implode(",", $sumber_waybill_sum->toArray());
 
         $dalam_zona = "or
-            (dm.drop_point_outgoing = 'CP_BNR' and dm.zona = 'DALAM ZONASI') or
-            (dm.drop_point_outgoing = 'PESONA_DARUSSALAM' and dm.zona = 'DALAM ZONASI') or
-            (dm.drop_point_outgoing = 'PAMOYANAN_BOGOR' and dm.zona = 'DALAM ZONASI')";
+            (dm.drop_point_outgoing = 'CP_BNR') or
+            (dm.drop_point_outgoing = 'PESONA_DARUSSALAM') or
+            (dm.drop_point_outgoing = 'PAMOYANAN_BOGOR')";
 
         $query .= "
             CREATE OR REPLACE VIEW cp_dp_mp_retur_sum_biaya_kirim AS
@@ -228,7 +256,7 @@ class GeneratePivotTableService {
                 FROM
                 ".$schema.".data_mart dm
                 WHERE (dm.zona = 'CP' OR dm.zona = 'DP' $dalam_zona)
-                AND (dm.paket_retur = '1' OR dm.paket_retur = 'Returned' OR (dm.paket_retur ~ '^\\d+$' AND CAST(dm.paket_retur AS INTEGER) = 1))
+                AND (dm.paket_retur = 'Retur' OR dm.paket_retur = '1' OR dm.paket_retur = 'Returned' OR (dm.paket_retur ~ '^\\d+$' AND CAST(dm.paket_retur AS INTEGER) = 1))
                 GROUP BY
                     dm.drop_point_outgoing
             ) AS sq
@@ -262,9 +290,9 @@ class GeneratePivotTableService {
         $sumber_waybill_count = implode(",", $sumber_waybill_count->toArray());
 
         $dalam_zona = "or
-            (dm.drop_point_outgoing = 'CP_BNR' and dm.zona = 'DALAM ZONASI') or
-            (dm.drop_point_outgoing = 'PESONA_DARUSSALAM' and dm.zona = 'DALAM ZONASI') or
-            (dm.drop_point_outgoing = 'PAMOYANAN_BOGOR' and dm.zona = 'DALAM ZONASI')";
+            (dm.drop_point_outgoing = 'CP_BNR') or
+            (dm.drop_point_outgoing = 'PESONA_DARUSSALAM') or
+            (dm.drop_point_outgoing = 'PAMOYANAN_BOGOR')";
 
         $query = "
             CREATE OR REPLACE VIEW cp_dp_mp_count_waybill AS
@@ -306,9 +334,9 @@ class GeneratePivotTableService {
         $sumber_waybill_count = implode(",", $sumber_waybill_count->toArray());
 
         $dalam_zona = "or
-            (dm.drop_point_outgoing = 'CP_BNR' and dm.zona = 'DALAM ZONASI') or
-            (dm.drop_point_outgoing = 'PESONA_DARUSSALAM' and dm.zona = 'DALAM ZONASI') or
-            (dm.drop_point_outgoing = 'PAMOYANAN_BOGOR' and dm.zona = 'DALAM ZONASI')";
+            (dm.drop_point_outgoing = 'CP_BNR') or
+            (dm.drop_point_outgoing = 'PESONA_DARUSSALAM') or
+            (dm.drop_point_outgoing = 'PAMOYANAN_BOGOR')";
 
         $query = "
             CREATE OR REPLACE VIEW cp_dp_mp_retur_count_waybill AS
@@ -318,7 +346,7 @@ class GeneratePivotTableService {
                 FROM
                     ".$schema.".data_mart dm
                 WHERE (dm.zona = 'CP' OR dm.zona = 'DP' $dalam_zona)
-                    AND (dm.paket_retur = '1' OR dm.paket_retur = 'Returned' OR (dm.paket_retur ~ '^\\d+$' AND CAST(dm.paket_retur AS INTEGER) = 1))
+                    AND (dm.paket_retur = 'Retur' OR dm.paket_retur = '1' OR dm.paket_retur = 'Returned' OR (dm.paket_retur ~ '^\\d+$' AND CAST(dm.paket_retur AS INTEGER) = 1))
                 GROUP BY
                     dm.drop_point_outgoing
         ";

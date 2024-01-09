@@ -29,10 +29,13 @@
                                 <tr>
                                     <td>#</td>
                                     <td>Nama DP</td>
+                                    <td>Grading</td>
                                     <td>Retur Klien HQ</td>
                                     <td>Retur Belum Terpotong</td>
+                                    <td>Tokopedia Reguler</td>
                                     <td>Pengurangan</td>
                                     <td>Penambahan</td>
+                                    <td>PPH (%)</td>
                                     <td>Diskon COD</td>
                                 </tr>
                             </thead>
@@ -47,7 +50,8 @@
                                                 <input class="form-check-input" type="checkbox" name="dp[{{$key}}][is_import]" value=1 id="dpCheck" {{ intval($item->id) ? 'checked' : ''}}>
                                             </div>
                                         </td>
-                                        <td style="text-align: left;width: 300px;">{{ $item->drop_point_outgoing }} </td>
+                                        <td style="text-align: left;width: 250px;">{{ $item->drop_point_outgoing }} </td>
+                                        <td style="text-align: left;width: 50px;">{{ $item->grading_type }} </td>
                                         <td>
                                             <x-ladmin-input id="retur_klien_pengirim_hq" type="text" class="mb-3 col" name="dp[{{ $key }}][retur_klien_pengirim_hq]" value="{{ old('retur_klien_pengirim_hq', intval($item->retur_klien_pengirim_hq)) }}" placeholder="Retur Klien Pengirim HQ" />
                                         </td>
@@ -55,10 +59,16 @@
                                             <x-ladmin-input id="retur_belum_terpotong" type="text" class="mb-3 col" name="dp[{{ $key }}][retur_belum_terpotong]" value="{{ old('retur_belum_terpotong', intval($item->retur_belum_terpotong)) }}" placeholder="Retur Belum Terpotong" />
                                         </td>
                                         <td>
+                                            <x-ladmin-input id="tokopedia_reguler" type="text" class="mb-3 col" name="dp[{{ $key }}][tokopedia_reguler]" value="{{ old('tokopedia_reguler', intval($item->tokopedia_reguler)) }}" placeholder="Tokopedia Reguler" />
+                                        </td>
+                                        <td>
                                             <x-ladmin-input id="pengurangan_total" type="text" class="mb-3 col" name="dp[{{ $key }}][pengurangan_total]" value="{{ old('pengurangan_total', intval($item->pengurangan_total)) }}" placeholder="Pengurangan Total" />
                                         </td>
                                         <td>
                                             <x-ladmin-input id="penambahan_total" type="text" class="mb-3 col" name="dp[{{ $key }}][penambahan_total]" value="{{ old('penambahan_total', intval($item->penambahan_total)) }}" placeholder="Pemambahan  Total" />
+                                        </td>
+                                        <td>
+                                            <x-ladmin-input step="0.1" id="setting_pph" type="number" class="mb-3 col" name="dp[{{ $key }}][setting_pph]" value="{{ old('setting_pph', floatval($item->setting_pph)) }}" placeholder="Setting pph" />
                                         </td>
                                         <td>
                                             <x-ladmin-input id="diskon_cod" type="text" class="mb-3 col" name="dp[{{ $key }}][diskon_cod]" value="{{ old('diskon_cod', intval($item->diskon_cod)) }}" placeholder="Diskon COD" />

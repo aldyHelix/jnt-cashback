@@ -24,13 +24,13 @@ class GenerateDPFService {
 
         $this->cashbackRegulerDPF($schema);
 
-        $this->cashbackKlienVIP($schema);
+        //$this->cashbackKlienVIP($schema);
 
         $this->cashbackMarketplaceCod($schema);
 
-        $this->cashbackMarketplaceNonCod($schema);
+        //$this->cashbackMarketplaceNonCod($schema);
 
-        $this->generateKlienPengirimanVIP($schema);
+        //$this->generateKlienPengirimanVIP($schema);
 
         $this->rekapDPF($schema);
 
@@ -62,19 +62,19 @@ class GenerateDPFService {
         $data_pivot_mp['dpf_mp_retur_sum_biaya_kirim'] = DB::table($schema.'.dpf_mp_retur_sum_biaya_kirim')->get()->toArray();
         $data_pivot_mp['dpf_mp_retur_count_waybill'] = DB::table($schema.'.dpf_mp_retur_count_waybill')->get()->toArray();
 
-        $data_pivot_vip = DB::table($schema.'.dpf_rekap_klien_pengiriman_vip')->get()->toArray();
+        //$data_pivot_vip = DB::table($schema.'.dpf_rekap_klien_pengiriman_vip')->get()->toArray();
 
         $data_cashback_reguler = DB::table($schema.'.dpf_cashback_reguler');
         $data_cashback_marketplace_cod = DB::table($schema.'.dpf_cashback_marketplace_cod');
-        $data_cashback_marketplace_non_cod = DB::table($schema.'.dpf_cashback_marketplace_non_cod');
-        $data_cashback_klien_vip = DB::table($schema.'.dpf_cashback_klien_vip');
+        //$data_cashback_marketplace_non_cod = DB::table($schema.'.dpf_cashback_marketplace_non_cod');
+        //$data_cashback_klien_vip = DB::table($schema.'.dpf_cashback_klien_vip');
         $data_cashback_dpf = DB::table($schema.'.dpf_rekap_cashback_dpf');
         $data_cashback_denda = DB::table($schema.'.dpf_rekap_cashback_denda');
 
         $get_data_cashback_reguler = $data_cashback_reguler->get()->toArray();
         $get_data_cashback_marketplace_cod = $data_cashback_marketplace_cod->get()->toArray();
-        $get_data_cashback_marketplace_non_cod = $data_cashback_marketplace_non_cod->get()->toArray();
-        $get_data_cashback_klien_vip = $data_cashback_klien_vip->get()->toArray();
+        //$get_data_cashback_marketplace_non_cod = $data_cashback_marketplace_non_cod->get()->toArray();
+        //$get_data_cashback_klien_vip = $data_cashback_klien_vip->get()->toArray();
         $get_data_cashback_dpf = $data_cashback_dpf->get()->toArray();
         $get_data_cashback_denda = $data_cashback_denda->get()->toArray();
 
@@ -86,9 +86,10 @@ class GenerateDPFService {
                 'nama_cp' => $item->nama_cp,
                 'total_cashback_reguler' => $item->total_cashback_reguler,
                 'total_cashback_marketplace_cod' => $get_data_cashback_marketplace_cod[$key]->cashback_marketplace,
-                'total_cashback_marketplace_non_cod' => $get_data_cashback_marketplace_non_cod[$key]->total_cashback_marketplace,
+                //'total_cashback_marketplace_non_cod' => $get_data_cashback_marketplace_non_cod[$key]->total_cashback_marketplace,
                 'total_cashback_klien_vip' => $get_data_cashback_klien_vip[$key]->cashback_marketplace ?? 0,
-                'total_cashback' => $item->total_cashback_reguler + $get_data_cashback_marketplace_non_cod[$key]->total_cashback_marketplace,
+                'total_cashback' => $item->total_cashback_reguler,
+                //+ $get_data_cashback_marketplace_non_cod[$key]->total_cashback_marketplace,
             ];
         }
 
@@ -99,11 +100,11 @@ class GenerateDPFService {
             $updated = $data_json->update([
                 'dpf_pivot' => json_encode($data_pivot),
                 'dpf_pivot_mp' => json_encode($data_pivot_mp),
-                'dpf_pivot_vip' => json_encode($data_pivot_vip),
+                'dpf_pivot_vip' => json_encode([]), //$data_pivot_vip
                 'dpf_cashback_reguler' => json_encode($get_data_cashback_reguler),
                 'dpf_cashback_marketplace_cod' => json_encode($get_data_cashback_marketplace_cod),
-                'dpf_cashback_marketplace_non_cod' => json_encode($get_data_cashback_marketplace_non_cod),
-                'dpf_cashback_klien_vip' => json_encode($get_data_cashback_klien_vip),
+                //'dpf_cashback_marketplace_non_cod' => json_encode($get_data_cashback_marketplace_non_cod),
+                //'dpf_cashback_klien_vip' => json_encode($get_data_cashback_klien_vip),
                 'dpf_cashback_rekap' => json_encode($get_data_cashback_dpf),
                 'dpf_cashback_rekap_denda' => json_encode($get_data_cashback_denda),
             ]);
@@ -112,11 +113,11 @@ class GenerateDPFService {
                 'periode_id' => $periode->id,
                 'dpf_pivot' => json_encode($data_pivot),
                 'dpf_pivot_mp' => json_encode($data_pivot_mp),
-                'dpf_pivot_vip' => json_encode($data_pivot_vip),
+                'dpf_pivot_vip' => json_encode([]), //$data_pivot_vip
                 'dpf_cashback_reguler' => json_encode($get_data_cashback_reguler),
                 'dpf_cashback_marketplace_cod' => json_encode($get_data_cashback_marketplace_cod),
-                'dpf_cashback_marketplace_non_cod' => json_encode($get_data_cashback_marketplace_non_cod),
-                'dpf_cashback_klien_vip' => json_encode($get_data_cashback_klien_vip),
+                //'dpf_cashback_marketplace_non_cod' => json_encode($get_data_cashback_marketplace_non_cod),
+                //'dpf_cashback_klien_vip' => json_encode($get_data_cashback_klien_vip),
                 'dpf_cashback_rekap' => json_encode($get_data_cashback_dpf),
                 'dpf_cashback_rekap_denda' => json_encode($get_data_cashback_denda),
             ]);
@@ -138,7 +139,7 @@ class GenerateDPFService {
             'PAMOYANAN_BOGOR',
             'TAMAN_CIMANGGU',
             'IPB_DRAMAGA',
-            'CIMAHPAR',
+            //'CIMAHPAR',
             'MARGAJAYA',
             'PAHLAWAN_SUKSES',
             'CIAMPEA',
@@ -185,18 +186,26 @@ class GenerateDPFService {
                 $klien_pengiriman = str_replace("''","'',NULL ",$klien_pengiriman);
             }
 
+
+            $sumber_waybill = $cat->nama_kategori;
+
+            if($sumber_waybill == 'DFOD'){
+                $sumber_waybill = 'REGULER';
+            }
+
             $query .= "
                 CREATE OR REPLACE VIEW dpf_".$cat->kode_kategori."_count_sum AS
                     SELECT DISTINCT data_mart.drop_point_outgoing,
                         count(data_mart.no_waybill) AS count,
-                        sum(data_mart.$sum_column) AS sum
+                        sum(data_mart.$sum_column) AS sum,
+                        sum(data_mart.total_biaya_setelah_diskon) AS sum_setelah_diskon
                         FROM ".$schema.".data_mart
                     WHERE
                         ( data_mart.zona = 'DPF' $dalam_zona)
                     AND
                     ($metode_pembayaran)
                     AND
-                    (data_mart.klien_pengiriman IN ( $klien_pengiriman ))
+                    (data_mart.sumber_waybill = '$sumber_waybill'::text)
                     GROUP BY data_mart.drop_point_outgoing;
             ";
         }
@@ -215,6 +224,7 @@ class GenerateDPFService {
         $joins = [];
         $select_column = [];
         $select_sum = [];
+        $select_column_vip = '';
 
         $setting_dpf_dp = [
             'BANTAR_KEMANG',
@@ -225,7 +235,7 @@ class GenerateDPFService {
             'PAMOYANAN_BOGOR',
             'TAMAN_CIMANGGU',
             'IPB_DRAMAGA',
-            'CIMAHPAR',
+            //'CIMAHPAR',
             'MARGAJAYA',
             'PAHLAWAN_SUKSES',
             'CIAMPEA',
@@ -234,8 +244,16 @@ class GenerateDPFService {
         foreach($category as $cat) {
             $joins[] = "LEFT JOIN $schema.dpf_".$cat->kode_kategori."_count_sum ON cp.drop_point_outgoing::text = dpf_".$cat->kode_kategori."_count_sum.drop_point_outgoing::text";
 
-            $select_column[] = "COALESCE(dpf_".$cat->kode_kategori."_count_sum.sum, 0::bigint) AS biaya_kirim_".$cat->kode_kategori;
-            $select_sum[] = "COALESCE(dpf_".$cat->kode_kategori."_count_sum.sum, 0::bigint)";
+            // $select_column[] = "COALESCE(dpf_".$cat->kode_kategori."_count_sum.sum, 0::bigint) AS biaya_kirim_".$cat->kode_kategori;
+            // $select_sum[] = "COALESCE(dpf_".$cat->kode_kategori."_count_sum.sum, 0::bigint)";
+
+            if($cat->kode_kategori == 'vip') {
+                $select_column_vip = "COALESCE(dpf_".$cat->kode_kategori."_count_sum.sum_setelah_diskon, 0) AS biaya_kirim_".$cat->kode_kategori;
+                $select_sum_vip = "COALESCE(dpf_".$cat->kode_kategori."_count_sum.sum_setelah_diskon, 0)";
+            } else {
+                $select_column[] = "COALESCE(dpf_".$cat->kode_kategori."_count_sum.sum_setelah_diskon, 0) AS biaya_kirim_".$cat->kode_kategori;
+                $select_sum[] = "COALESCE(dpf_".$cat->kode_kategori."_count_sum.sum_setelah_diskon, 0)";
+            }
         }
 
         $joins = implode("\n", $joins);
@@ -246,6 +264,8 @@ class GenerateDPFService {
 
         $total_biaya_dengan_ppn = "round(($select_sum) / $ppn::float)::bigint";
         $total_biaya_ppn_diskon = "round($total_biaya_dengan_ppn * 0.25)::bigint";
+        $total_biaya_vip_dengan_ppn = "round(($select_sum_vip) / $ppn::float)::bigint";
+        $total_biaya_vip_ppn_diskon = "round($total_biaya_vip_dengan_ppn * 0.10)::bigint";
 
         $query .= "
         CREATE OR REPLACE VIEW dpf_cashback_reguler AS
@@ -253,14 +273,19 @@ class GenerateDPFService {
                 cp.kode_cp,
                 cp.nama_cp,
                 COALESCE(acs.sum, 0::bigint) AS biaya_kirim_all,
+                COALESCE(cds.tokopedia_reguler, 0) AS marketplace_reguler,
                 $select_column,
                 ($select_sum) AS total_biaya_kirim,
                 $total_biaya_dengan_ppn AS total_biaya_kirim_dikurangi_ppn,
                 $total_biaya_ppn_diskon AS amount_discount_25,
-                ($total_biaya_ppn_diskon) AS total_cashback_reguler
+                $select_column_vip,
+                $total_biaya_vip_dengan_ppn as total_biaya_vip_setelah_ppn,
+                $total_biaya_vip_ppn_diskon as total_biaya_vip_ppn_diskon,
+                ($total_biaya_ppn_diskon) +( $total_biaya_vip_ppn_diskon) AS total_cashback_reguler
             FROM master_collection_point cp
                 LEFT JOIN $schema.dpf_all_count_sum acs ON cp.drop_point_outgoing::text = acs.drop_point_outgoing::text
                 $joins
+                LEFT JOIN $schema.cp_dp_setting cds ON cp.drop_point_outgoing::text = cds.nama_cp::text
             WHERE cp.grading_pickup = 'DPF';
         ";
 
@@ -271,58 +296,87 @@ class GenerateDPFService {
         // $ppn = 1 + (intval(Globalsetting::where('code', 'ppn')->first()->value) / 100);
         $ppn = 1.011;
         $cashback_marketplace_diskon = intval(CashbackSetting::where('jenis_paket', 'MARKETPLACE')->first()->diskon) / 100;
+        $diskon_platform_pusat_bukalapak = intval(CashbackSetting::where('jenis_paket', 'BUKALAPAK')->first()->diskon ?? 0) / 100;
+        $diskon_platform_pusat_tokopedia = intval(CashbackSetting::where('jenis_paket', 'TOKOPEDIA')->first()->diskon ?? 0) / 100;
+        $diskon_platform_pusat_lazada = intval(CashbackSetting::where('jenis_paket', 'LAZADA')->first()->diskon ?? 0) / 100;
+        $diskon_platform_pusat_magellan_shopee = intval(CashbackSetting::where('jenis_paket', 'MAGELLAN SHOPEE')->first()->diskon ?? 0) / 100;
+
         $bukalapak = "( COALESCE(sbk.bukalapak, 0) + COALESCE(sbk.bukaexpress, 0) + COALESCE(sbk.bukasend, 0) )";
-        $bukalapak_ppn = "CAST( ROUND( ( $bukalapak ) / $ppn::float ) AS BIGINT )";
-        $bukalapak_ppn_diskon = "CAST( ROUND( $bukalapak_ppn * 0.07 ) AS BIGINT )";
-        $shopee_cod = "( COALESCE(sbk.shopee_cod, 0) - COALESCE(srbk.shopee_cod, 0) )";
-        $magellan_cod = "( COALESCE(sbk.magellan_cod, 0) - COALESCE(srbk.magellan_cod, 0) )";
-        $lazada_cod = "( COALESCE(sbk.lazada_cod, 0) - COALESCE(srbk.lazada_cod, 0) ) ";
-        $total_biaya_kirim_cod = "CAST( ROUND( $shopee_cod + $magellan_cod + $lazada_cod ) AS BIGINT ) ";
-        $total_biaya_kirim_cod_ppn = " CAST( ROUND( $shopee_cod + $magellan_cod + $lazada_cod ) / $ppn::float AS BIGINT )";
-        $total_biaya_kirim_cod_ppn_diskon = " CAST( ROUND( ( ( $shopee_cod + $magellan_cod + $lazada_cod ) / $ppn ) * $cashback_marketplace_diskon::float ) AS BIGINT )";
-        $total_biaya_kirim_tokopedia = "COALESCE(sbk.tokopedia, 0) + COALESCE(sbk.marketplace_reguler, 0)";
-        $tokopedia_ppn = "CAST( ROUND( ($total_biaya_kirim_tokopedia) / $ppn::float ) AS BIGINT )";
-        $tokopedia_ppn_diskon = "CAST( ROUND( (($total_biaya_kirim_tokopedia) / $ppn::float) * 0.07 ) AS BIGINT )";
+        $bukalapak_setelah_diskon = "$bukalapak - CAST( ROUND( $bukalapak * $diskon_platform_pusat_bukalapak) AS BIGINT )";
+        $bukalapak_retur = "( COALESCE(srbk.bukalapak, 0) + COALESCE(srbk.bukaexpress, 0) + COALESCE(srbk.bukasend, 0) )";
+
+        $shopee_all = "(COALESCE(sbk.shopee, 0) + COALESCE(sbk.shopee_cod, 0))";
+        $shopee_retur_all = "(COALESCE(srbk.shopee, 0) + COALESCE(srbk.shopee_cod, 0))";
+        $shopee = "$shopee_all - $shopee_retur_all";
+
+        $magellan_all = "(COALESCE(sbk.magellan, 0) + COALESCE(sbk.magellan_cod, 0))";
+        $magellan_retur_all = "(COALESCE(srbk.magellan, 0) + COALESCE(srbk.magellan_cod, 0))";
+        $magellan = "$magellan_all - $magellan_retur_all";
+
+        $lazada_all = "(COALESCE(sbk.lazada, 0) + COALESCE(sbk.lazada_cod, 0))";
+        $lazada_retur_all = "(COALESCE(srbk.lazada, 0) + COALESCE(srbk.lazada_cod, 0))";
+        $lazada = "$lazada_all - $lazada_retur_all";
+        $lazada_setelah_diskon = "($lazada) - CAST( ROUND( ($lazada) * $diskon_platform_pusat_lazada ) AS BIGINT )";
+
+        $shopee_magellan = "($shopee) + ($magellan)";
+        $shopee_magellan_setelah_diskon = "($shopee_magellan) - CAST( ROUND( ($shopee_magellan) * $diskon_platform_pusat_magellan_shopee) AS BIGINT )";
+
+        $total_biaya_kirim_tokopedia = "COALESCE(sbk.tokopedia, 0) + COALESCE(cds.tokopedia_reguler, 0)"; //COALESCE(sbk.marketplace_reguler, 0)
+        $tokopedia_setelah_diskon = "($total_biaya_kirim_tokopedia) - CAST( ROUND( ($total_biaya_kirim_tokopedia) * $diskon_platform_pusat_tokopedia ) AS BIGINT )";
+
+        $retur_lain = "($bukalapak_retur) + COALESCE(srbk.tokopedia, 0) + COALESCE(srbk.klien_pengirim_vip, 0) + COALESCE(cds.retur_klien_pengirim_hq, 0)";
+        $total_biaya_kirim = "(($bukalapak_setelah_diskon) + ($tokopedia_setelah_diskon) + ($lazada_setelah_diskon) + ($shopee_magellan_setelah_diskon))";
+        $total_biaya_kirim_setelah_diskon = "$total_biaya_kirim - ($retur_lain) - COALESCE(cds.retur_belum_terpotong, 0)";
+        $total_biaya_kirim_setelah_ppn = "CAST( ROUND( ($total_biaya_kirim_setelah_diskon) / $ppn::float) AS BIGINT )";
+        $total_diskon = "CAST( ROUND( $total_biaya_kirim_setelah_ppn * 0.1) AS BIGINT)";
         $query = "
             CREATE OR REPLACE VIEW dpf_cashback_marketplace_cod AS
             SELECT
-                cp.kode_cp,
-                cp.nama_cp,
-                $bukalapak AS bukalapak,
-                $bukalapak AS total_biaya_kirim_bukalapak,
-                $bukalapak_ppn AS total_biaya_kirim_bukalapak_dikurangi_ppn,
-                $bukalapak_ppn_diskon AS discount_bukalapak_7,
-                COALESCE(sbk.tokopedia, 0) AS tokopedia,
-                COALESCE(sbk.marketplace_reguler, 0) AS tokopedia_reguler,
-                $total_biaya_kirim_tokopedia AS total_biaya_kirim_tokopedia,
-                $tokopedia_ppn AS total_biaya_kirim_tokopedia_dikurangi_ppn,
-                $tokopedia_ppn_diskon AS discount_tokopedia_7,
-                ($bukalapak + $total_biaya_kirim_tokopedia) AS total_biaya_kirim_bukalapak_tokopedia,
-                COALESCE(sbk.shopee_cod, 0) AS shopee_cod,
-                COALESCE(srbk.shopee_cod, 0) AS retur_shopee_cod,
-                $shopee_cod AS total_biaya_kirim_shopee_cod,
-                COALESCE(sbk.magellan_cod, 0) AS magellan_cod,
-                COALESCE(srbk.magellan_cod, 0) AS retur_magellan_cod,
-                $magellan_cod AS total_biaya_kirim_magellan_cod,
-                COALESCE(sbk.lazada_cod, 0) AS lazada_cod,
-                COALESCE(srbk.lazada_cod, 0) AS retur_lazada_cod,
-                $lazada_cod AS total_biaya_kirim_lazada_cod,
-                $total_biaya_kirim_cod AS total_biaya_kirim_cod,
-                $total_biaya_kirim_cod_ppn AS total_biaya_kirim_cod_dikurangi_ppn,
-                $total_biaya_kirim_cod_ppn_diskon AS diskon_cod_7,
-                CAST(
-                    (
-                        $bukalapak_ppn_diskon +
-                        $total_biaya_kirim_cod_ppn_diskon +
-                        $tokopedia_ppn_diskon
-                    ) AS BIGINT
-                ) AS cashback_marketplace
+            cp.kode_cp,
+            cp.nama_cp,
+            $bukalapak AS bukalapak,
+            $diskon_platform_pusat_bukalapak AS diskon_platform_bukalapak,
+            $bukalapak_setelah_diskon AS total_setelah_diskon_bukalapak,
+
+            COALESCE(sbk.tokopedia, 0) AS tokopedia,
+            COALESCE(cds.tokopedia_reguler, 0) AS tokopedia_reguler,
+            $total_biaya_kirim_tokopedia AS total_biaya_kirim_tokopedia,
+            $diskon_platform_pusat_tokopedia AS diskon_platform_tokopedia,
+            $tokopedia_setelah_diskon AS total_setelah_diskon_tokopedia,
+
+            $lazada_all AS lazada_all,
+            $lazada_retur_all AS lazada_retur_all,
+            $lazada AS total_biaya_kirim_lazada_cod,
+            $diskon_platform_pusat_lazada AS diskon_platform_lazada,
+            $lazada_setelah_diskon AS total_setelah_diskon_lazada,
+
+            $magellan_all AS magellan_all,
+            $magellan_retur_all AS magellan_retur_all,
+
+            $shopee_all AS shopee_all,
+            $shopee_retur_all AS shopee_retur_all,
+
+            $shopee_magellan AS total_biaya_kirim_shopee_magellan,
+            $diskon_platform_pusat_magellan_shopee AS diskon_platform_shopee_magellan,
+            $shopee_magellan_setelah_diskon AS total_setelah_diskon_shopee_magellan,
+
+            $retur_lain AS retur_lain,
+            COALESCE(cds.retur_belum_terpotong, 0) AS retur_belum_terpotong,
+            $total_biaya_kirim_setelah_diskon AS total_setelah_diskon_pusat,
+
+            $total_biaya_kirim_setelah_ppn AS total_biaya_kirim_dikurangi_ppn,
+            $total_diskon AS diskon_marketplace,
+            $total_diskon AS cashback_marketplace,
+
+            $total_biaya_kirim AS total_biaya_kirim
             FROM
                 PUBLIC.master_collection_point AS cp
             LEFT JOIN
                 ".$schema.".dpf_mp_sum_biaya_kirim AS sbk ON cp.drop_point_outgoing = sbk.drop_point_outgoing
             LEFT JOIN
                 ".$schema.".dpf_mp_retur_sum_biaya_kirim AS srbk ON cp.drop_point_outgoing = srbk.drop_point_outgoing
+            LEFT JOIN
+                ".$schema.".cp_dp_setting cds ON cp.drop_point_outgoing::text = cds.nama_cp::text
             WHERE
                 cp.grading_pickup = 'DPF'
         ";
@@ -522,20 +576,22 @@ class GenerateDPFService {
                 cp.kode_cp,
                 cp.nama_cp,
                 COALESCE(cr.total_cashback_reguler, 0) as total_cashback_reguler,
-                COALESCE(cmnc.total_cashback_marketplace, 0) as total_cashback_marketplace_non_cod,
+                COALESCE(cmc.cashback_marketplace, 0) as total_cashback_marketplace,
                 COALESCE(lzrc.total_cashback_luar_zonasi, 0) as total_cashback_mp_luar_zona,
-                (COALESCE(cr.total_cashback_reguler, 0) + COALESCE(cmnc.total_cashback_marketplace, 0) + COALESCE(lzrc.total_cashback_luar_zonasi, 0)) as total_cashback
+                (COALESCE(cr.total_cashback_reguler, 0) + COALESCE(cmc.cashback_marketplace, 0) + COALESCE(lzrc.total_cashback_luar_zonasi, 0)) as total_cashback
             FROM
                 PUBLIC.master_collection_point AS cp
             LEFT JOIN
                 ".$schema.".dpf_cashback_reguler AS cr ON cp.drop_point_outgoing = cr.nama_cp
             LEFT JOIN
-                ".$schema.".dpf_cashback_marketplace_non_cod AS cmnc ON cp.drop_point_outgoing = cmnc.nama_cp
+                ".$schema.".dpf_cashback_marketplace_cod AS cmc ON cp.drop_point_outgoing = cmc.nama_cp
             LEFT JOIN
                 ".$schema.".luar_zona_rekap_cashback AS lzrc ON cp.drop_point_outgoing = lzrc.drop_point_outgoing
             WHERE
                 cp.grading_pickup = 'DPF'
         ";
+
+        //COALESCE(cmnc.total_cashback_marketplace, 0) as total_cashback_marketplace_non_cod,
 
         $this->checkAndRunSchema($schema, $query);
     }
