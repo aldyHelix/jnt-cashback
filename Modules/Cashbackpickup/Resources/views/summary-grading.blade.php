@@ -19,7 +19,7 @@
             </div>
             <div class="row">
                 {{-- @dump(collect(json_decode($periode->data_cashback_grading_1))) --}}
-                @if($grading == 1)
+                {{-- @if($grading == 1)
                     @php
                         $data_grading_1 = collect(json_decode($periode->jsonData->cashback_grading_1));
                     @endphp
@@ -95,7 +95,7 @@
                             </tbody>
                         </table>
                     </div>
-                @endif
+                @endif --}}
             </div>
             {{-- <div class="row">
                 <div class="col table-responsive">

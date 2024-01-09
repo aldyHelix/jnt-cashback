@@ -20,6 +20,8 @@ class SettingDpPeriode extends Model
         'grouping',
         'grading_type',
         'retur_klien_pengirim_hq',
-        'retur_belum_terpotong'
+        'retur_belum_terpotong',
+        'setting_pph',
+        'tokopedia_reguler'
     ];
 }

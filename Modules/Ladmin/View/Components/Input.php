@@ -18,6 +18,8 @@ class Input extends Component
 
     public $value;
 
+    public $step;
+
     public $type;
 
     public $id;
@@ -35,7 +37,7 @@ class Input extends Component
      *
      * @return void
      */
-    public function __construct($type = 'text', $id = null, $label = null, $name = null, $placeholder = null, $readonly = null, $disabled = null, $value = null, $required = null, $help = null, $class = null, $row = [])
+    public function __construct($type = 'text', $id = null, $label = null, $name = null, $placeholder = null, $readonly = null, $disabled = null, $value = null, $step = null, $required = null, $help = null, $class = null, $row = [])
     {
         $this->label = is_array($label) ? $label : (is_null($label) ? null : [$label]);
         $this->type = $type;
@@ -45,6 +47,7 @@ class Input extends Component
         $this->readonly = $readonly;
         $this->disabled = $disabled;
         $this->value = $value;
+        $this->step = $step;
         $this->required = $required;
         $this->help = $help;
         $this->row = $row;
