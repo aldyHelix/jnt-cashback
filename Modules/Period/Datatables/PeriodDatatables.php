@@ -54,18 +54,8 @@ class PeriodDatatables extends Datatables
                 return 'Rp' . rupiah_format(DB::table($row->code . '.sum_all_biaya_kirim')->first()->sum ?? 0) ;
 
             })
-            ->editColumn('processed_row', function ($row) {
-                return decimal_format($row->processed_row ?? 0);
-            })
-            ->editColumn('count_row', function ($row) {
-                return decimal_format($row->count_row ?? 0);
-            })
             ->editColumn('inserted_row', function ($row) {
                 return decimal_format(DB::table($row->code . '.data_mart')->count() ?? 0);
-            })
-            ->editColumn('processed_by', function ($row) {
-                $user = ladmin()->admin()->where('id', $row->processed_by)->first();
-                return $user ? $user->name : 'SYSTEM';
             })
             ->editColumn('updated_at', function ($row) {
                 return $row->updated_at->format('d-m-Y h:i');
@@ -93,10 +83,7 @@ class PeriodDatatables extends Datatables
             'Code',
             'Month/Year',
             'Total Biaya Kirim',
-            'Row Processed',
             'Row Inserted',
-            'Row Total',
-            'Processed By',
             'Status',
             'Last Update',
             'Action' => ['class' => 'text-center'],
@@ -115,10 +102,7 @@ class PeriodDatatables extends Datatables
             ['data' => 'code', 'class' => 'text-center'],
             ['data' => 'period', 'class' => 'text-center'],
             ['data' => 'total_biaya_kirim', 'class' => 'text-center'],
-            ['data' => 'processed_row', 'class' => 'text-center'],
             ['data' => 'inserted_row', 'class' => 'text-center'],
-            ['data' => 'count_row', 'class' => 'text-center'],
-            ['data' => 'processed_by', 'class' => 'text-center'],
             ['data' => 'status', 'class' => 'text-center'],
             ['data' => 'updated_at', 'class' => 'text-center'],
             ['data' => 'action', 'class' => 'text-center', 'orderable' => false]
