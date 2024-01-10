@@ -538,60 +538,82 @@ class UploadController extends Controller
                     }
 
                     if($uploaded_file) {
-                        //call Guzzle endpoint
-                        $serviceUrl = config('services.go.upload_service');
-                        $response = Http::timeout(600)->connectTimeout(60)->get($serviceUrl.'/file-job/', [
-                            'month' => strtolower($request->month_period),
-                            'year' => $request->year_period,
-                        ]);
 
-                        /**
-                         * Benchmark here
-                         *
-                         * 100
-                         * 10k data 1,7s
-                         * 100k data 17s
-                         * 650k data 1m34s
-                         * 1000k data +- 170s 3min
-                         */
-
-                        $response_result = json_decode($response->body());
-
-                        //response log
-
-                        /**
-                         * success execution
-                         */
-
-                        if($response_result->result->StatusCode == 200){
-                            $res = $response_result->result;
-
-                            //success rate
-                            //100% - duplicated % - failture %
-                            //if error != null status contain error log
-
-                            //log upload here
-
-                            //update uploaded file
-                            $uploaded_file->update([
-                                'count_row' => $res->DataLog->RowTotal,
-                                'processing_status' => $res->FileStatus,
+                        try{
+                            //call Guzzle endpoint
+                            $serviceUrl = config('services.go.upload_service');
+                            $response = Http::timeout(60)->connectTimeout(60)->get($serviceUrl.'/file-job/', [
+                                'month' => strtolower($request->month_period),
+                                'year' => $request->year_period,
                             ]);
 
-                            //update existing periode
-                            $existing_periode->update([
-                                'count_row' => $existing_periode->count_row + $res->DataLog->RowTotal,
-                                'status' => 'ON QUEUE',
-                            ]);
+                            if ($response === null) {
+                                toastr()->error('No response received within the specified time. Maybe its being processed', 'Timeout');
+                                return redirect()->back();
+                            }
 
-                            toastr()->success('Data Raw has been uploaded successfully! please wait the data to be processed!', 'Congrats');
-                            return redirect()->back();
-                        } else {
-                            //update uploadded file
+                            if ($response->successful()) {
+                                toastr()->success('Data Raw has been uploaded successfully! Please wait for the data to be processed.', 'Congrats');
+                                return redirect()->back();
+                            } else {
+                                toastr()->error('Failed to upload data. Please try again later.', 'Error');
+                                return redirect()->back();
+                            }
 
-                            toastr()->error('something wrong!', 'Error');
+                            /**
+                             * Benchmark here
+                             *
+                             * 100
+                             * 10k data 1,7s
+                             * 100k data 17s
+                             * 650k data 1m34s
+                             * 1000k data +- 170s 3min
+                             */
+
+                            $response_result = json_decode($response->body());
+
+                            dd($response_result);
+
+                            //response log
+
+                            /**
+                             * success execution
+                             */
+
+                            if($response_result->result->StatusCode == 200){
+                                $res = $response_result->result;
+
+                                //success rate
+                                //100% - duplicated % - failture %
+                                //if error != null status contain error log
+
+                                //log upload here
+
+                                //update uploaded file
+                                $uploaded_file->update([
+                                    'count_row' => $res->DataLog->RowTotal,
+                                    'processing_status' => $res->FileStatus,
+                                ]);
+
+                                //update existing periode
+                                $existing_periode->update([
+                                    'count_row' => $existing_periode->count_row + $res->DataLog->RowTotal,
+                                    'status' => 'ON QUEUE',
+                                ]);
+
+                                toastr()->success('Data Raw has been processed!', 'Congrats');
+                                return redirect()->back();
+                            } else {
+                                //update uploadded file
+
+                                toastr()->error('something wrong!', 'Error');
+                                return redirect()->back();
+                            }
+                        } catch (\Exception $e) {
+                            toastr()->error('No response received within the specified time. Maybe its being processed', 'Timeout');
                             return redirect()->back();
                         }
+
                     }
                 }
             //save success

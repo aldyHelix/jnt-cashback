@@ -24,6 +24,7 @@
 <body class="ladmin">
     <!-- Add the loading screen -->
     <div id="loadingScreen" class="loading-screen">
+        <span>Your Data is under processing, please wait until this page fully reloaded.</span>
         <div class="loading-spinner"></div>
     </div>
 
