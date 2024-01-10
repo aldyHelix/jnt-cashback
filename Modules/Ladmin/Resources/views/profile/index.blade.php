@@ -42,7 +42,7 @@
                 </x-slot>
             </x-ladmin-card>
 
-            <x-ladmin-card class="mb-3">
+            {{-- <x-ladmin-card class="mb-3">
                 <x-slot name="body">
                     <h5 class="card-title">Total Time Processing</h5>
 
@@ -56,7 +56,7 @@
                     </div>
 
                 </x-slot>
-            </x-ladmin-card>
+            </x-ladmin-card> --}}
 
             <x-ladmin-card class="mb-3">
                 <x-slot name="body">
@@ -74,7 +74,7 @@
                 </x-slot>
             </x-ladmin-card>
 
-            <x-ladmin-card class="mb-3">
+            {{-- <x-ladmin-card class="mb-3">
                 <x-slot name="body">
                     <h5 class="card-title">Pending Jobs</h5>
 
@@ -88,7 +88,7 @@
                     </div>
 
                 </x-slot>
-            </x-ladmin-card>
+            </x-ladmin-card> --}}
         </div>
         <div class="col-lg-9">
             <x-ladmin-card class="mb-3">
@@ -204,6 +204,19 @@
 
                         <div class="table-responsive" data-role="ajax"
                             data-route="{{ route('ladmin.index', ['ajax' => 'load_table_coworkers']) }}">
+
+                        </div>
+                    </x-slot>
+                </x-ladmin-card>
+            </div>
+
+            <div class="mb-3">
+                <x-ladmin-card class="mb-3">
+                    <x-slot name="body">
+                        <h5 class="card-title">On Processing File</h5>
+
+                        <div class="table-responsive" data-role="ajax"
+                            data-route="{{ route('ladmin.index', ['ajax' => 'load_table_on_process']) }}">
 
                         </div>
                     </x-slot>

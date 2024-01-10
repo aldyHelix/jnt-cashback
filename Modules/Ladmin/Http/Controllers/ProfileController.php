@@ -16,6 +16,7 @@ use Modules\Ladmin\Http\Requests\ProfileRequest;
 use Modules\Uploadfile\Models\Uploadfile;
 use Ramsey\Uuid\Type\Integer;
 use App\Facades\GeneratePivot;
+use App\Models\FileJobs;
 
 class ProfileController extends Controller
 {
@@ -40,7 +41,7 @@ class ProfileController extends Controller
             $sum = DB::table($periode->code . '.data_mart')->select('biaya_kirim')->sum('biaya_kirim');
             $data['period'][$periode->month . '-' . $periode->year] = $sum;
         }
-        
+
         return ladmin()->view('profile.index', $data);
     }
 
@@ -288,5 +289,17 @@ class ProfileController extends Controller
     {
         $data['roles'] = $request->user()->roles;
         return view('ladmin::profile._parts._table_coworkers', $data);
+    }
+
+    /**
+     * Response table file on process
+     *
+     * @param Request $request
+     * @return Response
+     */
+    protected function load_table_on_process(Request $request)
+    {
+        $data['files'] = FileJobs::where('is_imported', 0)->get();
+        return view('ladmin::profile._parts._table_on_process', $data);
     }
 }
