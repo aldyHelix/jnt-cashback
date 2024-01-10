@@ -43,6 +43,15 @@ class DPFDatatables extends Datatables
     public function handle()
     {
         return $this->eloquent($this->query)
+            ->addColumn('updated_at', function ($row){
+
+                $denda = Denda::where(['periode_id' => $row->id, 'grading_type' => "DPF"])->get();
+                if(!$denda->count() > 0) {
+                    return 'Anda belum melakukan setting denda';
+                }
+
+                return $row->updated_at->format('d-m-Y H:i:s');
+            })
             ->addColumn('periode', function ($row) {
                 return $row->month . '/' . $row->year;
             })
