@@ -14,6 +14,7 @@ use App\Facades\GradingProcess;
 use App\Models\Denda;
 use App\Facades\PivotTable;
 use App\Models\Periode;
+use App\Models\PeriodeDataJson;
 use Illuminate\Http\Request;
 use Excel;
 use Illuminate\Support\Facades\DB;
@@ -75,22 +76,36 @@ class CashbackpickupController extends Controller
     public function viewDetail($code, $grade)
     {
         $data['periode'] = Periode::where('code', $code)->first();
+        $summary = PeriodeDataJson::where('periode_id', $data['periode']->id)->first();
+        $data['cashback_setting'] = json_decode($summary->cashback_setting);
         $data['denda'] = Denda::where(['periode_id' => $data['periode']->id, 'grading_type' => $grade])->get();
         $data['filename'] = strtoupper($data['periode']->month) . '-' . $data['periode']->year . '-GRADING-' . $grade . '.xlsx';
         $data['grading'] = $grade;
         switch ($grade) {
             case 1:
                 $data['locked'] = $data['periode']->locked_grade_1;
-                break;
+                $data['cashback_reguler'] = json_decode($summary->cashback_reguler_a);
+                $data['cashback_grading'] = json_decode($summary->cashback_grading_1);
+                $data['markeplace'] = json_decode($summary->cashback_marketplace_cod);
+                $data['cashback_grading_denda'] = json_decode($summary->cashback_grading_1_denda);
+            break;
             case 2:
-                $data['locked'] = $data['periode']->locked_grade_1;
-                break;
+                $data['locked'] = $data['periode']->locked_grade_2;
+                $data['cashback_reguler'] = json_decode($summary->cashback_reguler_b);
+                $data['cashback_grading'] = json_decode($summary->cashback_grading_2);
+                $data['markeplace'] = json_decode($summary->cashback_marketplace_awb_cod);
+                $data['cashback_grading_denda'] = json_decode($summary->cashback_grading_2_denda);
+            break;
             case 3:
-                $data['locked'] = $data['periode']->locked_grade_1;
-                break;
+                $data['locked'] = $data['periode']->locked_grade_3;
+                $data['cashback_reguler'] = json_decode($summary->cashback_reguler_a);
+                $data['cashback_grading'] = json_decode($summary->cashback_grading_3);
+                $data['markeplace'] = json_decode($summary->cashback_marketplace_awb_g3_cod);
+                $data['cashback_grading_denda'] = json_decode($summary->cashback_grading_3_denda);
+            break;
             default:
                 $data['locked'] = $data['periode']->is_locked;
-                break;
+            break;
         }
         return view('cashbackpickup::summary-grading', $data);
     }

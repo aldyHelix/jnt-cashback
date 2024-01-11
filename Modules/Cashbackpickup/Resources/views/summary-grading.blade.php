@@ -11,7 +11,7 @@
                   <div class="col text-end">
                     <div class="btn-group" role="group" aria-label="Basic example">
                         {{-- <button type="button" class="btn btn-primary"><i class="fa fa-download"></i> CSV</button> --}}
-                        <button type="button" class="btn btn-primary {{$locked ? 'disabled' : ''}}" onclick="processCashback('{{ route('ladmin.cashbackpickup.process', ['code' => $periode->code, 'grade' => $grading ,'id' => $periode->id]) }}')"><i class="fa fa-replace"></i>  Process Grade {{$grading}}</button> &nbsp;
+                        <button type="button" class="btn btn-primary {{$locked ? 'disabled' : ''}}" onclick="processCashback('{{ route('ladmin.cashbackpickup.process', ['code' => $periode->code, 'grade' => $grading ,'id' => $periode->id]) }}')"><i class="fa fa-gears"></i>  Process Grade {{$grading}}</button> &nbsp;
                         <button type="button" class="btn btn-primary" onclick="downloadExcel('{{ route('ladmin.cashbackpickup.download', ['filename' => $filename]) }}')"><i class="fa fa-download"></i>  Download Excel</button>
                         {{-- <button type="button" class="btn btn-primary"><i class="fa fa-download"></i> PDF</button> --}}
                     </div>
@@ -19,7 +19,7 @@
             </div>
             <div class="row">
                 {{-- @dump(collect(json_decode($periode->data_cashback_grading_1))) --}}
-                {{-- @if($grading == 1)
+                @if($grading == 1)
                     @php
                         $data_grading_1 = collect(json_decode($periode->jsonData->cashback_grading_1));
                     @endphp
@@ -31,9 +31,8 @@
                                 <th scope="col">Kode</th>
                                 <th scope="col">Nama</th>
                                 <th scope="col">TOTAL CASHBACK REGULER</th>
-                                <th scope="col">TOTAL CASHBACK MARKETPLACE COD</th>
-                                <th scope="col">TOTAL CASHBACK MARKETPLACE NON COD</th>
-                                <th scope="col">TOTAL CASHBACK VIP</th>
+                                <th scope="col">TOTAL CASHBACK MARKETPLACE</th>
+                                <th scope="col">TOTAL CASHBACK LUAR ZONA</th>
                                 <th scope="col">TOTAL CASHBACK</th>
                             </tr>
                             </thead>
@@ -43,18 +42,16 @@
                                         <td style="text-align: left">{{$item->kode_cp}}</td>
                                         <td style="text-align: left">{{$item->nama_cp}}</td>
                                         <td>Rp {{ rupiah_format($item->total_cashback_reguler)}}</td>
-                                        <td>Rp {{ rupiah_format($item->total_cashback_marketplace_cod) }}</td>
-                                        <td>Rp {{ rupiah_format($item->total_cashback_marketplace_non_cod) }}</td>
-                                        <td>Rp {{ rupiah_format($item->total_cashback_klien_vip) }}</td>
+                                        <td>Rp {{ rupiah_format($item->total_cashback_marketplace) }}</td>
+                                        <td>Rp {{ rupiah_format($item->total_cashback_mp_luar_zona) }}</td>
                                         <td>Rp {{ rupiah_format($item->total_cashback) }}</td>
                                     </tr>
                                 @endforeach
                                 <tr class="font-weight-bold border">
                                     <td style="text-align: left" colspan="2">Total</td>
                                     <td>Rp {{ rupiah_format($data_grading_1->sum('total_cashback_reguler')) }}</td>
-                                    <td>Rp {{ rupiah_format($data_grading_1->sum('total_cashback_marketplace_cod')) }}</td>
-                                    <td>Rp {{ rupiah_format($data_grading_1->sum('total_cashback_marketplace_non_cod')) }}</td>
-                                    <td>Rp {{ rupiah_format($data_grading_1->sum('total_cashback_klien_vip')) }}</td>
+                                    <td>Rp {{ rupiah_format($data_grading_1->sum('total_cashback_marketplace')) }}</td>
+                                    <td>Rp {{ rupiah_format($data_grading_1->sum('total_cashback_mp_luar_zona')) }}</td>
                                     <td>Rp {{ rupiah_format($data_grading_1->sum('total_cashback')) }}</td>
                                 </tr>
                             </tbody>
@@ -65,7 +62,7 @@
                         $data_grading_2 = collect(json_decode($periode->jsonData->cashback_grading_2));
                     @endphp
                         <div class="col table-responsive">
-                        <h5>Grading</h5>
+                        <h5>Grading 2</h5>
                         <table class="table">
                             <thead>
                             <tr>
@@ -95,7 +92,42 @@
                             </tbody>
                         </table>
                     </div>
-                @endif --}}
+                @elseif($grading == 3)
+                    @php
+                        $data_grading_3 = collect(json_decode($periode->jsonData->cashback_grading_3));
+                    @endphp
+                        <div class="col table-responsive">
+                        <h5>Grading 3</h5>
+                        <table class="table">
+                            <thead>
+                            <tr>
+                                <th scope="col">Kode</th>
+                                <th scope="col">Nama</th>
+                                <th scope="col">TOTAL CASHBACK REGULER</th>
+                                <th scope="col">TOTAL CASHBACK MARKETPLACE</th>
+                                <th scope="col">TOTAL CASHBACK</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($data_grading_3 as $item)
+                                    <tr>
+                                        <td style="text-align: left">{{$item->kode_cp}}</td>
+                                        <td style="text-align: left">{{$item->nama_cp}}</td>
+                                        <td>Rp {{ rupiah_format($item->total_cashback_reguler)}}</td>
+                                        <td>Rp {{ rupiah_format($item->total_cashback_marketplace_non_cod) }}</td>
+                                        <td>Rp {{ rupiah_format($item->total_cashback) }}</td>
+                                    </tr>
+                                @endforeach
+                                <tr class="font-weight-bold border">
+                                    <td style="text-align: left" colspan="2">Total</td>
+                                    <td>Rp {{ rupiah_format($data_grading_3->sum('total_cashback_reguler')) }}</td>
+                                    <td>Rp {{ rupiah_format($data_grading_3->sum('total_cashback_marketplace_non_cod')) }}</td>
+                                    <td>Rp {{ rupiah_format($data_grading_3->sum('total_cashback')) }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                @endif
             </div>
             {{-- <div class="row">
                 <div class="col table-responsive">
